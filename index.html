@@ -7,38 +7,55 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --poi-red: #ff0000; --poi-bg: #050505; }
+        :root { 
+            --poi-red: #ff0000;
+            --poi-yellow: #ffcc00;
+            --poi-bg: #050505; 
+        }
+        
         body { background-color: var(--poi-bg); color: white; font-family: 'Courier New', Courier, monospace; overflow: hidden; height: 100vh; perspective: 1000px; }
         
-        /* 扫描线效果 */
+        /* 扫描线 */
         body::before {
             content: " "; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
             background-size: 100% 4px, 3px 100%; z-index: 100; pointer-events: none;
         }
 
         .scene { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         .machine-card {
-            width: 400px; padding: 2rem; background: rgba(20, 20, 20, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1); position: relative;
+            width: 400px; padding: 2rem; background: rgba(15, 15, 15, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.05); position: relative;
             transform-style: preserve-3d; transition: transform 0.1s ease-out;
         }
 
+        /* 💡 修复后的捕捉框：物理定位四个 L 型角 */
         .target-box {
-            position: absolute; width: 120px; height: 120px; border: 2px solid var(--poi-red);
-            top: -60px; left: 50%; transform: translateX(-50%) translateZ(50px);
-            animation: pulse 2s infinite;
-        }
-        .target-box::before { content: ''; position: absolute; top: -5px; left: -5px; border-width: 4px 0 0 4px; border-style: solid; border-color: white; width: 20px; height: 20px; }
-        .target-box::after { content: ''; position: absolute; bottom: -5px; right: -5px; border-width: 0 4px 4px 0; border-style: solid; border-color: white; width: 20px; height: 20px; }
-
-        @keyframes pulse {
-            0%, 100% { transform: translateX(-50%) translateZ(50px) scale(1); }
-            50% { transform: translateX(-50%) translateZ(50px) scale(1.05); opacity: 0.7; }
+            position: absolute; 
+            width: 140px; height: 140px; 
+            top: -70px; left: 50%; 
+            transform: translateX(-50%) translateZ(60px); 
+            animation: pulse-target 2.5s infinite;
         }
 
-        /* 闪烁光标效果 */
+        /* L 型角通用样式 */
+        .corner {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border: 3px solid var(--poi-yellow);
+        }
+        .top-left { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+        .top-right { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+        .bottom-left { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+        .bottom-right { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+        @keyframes pulse-target {
+            0%, 100% { transform: translateX(-50%) translateZ(60px) scale(1); opacity: 1; }
+            50% { transform: translateX(-50%) translateZ(60px) scale(1.08); opacity: 0.7; }
+        }
+
         .cursor { display: inline-block; width: 10px; height: 1.2em; background: var(--poi-red); margin-left: 5px; animation: blink 1s infinite; vertical-align: middle; }
         @keyframes blink { 50% { opacity: 0; } }
     </style>
@@ -47,32 +64,37 @@
 
     <div class="scene" id="scene">
         <div class="machine-card" id="card">
+            
             <div class="target-box">
-                <div class="absolute inset-0 flex items-center justify-center text-[10px] text-red-500 font-bold tracking-tighter">
-                    THREAT ID: VALID
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-[10px] text-yellow-500 font-bold tracking-tighter uppercase">
+                    Asset Detected
                 </div>
             </div>
 
             <div class="mt-12 space-y-6">
                 <div class="flex justify-between items-center border-b border-red-900 pb-2 text-[10px]">
-                    <span class="text-red-500 font-bold">SYSTEM STATUS: READY</span>
-                    <span class="bg-red-600 px-2 text-black font-bold">ENCRYPTED</span>
+                    <span class="text-red-500 font-bold uppercase tracking-wider">The Machine: Active</span>
+                    <span class="bg-red-600 px-2 text-black font-bold">SAFE</span>
                 </div>
 
                 <div class="space-y-1">
-                    <p class="text-[10px] text-gray-500">IDENTIFICATION:</p>
-                    <h1 class="text-2xl font-bold tracking-widest uppercase" id="typed-name"></h1>
+                    <p class="text-[10px] text-gray-500 italic">IDENTIFICATION:</p>
+                    <h1 class="text-2xl font-bold tracking-widest uppercase text-white" id="typed-name"></h1>
                 </div>
 
                 <div class="pt-6">
-                    <button id="init-btn" onclick="startSequence()" class="w-full border border-red-600 py-3 hover:bg-red-600 transition-all text-xs tracking-[0.2em] font-bold">
-                        INITIALIZE INTERFACE
+                    <button id="init-btn" onclick="startSequence()" class="w-full border border-red-600 py-3 hover:bg-red-600 transition-all text-xs tracking-[0.2em] font-bold text-white active:scale-95">
+                        Enter
                     </button>
                     <div id="loader" class="hidden mt-4 space-y-2">
                         <div class="w-full bg-gray-900 h-1">
                             <div id="bar" class="bg-red-600 h-full w-0 transition-all duration-700"></div>
                         </div>
-                        <p class="text-[9px] text-red-500 animate-pulse uppercase">Decrypting asset profile...</p>
+                        <p class="text-[9px] text-red-500 animate-pulse uppercase text-center font-bold">Establishing Secure Connection...</p>
                     </div>
                 </div>
             </div>
@@ -82,44 +104,34 @@
     <script>
         const card = document.getElementById('card');
         const typedName = document.getElementById('typed-name');
-        const nameText = "USER_ROOT"; // 你可以改成你的名字
+        const nameText = "IRRELEVANT_GUEST";
 
-        // 打字机效果
         let i = 0;
         function typeWriter() {
             if (i < nameText.length) {
                 typedName.innerHTML += nameText.charAt(i);
                 i++;
-                setTimeout(typeWriter, 150);
+                setTimeout(typeWriter, 120);
             } else {
                 typedName.innerHTML += '<span class="cursor"></span>';
             }
         }
         window.onload = typeWriter;
 
-        // 3D 追踪逻辑
         document.addEventListener('mousemove', (e) => {
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 20; // 稍微增加感应灵敏度
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 20;
             card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
         });
 
-        // 💡 关键：跳转程序
         function startSequence() {
             const btn = document.getElementById('init-btn');
             const loader = document.getElementById('loader');
             const bar = document.getElementById('bar');
-
             btn.classList.add('hidden');
             loader.classList.remove('hidden');
-            
-            // 模拟进度条加载
             setTimeout(() => { bar.style.width = '100%'; }, 100);
-
-            // 1.5秒后跳转到你的个人主页文件
-            setTimeout(() => {
-                window.location.href = 'about.html'; 
-            }, 1600);
+            setTimeout(() => { window.location.href = 'about.html'; }, 1600);
         }
     </script>
 </body>
