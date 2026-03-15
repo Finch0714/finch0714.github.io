@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人主页 | 详细档案</title>
+    <title>个人主页 | 欢迎</title>
     
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="Favicon.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -43,22 +43,22 @@
     <div class="glass max-w-xl w-full rounded-[2.5rem] shadow-2xl overflow-hidden transform transition-all hover:scale-[1.005] duration-500">
         
         <div class="p-10 text-center border-b border-white/20">
-            <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-400 rounded-full mx-auto mb-6 shadow-xl flex items-center justify-center text-white text-3xl font-bold">
-                G
+            <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white/50 bg-gray-200">
+                <img src="avatar.jpg" alt="头像" class="w-full h-full object-cover">
             </div>
-            <h1 class="text-3xl font-600 text-gray-800">你的名字</h1>
+            <h1 class="text-3xl font-600 text-gray-800">Finch0714</h1>
             <p class="text-gray-500 mt-2 italic text-sm">“专注、创造、永不止步”</p>
         </div>
 
         <div class="p-10">
             <p class="text-gray-600 leading-relaxed text-center mb-10">
-                你好！欢迎来到我的主页。我是一个热衷于前端开发与交互设计的探索者。
+                你好！欢迎来到我的主页。我是一个热衷于终身学习和影视、游戏的探索者。
                 这里记录了我的技术足迹与创意构思。
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="https://github.com/你的用户名" target="_blank" class="px-8 py-3 bg-gray-900 text-white rounded-2xl hover:bg-gray-800 transition-all font-medium text-center">
-                    GitHub 仓库
+                <a href="https://space.bilibili.com/2066563707" target="_blank" class="px-8 py-3 bg-[#fb7299] text-white rounded-2xl hover:bg-[#e06489] transition-all font-medium text-center shadow-sm">
+                    Bilibili
                 </a>
                 <button onclick="openModal()" class="px-8 py-3 bg-white/60 text-gray-800 border border-white rounded-2xl hover:bg-white/90 transition-all font-medium shadow-sm">
                     获取联系
@@ -69,7 +69,7 @@
         <div class="bg-white/20 py-6 text-center">
             <p class="text-xs text-gray-400 uppercase tracking-widest">© 2026 Powered by GitHub Pages</p>
             <a href="index.html" class="inline-block mt-3 text-[10px] text-gray-500 hover:text-red-500 transition-colors duration-300">
-                [ TERMINAL_LOGOUT // 返回监控系统 ]
+                [ TERMINAL_LOGOUT // GO BACK ]
             </a>
         </div>
     </div>
@@ -93,8 +93,8 @@
                 <div class="flex items-center p-4 bg-white/40 rounded-2xl">
                     <span class="text-2xl mr-4">💬</span>
                     <div>
-                        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">WeChat / QQ</p>
-                        <p class="text-gray-700 font-medium">YourID_12345</p>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">QQ</p>
+                        <p class="text-gray-700 font-medium">861288676</p>
                     </div>
                 </div>
             </div>
@@ -106,7 +106,6 @@
     </div>
 
     <script>
-        // 弹窗逻辑
         const modal = document.getElementById('contactModal');
         function openModal() {
             modal.classList.remove('hidden');
@@ -117,7 +116,6 @@
             document.body.classList.remove('no-scroll');
         }
 
-        // 挽留标题逻辑
         const originalTitle = document.title;
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
