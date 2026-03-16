@@ -13,7 +13,13 @@
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        /* 💡 开启 3D 透视视界 */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            perspective: 1500px; 
+            overflow-x: hidden;
+        }
+
         .glass {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(12px);
@@ -21,7 +27,11 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
             z-index: 10;
+            /* 💡 保持子元素 3D 空间 */
+            transform-style: preserve-3d;
+            will-change: transform;
         }
+
         .gradient-bg {
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             background-size: 400% 400%;
@@ -33,7 +43,23 @@
             100% { background-position: 0% 50%; }
         }
         .no-scroll { overflow: hidden; }
-        #snow-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+
+        /* 💡 视差层级：头像浮起感 */
+        .parallax-avatar {
+            transform: translateZ(60px);
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15));
+        }
+        /* 💡 视差层级：文字中层感 */
+        .parallax-content {
+            transform: translateZ(30px);
+        }
+
+        #snow-canvas { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            pointer-events: none; z-index: 5; 
+            will-change: transform;
+        }
+        
         #snow-btn {
             position: fixed; top: 20px; left: 20px; width: 45px; height: 45px;
             background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px);
@@ -49,23 +75,25 @@
     <div id="snow-btn" onclick="toggleSnow()" title="切换飘雪样式">❄️</div>
     <canvas id="snow-canvas"></canvas>
 
-    <div class="glass max-w-xl w-full rounded-[2.5rem] shadow-2xl overflow-hidden transform transition-all hover:scale-[1.005] duration-500">
+    <div class="glass max-w-xl w-full rounded-[2.5rem] shadow-2xl overflow-hidden transition-all duration-200">
         
         <div class="p-10 text-center border-b border-white/20">
-            <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white/50 bg-gray-200">
+            <div class="parallax-avatar w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white/50 bg-gray-200 transition-transform duration-200">
                 <img src="avatar.jpg" alt="头像" class="w-full h-full object-cover">
             </div>
-            <h1 class="text-3xl font-600 text-gray-800">Finch0714</h1>
-            <p class="text-gray-500 mt-2 italic text-sm">“专注、创造、永不止步”</p>
+            <div class="parallax-content transition-transform duration-200">
+                <h1 class="text-3xl font-600 text-gray-800">Finch0714</h1>
+                <p class="text-gray-500 mt-2 italic text-sm">“专注、创造、永不止步”</p>
+            </div>
         </div>
 
         <div class="p-10">
-            <p class="text-gray-600 leading-relaxed text-center mb-10">
+            <p class="text-gray-600 leading-relaxed text-center mb-10 parallax-content transition-transform duration-200">
                 你好！欢迎来到我的主页。我是一个热衷于终身学习和影视、游戏的探索者。
                 这里记录了我的技术足迹与创意构思。
             </p>
 
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center parallax-content">
                 <a href="https://space.bilibili.com/2066563707" target="_blank" class="px-8 py-3 bg-[#fb7299] text-white rounded-2xl hover:bg-[#e06489] transition-all font-medium text-center shadow-sm">
                     Bilibili
                 </a>
@@ -80,11 +108,11 @@
             
             <div class="mt-2 text-[10px] text-gray-500 font-medium">
                 <span id="busuanzi_container_site_pv" style="display:none">
-                    VIEWS: <span id="busuanzi_value_site_pv" class="text-indigo-500">--</span>
+                    浏览数: <span id="busuanzi_value_site_pv" class="text-indigo-500">--</span>
                 </span>
                 <span class="mx-1 text-gray-300">|</span>
                 <span id="busuanzi_container_site_uv" style="display:none">
-                    VISITORS: <span id="busuanzi_value_site_uv" class="text-purple-500">--</span>
+                    访客数: <span id="busuanzi_value_site_uv" class="text-purple-500">--</span>
                 </span>
             </div>
 
@@ -122,6 +150,7 @@
     </div>
 
     <script>
+        // --- 原有弹窗逻辑 ---
         const modal = document.getElementById('contactModal');
         function openModal() { modal.classList.remove('hidden'); document.body.classList.add('no-scroll'); }
         function closeModal() { modal.classList.add('hidden'); document.body.classList.remove('no-scroll'); }
@@ -132,7 +161,46 @@
             else { document.title = 'ヾ(≧▽≦*)o 欢迎回来！'; setTimeout(() => { document.title = originalTitle; }, 2000); }
         });
 
-        // --- 飘雪逻辑 ---
+        // --- 💡 核心视差脚本 ---
+        const glass = document.querySelector('.glass');
+        const avatar = document.querySelector('.parallax-avatar');
+        const contents = document.querySelectorAll('.parallax-content');
+        const snowCanvas = document.getElementById('snow-canvas');
+
+        document.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            const { innerWidth, innerHeight } = window;
+
+            // 计算偏移量 (-0.5 到 0.5)
+            const xPercent = (clientX / innerWidth) - 0.5;
+            const yPercent = (clientY / innerHeight) - 0.5;
+
+            // 1. 卡片旋转位移 (中速)
+            const cardX = xPercent * 20; 
+            const cardY = yPercent * 20;
+            const rotateX = yPercent * -10;
+            const rotateY = xPercent * 10;
+            glass.style.transform = `translateX(${cardX}px) translateY(${cardY}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+            // 2. 头像位移 (最快，增强浮起感)
+            const avatarX = xPercent * 40;
+            const avatarY = yPercent * 40;
+            avatar.style.transform = `translateZ(60px) translateX(${avatarX}px) translateY(${avatarY}px)`;
+
+            // 3. 文字内容位移 (次之)
+            contents.forEach(content => {
+                const contentX = xPercent * 25;
+                const contentY = yPercent * 25;
+                content.style.transform = `translateZ(30px) translateX(${contentX}px) translateY(${contentY}px)`;
+            });
+
+            // 4. 雪花画布位移 (反向轻微移动，增加空间深远感)
+            const snowX = xPercent * -15;
+            const snowY = yPercent * -15;
+            snowCanvas.style.transform = `translateX(${snowX}px) translateY(${snowY}px)`;
+        });
+
+        // --- 飘雪逻辑 (保持不变) ---
         const canvas = document.getElementById('snow-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
