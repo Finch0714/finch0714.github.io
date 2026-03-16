@@ -10,18 +10,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
-        /* 毛玻璃质感 */
         .glass {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 10;
         }
-
-        /* 动态渐变背景 */
         .gradient-bg {
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             background-size: 400% 400%;
@@ -32,13 +32,22 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-
-        .modal-enter-active { opacity: 1; transform: scale(1); transition: all 0.3s ease-out; }
         .no-scroll { overflow: hidden; }
+        #snow-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+        #snow-btn {
+            position: fixed; top: 20px; left: 20px; width: 45px; height: 45px;
+            background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 100; transition: all 0.3s;
+        }
     </style>
 </head>
 
 <body class="gradient-bg min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="snow-btn" onclick="toggleSnow()" title="切换飘雪样式">❄️</div>
+    <canvas id="snow-canvas"></canvas>
 
     <div class="glass max-w-xl w-full rounded-[2.5rem] shadow-2xl overflow-hidden transform transition-all hover:scale-[1.005] duration-500">
         
@@ -68,6 +77,17 @@
 
         <div class="bg-white/20 py-6 text-center">
             <p class="text-xs text-gray-400 uppercase tracking-widest">© 2026 Powered by Google Gemini and Latetelly♥</p>
+            
+            <div class="mt-2 text-[10px] text-gray-500 font-medium">
+                <span id="busuanzi_container_site_pv" style="display:none">
+                    VIEWS: <span id="busuanzi_value_site_pv" class="text-indigo-500">--</span>
+                </span>
+                <span class="mx-1 text-gray-300">|</span>
+                <span id="busuanzi_container_site_uv" style="display:none">
+                    VISITORS: <span id="busuanzi_value_site_uv" class="text-purple-500">--</span>
+                </span>
+            </div>
+
             <a href="index.html" class="inline-block mt-3 text-[10px] text-gray-500 hover:text-red-500 transition-colors duration-300">
                 [ TERMINAL_LOGOUT // GO BACK ]
             </a>
@@ -81,7 +101,6 @@
                 <h3 class="text-2xl font-bold text-gray-800 tracking-tight">联系方式</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
             </div>
-            
             <div class="space-y-4">
                 <div class="flex items-center p-4 bg-white/40 rounded-2xl">
                     <span class="text-2xl mr-4">📧</span>
@@ -98,35 +117,72 @@
                     </div>
                 </div>
             </div>
-
-            <button onclick="closeModal()" class="w-full mt-8 py-4 bg-indigo-500 text-white rounded-2xl hover:bg-indigo-600 transition-colors font-bold shadow-lg">
-                确认
-            </button>
+            <button onclick="closeModal()" class="w-full mt-8 py-4 bg-indigo-500 text-white rounded-2xl hover:bg-indigo-600 transition-colors font-bold shadow-lg">确认</button>
         </div>
     </div>
 
     <script>
         const modal = document.getElementById('contactModal');
-        function openModal() {
-            modal.classList.remove('hidden');
-            document.body.classList.add('no-scroll');
-        }
-        function closeModal() {
-            modal.classList.add('hidden');
-            document.body.classList.remove('no-scroll');
-        }
+        function openModal() { modal.classList.remove('hidden'); document.body.classList.add('no-scroll'); }
+        function closeModal() { modal.classList.add('hidden'); document.body.classList.remove('no-scroll'); }
 
         const originalTitle = document.title;
         document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                document.title = 'Σ(っ °Д °;)っ 别走嘛~';
-            } else {
-                document.title = 'ヾ(≧▽≦*)o 欢迎回来！';
-                setTimeout(() => {
-                    document.title = originalTitle;
-                }, 2000);
-            }
+            if (document.hidden) { document.title = 'Σ(っ °Д °;)っ 别走嘛~'; }
+            else { document.title = 'ヾ(≧▽≦*)o 欢迎回来！'; setTimeout(() => { document.title = originalTitle; }, 2000); }
         });
+
+        // --- 飘雪逻辑 ---
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationFrame;
+        let snowMode = 1;
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height - canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speed = Math.random() * 1 + 0.5;
+                this.velX = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.char = Math.floor(Math.random() * 2);
+            }
+            update() {
+                this.y += this.speed; this.x += this.velX;
+                if (this.y > canvas.height) this.reset();
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                if (snowMode === 1) { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+                else if (snowMode === 2) { ctx.fillRect(this.x, this.y, this.size * 1.5, this.size * 1.5); }
+                else if (snowMode === 3) { ctx.font = `${this.size + 10}px monospace`; ctx.fillText(this.char, this.x, this.y); }
+            }
+        }
+
+        function initSnow() { particles = []; for (let i = 0; i < 100; i++) { particles.push(new Particle()); } }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (snowMode !== 0) {
+                particles.forEach(p => { p.update(); p.draw(); });
+                animationFrame = requestAnimationFrame(animate);
+            }
+        }
+        function toggleSnow() {
+            snowMode = (snowMode + 1) % 4;
+            const btn = document.getElementById('snow-btn');
+            const icons = ['🚫', '❄️', '🟦', '🔢'];
+            btn.innerText = icons[snowMode];
+            if (snowMode === 0) { ctx.clearRect(0, 0, canvas.width, canvas.height); cancelAnimationFrame(animationFrame); }
+            else { cancelAnimationFrame(animationFrame); animate(); }
+        }
+        initSnow(); animate();
     </script>
 </body>
 </html>
