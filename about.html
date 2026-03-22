@@ -1,10 +1,11 @@
+```html
 <!DOCTYPE html>
 /* 神人吧，这垃圾网站源码你也看？ */
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人主页 | Finch0714</title>
+    <title>欢迎</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.loli.net/css2?family=Inter:wght@300;400;600&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
@@ -23,7 +24,6 @@
             display: flex; justify-content: center;
         }
 
-        /* 1. 初始渐变底层 */
         .gradient-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
@@ -37,7 +37,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* 2. 优化后的壁纸层 (防抖动) */
         #bg-layer {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-size: cover; background-position: center center;
@@ -60,11 +59,9 @@
             border: 1px solid rgba(255, 255, 255, 0.25);
         }
 
-        /* 一言垂直排版 */
         .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
         @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
 
-        /* 服务器图标动画 */
         #mc_icon { transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0.8); opacity: 0; }
         #mc_icon.show { transform: scale(1); opacity: 1; }
     </style>
@@ -144,8 +141,26 @@
         </div>
     </div>
 
+    <!-- ✅ 新增：联系弹窗 -->
+    <div id="contactModal" class="fixed inset-0 z-[200] flex items-center justify-center p-4 hidden">
+        <div onclick="closeModal()" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+        <div class="glass w-full max-w-sm rounded-[2rem] p-8 text-center relative z-10 shadow-2xl">
+            <h3 class="text-lg font-bold text-gray-800 mb-6">联系方式</h3>
+            <div class="space-y-4 text-left">
+                <div class="p-4 bg-white/40 rounded-xl border border-white/40">
+                    <p class="text-xs text-gray-500">Email</p>
+                    <p class="text-gray-800 font-medium">finch0714@qq.com</p>
+                </div>
+                <div class="p-4 bg-white/40 rounded-xl border border-white/40">
+                    <p class="text-xs text-gray-500">QQ</p>
+                    <p class="text-gray-800 font-medium">861288676</p>
+                </div>
+            </div>
+            <button onclick="closeModal()" class="mt-6 w-full py-3 bg-gray-800 text-white rounded-xl">关闭</button>
+        </div>
+    </div>
+
     <script>
-        // 1. 壁纸切换 (wp.upx8.com)
         function changeWallpaper() {
             const bgLayer = document.getElementById('bg-layer');
             const bgBtn = document.getElementById('bg-btn');
@@ -159,13 +174,12 @@
                 setTimeout(() => {
                     bgLayer.style.backgroundImage = `url('${imgUrl}')`;
                     bgLayer.style.opacity = 1; 
-                    bgBtn.innerText = "🖼️";
+                    bgBtn.innerText = "更换背景";
                 }, 350);
             };
         }
         changeWallpaper();
 
-        // 2. 一言
         function fetchHitokoto() {
             const textEl = document.getElementById('hitokoto_text');
             const fromEl = document.getElementById('hitokoto_from');
@@ -175,13 +189,12 @@
                     textEl.innerText = data.hitokoto;
                     fromEl.innerText = `—— 「${data.from}」`;
                     textEl.style.opacity = 1; 
-                    fromEl.style.opacity = 0.9; // 💡 几乎不透明，确保清晰
+                    fromEl.style.opacity = 0.9;
                 }, 250);
             });
         }
         fetchHitokoto();
 
-        // 3. MC 查询 (新增 Icon 逻辑)
         async function checkMCServer() {
             const ip = document.getElementById('mc_ip').value;
             const resDiv = document.getElementById('mc_result');
@@ -202,12 +215,10 @@
                     document.getElementById('mc_players').innerText = `${data.players.online} / ${data.players.max}`;
                     document.getElementById('mc_ver').innerText = (data.version.name_clean || data.version.name).substring(0, 15);
                     
-                    // 💡 设置并显示图标
                     if(data.icon) {
                         iconImg.src = data.icon;
                         iconImg.classList.add('show');
                     } else {
-                        // 如果没图标，显示一个默认的或隐藏
                         iconImg.src = "https://eu.mc-api.net/v3/server/favicon/" + ip; 
                         iconImg.classList.add('show');
                     }
@@ -221,7 +232,6 @@
             }
         }
 
-        // 雪花逻辑...
         const snowCanvas = document.getElementById('snow-canvas');
         const ctx = snowCanvas.getContext('2d');
         let snowActive = true;
@@ -241,6 +251,15 @@
         }
         anim();
         function toggleSnow() { snowActive = !snowActive; document.getElementById('snow-btn').innerText = snowActive ? "❄️" : "🚫"; }
+
+        /* ✅ 新增函数 */
+        function openModal() {
+            document.getElementById('contactModal').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('contactModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
+```
