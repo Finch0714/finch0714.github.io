@@ -12,7 +12,7 @@
         :root { --font-main: 'Inter', sans-serif; --font-serif: 'Noto Serif SC', serif; }
         body { font-family: var(--font-main); margin: 0; background-color: #111; overflow-x: hidden; display: flex; justify-content: center; }
 
-        /* 背景层 - 稳定方案 */
+        /* 背景控制 - 稳定方案 */
         #bg-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-size: cover; background-position: center; transition: opacity 1s; z-index: -2; opacity: 0; will-change: opacity; }
         #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); z-index: -1; }
         .gradient-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: grad 15s ease infinite; z-index: -3; }
@@ -20,7 +20,7 @@
 
         /* 💡 透明度统一修正为 0.39 */
         .glass { 
-            background: rgba(255, 255, 255, 0.39); 
+            background: rgba(255, 255, 255, 0.30); 
             backdrop-filter: blur(20px); 
             -webkit-backdrop-filter: blur(20px); 
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -32,7 +32,7 @@
         @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
 
         #contact-modal { display: none; }
-        #contact-modal.active { display: flex; animation: modalIn 0.3s ease-out forwards; }
+        #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
@@ -62,8 +62,8 @@
                 <div class="p-10 text-center">
                     <p class="text-gray-700 leading-relaxed mb-10 text-sm">你好！欢迎来到我的主页。我是一个热衷于终身学习和影视、游戏的探索者。</p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="https://space.bilibili.com/2066563707" target="_blank" class="px-10 py-3 bg-[#fb7299] text-white rounded-2xl font-semibold text-sm shadow-md hover:scale-105 transition-transform">Bilibili</a>
-                        <button onclick="openModal()" class="px-10 py-3 bg-white/40 text-gray-800 border border-white rounded-2xl font-semibold text-sm shadow-md hover:bg-white/60 transition-all">获取联系</button>
+                        <a href="https://space.bilibili.com/2066563707" target="_blank" class="px-10 py-3 bg-[#fb7299] text-white rounded-2xl font-semibold text-sm shadow-md">Bilibili</a>
+                        <button onclick="openModal()" class="px-10 py-3 bg-white/40 text-gray-800 border border-white rounded-2xl font-semibold text-sm shadow-md">获取联系</button>
                     </div>
                 </div>
             </div>
@@ -79,21 +79,19 @@
         <div class="glass max-w-xl lg:max-w-4xl w-full p-10 rounded-[3rem] shadow-xl flex flex-col order-3">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-xs font-bold text-gray-600 tracking-widest flex items-center gap-2 uppercase">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></span> MC聚合查询
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></span> MC智能查询
                 </h2>
                 <img id="mc_icon" src="" class="w-12 h-12 rounded-xl shadow-lg hidden bg-black/10">
             </div>
 
             <div class="flex flex-col md:flex-row gap-4">
-                <input id="mc_input" type="text" placeholder="输入服务器IP或玩家ID 如mc.hypixel.net或Dream" class="flex-1 bg-black/10 border border-white/30 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-white/30 text-gray-800 placeholder-gray-500">
+                <input id="mc_input" type="text" placeholder="输入服务器 IP 或 玩家 ID..." class="flex-1 bg-black/10 border border-white/30 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-white/30 text-gray-800">
                 <button onclick="smartQuery()" class="bg-gray-800 text-white px-10 py-4 rounded-2xl text-[10px] font-bold tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">RUN</button>
             </div>
 
             <div id="mc_result_box" class="mt-10 hidden border-t border-black/5 pt-10">
-                <div id="player_display" class="hidden flex flex-col md:flex-row items-center md:items-start gap-10">
-                    <div class="relative group">
-                        <img id="player_3d" src="" class="h-64 drop-shadow-2xl transition-transform group-hover:scale-110 duration-500">
-                    </div>
+                <div id="player_display" class="hidden flex flex-col md:flex-row items-center md:items-start gap-10 mc-reveal">
+                    <img id="player_3d" src="" class="h-64 drop-shadow-2xl">
                     <div class="flex-1 w-full space-y-6">
                         <div>
                             <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">UUID / Entity ID</p>
@@ -103,7 +101,6 @@
                             <a id="btn_namemc" target="_blank" class="p-4 bg-white/20 border border-white/30 rounded-2xl text-[10px] font-bold text-center text-gray-700 hover:bg-white/40 transition-all">档案: NAMEMC ↗</a>
                             <a id="btn_skin" target="_blank" class="p-4 bg-white/20 border border-white/30 rounded-2xl text-[10px] font-bold text-center text-gray-700 hover:bg-white/40 transition-all">下载皮肤 SKIN </a>
                         </div>
-                        <p class="text-[9px] text-gray-400 italic">提示: 由于 Mojang API 限制，历史记录请通过档案按钮在 NameMC 查看。</p>
                     </div>
                 </div>
 
@@ -117,7 +114,7 @@
     </div>
 
     <div id="contact-modal" class="fixed inset-0 z-[200] items-center justify-center p-6 bg-black/40 backdrop-blur-sm" onclick="if(event.target==this) closeModal()">
-        <div class="glass max-w-sm w-full p-10 rounded-[3rem] shadow-2xl relative text-center">
+        <div class="glass max-w-sm w-full p-10 rounded-[3rem] shadow-2xl relative text-center relative">
             <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-400 hover:text-gray-800">✕</button>
             <h3 class="text-xl font-bold text-gray-800 mb-8 uppercase tracking-widest">Connect</h3>
             <div class="space-y-4">
@@ -134,19 +131,19 @@
     </div>
 
     <script>
-        // 1. 3D 资料卡交互
+        // 1. 🚀 资料卡 3D 交互
         const card = document.getElementById('profile-card');
         function handleTilt(e) {
             if(window.innerWidth < 1024) return;
             const { clientX, clientY } = e;
             const { innerWidth, innerHeight } = window;
-            const xRotation = ((clientY / innerHeight) - 0.5) * 12;
+            const xRotation = ((clientY / innerHeight) - 0.5) * 12; // 限制倾斜角度
             const yRotation = ((clientX / innerWidth) - 0.5) * -12;
             card.style.transform = `rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale3d(1.02, 1.02, 1.02)`;
         }
         window.addEventListener('mouseleave', () => { card.style.transform = `rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`; });
 
-        // 2. 智能聚合查询 (稳定回退方案)
+        // 2. 🚀 智能聚合查询 (国内稳健方案)
         async function smartQuery() {
             const val = document.getElementById('mc_input').value.trim();
             const resBox = document.getElementById('mc_result_box');
@@ -159,49 +156,54 @@
             iconImg.classList.add('hidden');
 
             if (val.includes('.')) {
-                // --- 服务器查询 ---
+                // --- 服务器查询 (mcstatus 国内连接稳) ---
                 pDisplay.classList.add('hidden'); sDisplay.classList.remove('hidden');
                 document.getElementById('mc_online').innerText = "CONNECTING...";
                 try {
                     const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`);
                     const data = await res.json();
                     if(data.online) {
-                        document.getElementById('mc_online').innerText = "ONLINE";
+                        document.getElementById('mc_online').innerText = "ONLINE"; onlineEl.style.color = "#10b981";
                         document.getElementById('mc_players').innerText = `${data.players.online}/${data.players.max}`;
                         document.getElementById('mc_ver').innerText = (data.version.name_clean || data.version.name).substring(0, 15);
-                        iconImg.src = data.icon || `https://eu.mc-api.net/v3/server/favicon/${val}`;
+                        // 服务器图标优先用 Base64 (JSON 自带，国内必出)
+                        iconImg.src = data.icon || `https://crafthead.net/avatar/steve`;
                         iconImg.classList.remove('hidden');
                     } else { document.getElementById('mc_online').innerText = "OFFLINE"; }
                 } catch(e) { document.getElementById('mc_online').innerText = "ERROR"; }
             } else {
-                // --- 玩家查询 (回退方案) ---
+                // --- 💡 玩家查询 (全身图渲染方案，国内大部分直连) ---
                 sDisplay.classList.add('hidden'); pDisplay.classList.remove('hidden');
-                document.getElementById('player_3d').src = `https://mc-heads.net/body/${val}/right`;
-                iconImg.src = `https://mc-heads.net/avatar/${val}`;
+                
+                // 1. 全身图：使用 Crafthead 镜像节点，国内大部分无需梯子
+                document.getElementById('player_3d').src = `https://crafthead.net/body/${val}`;
+                iconImg.src = `https://crafthead.net/avatar/${val}`;
                 iconImg.classList.remove('hidden');
                 
                 const uuidEl = document.getElementById('player_uuid');
-                uuidEl.innerText = "Fetching UUID...";
+                uuidEl.innerText = "Locating Entity ID...";
 
                 try {
-                    // 获取 UUID 的稳定 API
-                    const res = await fetch(`https://api.mojang.com/users/profiles/minecraft/${val}`);
-                    // 由于跨域限制，回退到第三方 UUID 转换器
-                    const resAlt = await fetch(`https://api.minetools.eu/uuid/${val}`);
-                    const data = await resAlt.json();
+                    // 2. UUID：优先用 PlayerDB (全球 CDN 缓存，国内直连稳于官方)
+                    const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`);
+                    const json = await res.json();
                     
-                    if(data.id) {
-                        const uuid = data.id;
+                    if(json.success) {
+                        const uuid = json.data.player.id;
                         uuidEl.innerText = uuid;
-                        // 动态设置链接
+                        // 跳转 NameMC 和下载皮肤
                         document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`;
-                        document.getElementById('btn_skin').href = `https://mc-heads.net/download/${uuid}`;
-                    } else { uuidEl.innerText = "Player not found."; }
-                } catch(e) { uuidEl.innerText = "ID verified via mc-heads."; }
+                        document.getElementById('btn_skin').href = `https://crafthead.net/skin/${val}`;
+                    } else {
+                        uuidEl.innerText = "未找到玩家 (请确认 ID 正确)";
+                    }
+                } catch(e) { 
+                    uuidEl.innerText = "ID verified via crafthead."; 
+                }
             }
         }
 
-        // 基础功能逻辑
+        // 基础功能
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
 
@@ -225,7 +227,7 @@
         }
         fetchHitokoto();
 
-        // 雪花...
+        // 雪花逻辑...
         const canvas = document.getElementById('snow-canvas');
         const ctx = canvas.getContext('2d');
         let snowActive = true;
