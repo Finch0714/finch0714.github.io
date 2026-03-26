@@ -15,28 +15,31 @@
         body { font-family: var(--font-main); margin: 0; background-color: #111; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
 
         #bg-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: url('defbg.webp'); background-size: cover; background-position: center; z-index: -2; }
-        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.35); z-index: -1; }
+        
+        /* 💡 修复1：加深遮罩，从 0.35 改为 0.5 */
+        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: -1; }
 
         .glass { background: rgba(255, 255, 255, 0.39); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); }
 
         /* 转盘样式 */
-        .wheel-container { position: relative; width: 300px; height: 300px; margin: 0 auto 2rem; }
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 0 auto 1.5rem; }
         #wheel { 
-            width: 100%; height: 100%; border-radius: 50%; border: 8px solid rgba(255,255,255,0.5);
+            width: 100%; height: 100%; border-radius: 50%; border: 8px solid rgba(255,255,255,0.6);
+            /*Conic-gradient 本身很难在上面打字，因此我在下方添加了图例卡片*/
             background: conic-gradient(
-                #f87171 0% 30%,    /* 谢谢惠顾 30% */
-                #fbbf24 30% 50%,   /* 签名 20% */
-                #60a5fa 50% 60%,   /* MC账号 10% */
-                #34d399 60% 80%,   /* 三连 20% */
-                #a78bfa 80% 100%   /* 超级大奖 20% */
+                #f87171 0% 30%,    /* 谢谢惠顾 */
+                #fbbf24 30% 50%,   /* 签名 */
+                #60a5fa 50% 60%,   /* MC账号 */
+                #34d399 60% 80%,   /* 三连 */
+                #a78bfa 80% 100%   /* 超级大奖 */
             );
             transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
-            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+            box-shadow: 0 0 40px rgba(0,0,0,0.4);
         }
         .pointer {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
             width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
-            border-top: 30px solid #fff; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); z-index: 10;
+            border-top: 30px solid #fff; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); z-index: 10;
         }
 
         #result-modal { display: none; }
@@ -49,42 +52,51 @@
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
 
-    <div class="fixed bottom-6 left-6 glass p-4 rounded-2xl shadow-xl z-20 hidden sm:block">
-        <h4 class="text-[9px] font-black text-gray-700 uppercase tracking-widest mb-2 border-b border-black/5 pb-1">Probability</h4>
-        <ul class="text-[9px] text-gray-600 space-y-1 font-medium">
-            <li class="flex justify-between gap-4"><span>谢谢惠顾</span><span>30%</span></li>
-            <li class="flex justify-between gap-4"><span>亲笔签名</span><span>20%</span></li>
-            <li class="flex justify-between gap-4"><span>MC正版</span><span>10%</span></li>
-            <li class="flex justify-between gap-4"><span>免费三连</span><span>20%</span></li>
-            <li class="flex justify-between gap-4"><span>超级大奖</span><span>20%</span></li>
+    <div class="fixed bottom-6 left-6 glass p-5 rounded-2xl shadow-xl z-20 hidden sm:block">
+        <h4 class="text-[10px] font-black text-gray-800 uppercase tracking-widest mb-3 border-b border-black/10 pb-2">Probability</h4>
+        <ul class="text-[10px] text-gray-900 space-y-1.5 font-semibold">
+            <li class="flex justify-between gap-6"><span>谢谢惠顾</span><span>30%</span></li>
+            <li class="flex justify-between gap-6"><span>亲笔签名</span><span>20%</span></li>
+            <li class="flex justify-between gap-6"><span>MC正版</span><span>10%</span></li>
+            <li class="flex justify-between gap-6"><span>送三连</span><span>20%</span></li>
+            <li class="flex justify-between gap-6"><span>超级大奖</span><span>20%</span></li>
         </ul>
     </div>
 
     <div class="glass max-w-md w-full p-8 rounded-[3rem] shadow-2xl text-center z-10 mx-4">
-        <h2 class="text-[9px] font-bold text-gray-700 tracking-[0.4em] uppercase mb-6">Lucky Wheel Event</h2>
+        <h2 class="text-[10px] font-bold text-gray-700 tracking-[0.4em] uppercase mb-6">Lucky Wheel Event</h2>
         
         <div class="wheel-container">
             <div class="pointer"></div>
             <div id="wheel"></div>
         </div>
+
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[9px] font-bold text-gray-800 mb-6 px-4">
+            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-[#f87171] rounded"></span> 谢谢惠顾</div>
+            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-[#fbbf24] rounded"></span> 亲笔签名</div>
+            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-[#60a5fa] rounded"></span> MC账号</div>
+            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-[#34d399] rounded"></span> 送三连</div>
+            <div class="col-span-2 flex items-center justify-center gap-2"><span class="w-2.5 h-2.5 bg-[#a78bfa] rounded"></span> 超级大奖</div>
+        </div>
         
         <div class="space-y-4">
             <div class="flex justify-between items-center px-6 py-2 bg-black/5 rounded-xl">
-                <span class="text-[10px] font-bold text-gray-500 uppercase">Chances Left</span>
+                <span class="text-[10px] font-bold text-gray-600 uppercase">Chances Left</span>
                 <span id="chance-count" class="text-xl font-mono font-black text-gray-800">3</span>
             </div>
 
             <button id="draw-btn" onclick="startSpin()" class="w-full py-5 bg-gray-800 text-white rounded-2xl font-bold tracking-widest hover:bg-black transition-all shadow-lg active:scale-95 uppercase text-xs">
                 Spin to Win
             </button>
-            <a href="about.html" class="block text-[9px] text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-widest">Back to Home</a>
+            
+            <a href="about.html" class="block text-[11px] text-gray-800 font-bold hover:text-black transition-colors uppercase tracking-widest mt-3">Back to Home</a>
         </div>
     </div>
 
     <div id="result-modal" class="fixed inset-0 z-[100] items-center justify-center p-6 bg-black/60 backdrop-blur-md">
         <div class="glass max-w-sm w-full p-10 rounded-[3rem] shadow-2xl text-center relative">
-            <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">You Win!</h3>
-            <div id="prize-text" class="text-xl font-bold text-gray-800 mb-8 whitespace-pre-line"></div>
+            <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">You Won!</h3>
+            <div id="prize-text" class="text-xl font-bold text-gray-900 mb-8 whitespace-pre-line"></div>
             <div id="action-area" class="space-y-3">
                 <button onclick="closeModal()" class="w-full py-4 bg-white/40 text-gray-800 border border-white/50 rounded-2xl font-bold text-xs uppercase tracking-widest">确认</button>
             </div>
@@ -92,7 +104,7 @@
     </div>
 
     <script>
-        // 初始化机会逻辑：如果没有记录，则设为 3
+        // 机会初始化核心逻辑
         let chances = localStorage.getItem('draw_chances');
         if (chances === null) {
             chances = 3;
@@ -138,7 +150,6 @@
             }
 
             const sectorRandom = Math.random() * (winPrize.range[1] - winPrize.range[0]) + winPrize.range[0];
-            // 基础旋转 10 圈 + 目标偏移
             const targetRotate = 3600 - sectorRandom; 
             currentRotation = targetRotate;
 
