@@ -2,75 +2,65 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lucky Wheel | Finch0714</title>
-    
     <link rel="icon" type="image/png" href="Favicon.png">
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.loli.net/css2?family=Inter:wght@300;400;600&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.loli.net/css2?family=Inter:wght@400;700&family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --font-main: 'Inter', sans-serif; --font-serif: 'Noto Serif SC', serif; }
-        body { font-family: var(--font-main); margin: 0; background-color: #111; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        :root { --font-main: 'Inter', sans-serif; }
+        body { font-family: var(--font-main); margin: 0; background-color: #111; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; -webkit-font-smoothing: antialiased; }
 
-        /* 背景层控制 */
-        #bg-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-size: cover; background-position: center; transition: opacity 1s; z-index: -2; background-image: url('defbg.webp'); opacity: 1; }
-        
-        /* 💡 基础遮罩加深到 0.5 */
-        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: -1; }
-        
-        /* 玻璃拟态 - 统一透明度 0.39 */
-        .glass { background: rgba(255, 255, 255, 0.39); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        #bg-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: url('defbg.webp') center/cover no-repeat; z-index: -2; }
+        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: -1; }
 
-        /* 转盘样式 */
-        .wheel-container { position: relative; width: 300px; height: 300px; margin: 0 auto 2rem; }
+        /* 兼容性玻璃拟态：增加不透明度保底 */
+        .glass { 
+            background: rgba(255, 255, 255, 0.85); /* 为不支持 blur 的浏览器提供高亮背景 */
+            background: rgba(255, 255, 255, 0.45); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 0 auto 1.5rem; transform: translateZ(0); }
         #wheel { 
-            width: 100%; height: 100%; border-radius: 50%; border: 8px solid rgba(255,255,255,0.6);
-            /* Conic-gradient 绘制扇区 */
-            background: conic-gradient(
-                #f87171 0% 30%,    /* 谢谢惠顾 */
-                #fbbf24 30% 50%,   /* 签名 */
-                #60a5fa 50% 60%,   /* MC账号 */
-                #34d399 60% 80%,   /* 三连 */
-                #a78bfa 80% 100%   /* 超级大奖 */
-            );
+            width: 100%; height: 100%; border-radius: 50%; border: 6px solid #fff;
+            background: conic-gradient(#f87171 0% 30%, #fbbf24 30% 50%, #60a5fa 50% 60%, #34d399 60% 80%, #a78bfa 80% 100%);
             transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
-            box-shadow: 0 0 40px rgba(0,0,0,0.4);
-            transform-style: preserve-3d;
+            transform: rotate(0deg);
         }
 
-        /* 💡 修复1：转盘文字图层 */
-        #text-layer { position: absolute; inset: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; pointer-events: none; transform: rotate(0deg); }
-        
-        /* 💡 修复1：转盘文字定位 */
+        #text-layer { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; }
         #text-layer span { 
-            position: absolute; width: 100px; text-align: center;
-            /* 💡 字体颜色加深到 text-black/90，并加粗 */
-            color: rgba(0,0,0,0.9); font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
-            /* 配合 conic-gradient 顺时针，文字需要逆时针偏移一个扇区的一半，才能居中 */
-            transform-origin: center center;
+            position: absolute; top: 50%; left: 50%; width: 120px; margin-left: -60px; margin-top: -10px;
+            text-align: center; color: #000; font-weight: 900; font-size: 11px; text-shadow: 0 0 5px rgba(255,255,255,0.5);
         }
         
-        /* 💡 修复1：手动定位每个奖项 (Conic-gradient 是顺时针，文字也需要对应角度) */
-        /* 谢谢(0-108, 中点54) 签名(108-180, 中点144) MC(180-216, 中点198) 三连(216-288, 中点252) 大奖(288-360, 中点324) */
-        .prize-1 { transform: rotate(54deg) translateY(-110px); }
-        .prize-2 { transform: rotate(144deg) translateY(-110px); }
-        .prize-3 { transform: rotate(198deg) translateY(-110px); }
-        .prize-4 { transform: rotate(252deg) translateY(-110px); }
-        .prize-5 { transform: rotate(324deg) translateY(-110px); }
+        /* 针对老旧内核手动微调位置 */
+        .p1 { transform: rotate(54deg) translateY(-95px); }
+        .p2 { transform: rotate(144deg) translateY(-95px); }
+        .p3 { transform: rotate(198deg) translateY(-95px); }
+        .p4 { transform: rotate(252deg) translateY(-95px); }
+        .p5 { transform: rotate(324deg) translateY(-95px); }
 
-        /* 指针 */
         .pointer {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: -12px; left: 50%; margin-left: -15px;
             width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
-            border-top: 30px solid #fff; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); z-index: 10;
+            border-top: 25px solid #fff; z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
 
-        /* 弹窗动画 */
-        #result-modal { display: none; }
-        #result-modal.active { display: flex; animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        /* 概率公示卡片 - 彻底移除隐藏逻辑 */
+        .prob-card { 
+            position: fixed; bottom: 20px; left: 20px; padding: 15px; border-radius: 18px; z-index: 30; 
+            width: 140px; background: rgba(255,255,255,0.9); box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .prob-card h4 { font-size: 10px; font-weight: 900; color: #000; border-bottom: 1px solid #ddd; margin-bottom: 8px; padding-bottom: 4px; }
+        .prob-item { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #000; margin-bottom: 4px; }
+
+        #result-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        #result-modal.active { display: flex; }
     </style>
 </head>
 
@@ -78,68 +68,53 @@
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
 
-    <div class="fixed bottom-6 left-6 glass p-6 rounded-2xl shadow-xl z-20 bg-white/60">
-        <h4 class="text-[11px] font-black text-black uppercase tracking-widest mb-3 border-b border-black/10 pb-2">Probability</h4>
-        <ul class="text-[11px] text-black/100 space-y-2 font-semibold">
-            <li class="flex justify-between gap-6"><span>谢谢惠顾</span><span>30%</span></li>
-            <li class="flex justify-between gap-6"><span>亲笔签名</span><span>20%</span></li>
-            <li class="flex justify-between gap-6"><span>MC正版</span><span>10%</span></li>
-            <li class="flex justify-between gap-6"><span>送三连</span><span>20%</span></li>
-            <li class="flex justify-between gap-6"><span>超级大奖</span><span>20%</span></li>
-        </ul>
+    <div class="prob-card">
+        <h4>PROBABILITY</h4>
+        <div class="prob-item"><span>谢谢惠顾</span><span>30%</span></div>
+        <div class="prob-item"><span>亲笔签名</span><span>20%</span></div>
+        <div class="prob-item"><span>MC正版</span><span>10%</span></div>
+        <div class="prob-item"><span>送三连</span><span>20%</span></div>
+        <div class="prob-item"><span>超级大奖</span><span>20%</span></div>
     </div>
 
-    <div class="glass max-w-md w-full p-8 rounded-[3rem] shadow-2xl text-center z-10 mx-4 relative">
-        <h2 class="text-[10px] font-bold text-gray-700 tracking-[0.4em] uppercase mb-6">Lucky Wheel Event</h2>
+    <div class="glass w-[90%] max-w-[360px] p-6 rounded-[2.5rem] text-center z-10 relative">
+        <h2 class="text-[10px] font-black text-gray-800 tracking-[0.3em] uppercase mb-6">Lucky Wheel Event</h2>
         
         <div class="wheel-container">
             <div class="pointer"></div>
-            <div id="wheel" class="relative">
+            <div id="wheel">
                 <div id="text-layer">
-                    <span class="prize-1">谢谢惠顾</span>
-                    <span class="prize-2">亲笔签名</span>
-                    <span class="prize-3">MC账号</span>
-                    <span class="prize-4">送三连</span>
-                    <span class="prize-5">超级大奖</span>
+                    <span class="p1">谢谢惠顾</span><span class="p2">亲笔签名</span>
+                    <span class="p3">MC账号</span><span class="p4">送三连</span>
+                    <span class="p5">超级大奖</span>
                 </div>
             </div>
         </div>
         
         <div class="space-y-4">
-            <div class="flex justify-between items-center px-6 py-2 bg-black/5 rounded-xl">
-                <span class="text-[10px] font-bold text-gray-600 uppercase">Chances Left</span>
-                <span id="chance-count" class="text-xl font-mono font-black text-gray-800">3</span>
+            <div class="flex justify-between items-center px-5 py-3 bg-black/10 rounded-2xl">
+                <span class="text-[10px] font-bold text-gray-700">CHANCES LEFT</span>
+                <span id="chance-count" class="text-xl font-bold text-black">3</span>
             </div>
-
-            <button id="draw-btn" onclick="startSpin()" class="w-full py-5 bg-gray-800 text-white rounded-2xl font-bold tracking-widest hover:bg-black transition-all shadow-lg active:scale-95 uppercase text-xs">
-                Spin to Win
-            </button>
-            <a href="about.html" class="block text-[11px] text-gray-800 font-bold hover:text-black transition-colors uppercase tracking-widest mt-3">Back to Home</a>
+            <button id="draw-btn" onclick="startSpin()" class="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold tracking-widest active:scale-95 transition-all text-xs">SPIN TO WIN</button>
+            <a href="about.html" class="block text-[11px] text-gray-900 font-black underline uppercase tracking-tighter">Back to Home</a>
         </div>
     </div>
 
-    <div id="result-modal" class="fixed inset-0 z-[100] items-center justify-center p-6 bg-black/60 backdrop-blur-md">
-        <div class="glass max-w-sm w-full p-10 rounded-[3rem] shadow-2xl text-center relative">
-            <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">You Won!</h3>
-            <div id="prize-text" class="text-xl font-bold text-gray-900 mb-8 whitespace-pre-line"></div>
-            <div id="action-area" class="space-y-3">
-                <button onclick="closeModal()" class="w-full py-4 bg-white/40 text-gray-800 border border-white/50 rounded-2xl font-bold text-xs uppercase tracking-widest">确认</button>
+    <div id="result-modal" onclick="if(event.target==this) closeModal()">
+        <div class="glass max-w-[280px] w-full p-8 rounded-[2.5rem] text-center">
+            <h3 class="text-[10px] font-bold text-gray-500 uppercase mb-4">Result</h3>
+            <div id="prize-text" class="text-lg font-bold text-black mb-6"></div>
+            <div id="action-area">
+                <button onclick="closeModal()" class="w-full py-3 bg-gray-800 text-white rounded-xl font-bold text-xs uppercase">确定</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 核心机会逻辑 (已设为 3)
-        let chances = localStorage.getItem('draw_chances');
-        if (chances === null) {
-            chances = 3;
-            localStorage.setItem('draw_chances', 3);
-        } else {
-            chances = parseInt(chances);
-        }
+        let chances = localStorage.getItem('draw_chances') === null ? 3 : parseInt(localStorage.getItem('draw_chances'));
         document.getElementById('chance-count').innerText = chances;
 
-        // 奖项配置： Conic-gradient 角度偏移
         const prizes = [
             { name: "谢谢惠顾", weight: 30, range: [0, 108] },
             { name: "Latetelly 亲笔签名", weight: 20, range: [108, 180] },
@@ -149,15 +124,8 @@
         ];
 
         let isSpinning = false;
-        let currentRotation = 0;
-
         function startSpin() {
-            if (isSpinning) return;
-            if (chances <= 0) {
-                alert("次数已用完！");
-                return;
-            }
-
+            if (isSpinning || chances <= 0) return;
             isSpinning = true;
             chances--;
             localStorage.setItem('draw_chances', chances);
@@ -166,43 +134,27 @@
             const random = Math.random() * 100;
             let currentWeight = 0;
             let winPrize = prizes[0];
-
             for (const p of prizes) {
                 currentWeight += p.weight;
-                if (random <= currentWeight) {
-                    winPrize = p;
-                    break;
-                }
+                if (random <= currentWeight) { winPrize = p; break; }
             }
 
-            // 计算旋转角度 (多转10圈 + 目标偏移)
             const sectorRandom = Math.random() * (winPrize.range[1] - winPrize.range[0]) + winPrize.range[0];
             const targetRotate = 3600 - sectorRandom; 
-            currentRotation = targetRotate;
+            document.getElementById('wheel').style.transform = `rotate(${targetRotate}deg)`;
 
-            const wheel = document.getElementById('wheel');
-            wheel.style.transform = `rotate(${currentRotation}deg)`;
-
-            // 等待动画结束 (4秒)
-            setTimeout(() => {
-                showResult(winPrize.name);
-                isSpinning = false;
-            }, 4100);
+            setTimeout(() => { showResult(winPrize.name); isSpinning = false; }, 4100);
         }
 
         function showResult(prize) {
             const modal = document.getElementById('result-modal');
             const text = document.getElementById('prize-text');
-            const actionArea = document.getElementById('action-area');
-            
-            text.innerText = prize === "谢谢惠顾" ? "很遗憾，这次没抽中..." : `恭喜获得：\n${prize}`;
-            
+            text.innerText = prize === "谢谢惠顾" ? "遗憾未中奖" : `恭喜获得：\n${prize}`;
             if (prize === "✨ 超级大奖 ✨") {
-                const exBtn = document.createElement('button');
-                exBtn.innerText = "立即兑奖";
-                exBtn.className = "w-full py-4 bg-yellow-500 text-white rounded-2xl font-bold text-xs uppercase mb-2 animate-bounce shadow-lg";
-                exBtn.onclick = () => { window.location.href = "about.html"; };
-                actionArea.prepend(exBtn);
+                const btn = document.createElement('button');
+                btn.innerText = "立即兑奖"; btn.className = "w-full py-3 bg-yellow-500 text-white rounded-xl font-bold text-xs mb-2 shadow-lg";
+                btn.onclick = () => { window.location.href = "about.html"; };
+                document.getElementById('action-area').prepend(btn);
             }
             modal.classList.add('active');
         }
