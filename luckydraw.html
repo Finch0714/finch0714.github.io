@@ -14,18 +14,20 @@
         :root { --font-main: 'Inter', sans-serif; --font-serif: 'Noto Serif SC', serif; }
         body { font-family: var(--font-main); margin: 0; background-color: #111; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
 
-        #bg-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: url('defbg.webp'); background-size: cover; background-position: center; z-index: -2; }
+        /* 背景层控制 */
+        #bg-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-size: cover; background-position: center; transition: opacity 1s; z-index: -2; background-image: url('defbg.webp'); opacity: 1; }
         
-        /* 💡 修复1：加深遮罩，从 0.35 改为 0.5 */
+        /* 💡 基础遮罩加深到 0.5 */
         #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: -1; }
-
+        
+        /* 玻璃拟态 - 统一透明度 0.39 */
         .glass { background: rgba(255, 255, 255, 0.39); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); }
 
         /* 转盘样式 */
-        .wheel-container { position: relative; width: 280px; height: 280px; margin: 0 auto 1.5rem; }
+        .wheel-container { position: relative; width: 300px; height: 300px; margin: 0 auto 2rem; }
         #wheel { 
             width: 100%; height: 100%; border-radius: 50%; border: 8px solid rgba(255,255,255,0.6);
-            /*Conic-gradient 本身很难在上面打字，因此我在下方添加了图例卡片*/
+            /* Conic-gradient 绘制扇区 */
             background: conic-gradient(
                 #f87171 0% 30%,    /* 谢谢惠顾 */
                 #fbbf24 30% 50%,   /* 签名 */
@@ -35,13 +37,37 @@
             );
             transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
             box-shadow: 0 0 40px rgba(0,0,0,0.4);
+            transform-style: preserve-3d;
         }
+
+        /* 💡 修复1：转盘文字图层 */
+        #text-layer { position: absolute; inset: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; pointer-events: none; transform: rotate(0deg); }
+        
+        /* 💡 修复1：转盘文字定位 */
+        #text-layer span { 
+            position: absolute; width: 100px; text-align: center;
+            /* 💡 字体颜色加深到 text-black/90，并加粗 */
+            color: rgba(0,0,0,0.9); font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+            /* 配合 conic-gradient 顺时针，文字需要逆时针偏移一个扇区的一半，才能居中 */
+            transform-origin: center center;
+        }
+        
+        /* 💡 修复1：手动定位每个奖项 (Conic-gradient 是顺时针，文字也需要对应角度) */
+        /* 谢谢(0-108, 中点54) 签名(108-180, 中点144) MC(180-216, 中点198) 三连(216-288, 中点252) 大奖(288-360, 中点324) */
+        .prize-1 { transform: rotate(54deg) translateY(-110px); }
+        .prize-2 { transform: rotate(144deg) translateY(-110px); }
+        .prize-3 { transform: rotate(198deg) translateY(-110px); }
+        .prize-4 { transform: rotate(252deg) translateY(-110px); }
+        .prize-5 { transform: rotate(324deg) translateY(-110px); }
+
+        /* 指针 */
         .pointer {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
             width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
             border-top: 30px solid #fff; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); z-index: 10;
         }
 
+        /* 弹窗动画 */
         #result-modal { display: none; }
         #result-modal.active { display: flex; animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
@@ -52,9 +78,9 @@
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
 
-    <div class="fixed bottom-6 left-6 glass p-5 rounded-2xl shadow-xl z-20 hidden sm:block">
-        <h4 class="text-[10px] font-black text-gray-800 uppercase tracking-widest mb-3 border-b border-black/10 pb-2">Probability</h4>
-        <ul class="text-[10px] text-gray-900 space-y-1.5 font-semibold">
+    <div class="fixed bottom-6 left-6 glass p-6 rounded-2xl shadow-xl z-20 bg-white/60">
+        <h4 class="text-[11px] font-black text-black uppercase tracking-widest mb-3 border-b border-black/10 pb-2">Probability</h4>
+        <ul class="text-[11px] text-black/100 space-y-2 font-semibold">
             <li class="flex justify-between gap-6"><span>谢谢惠顾</span><span>30%</span></li>
             <li class="flex justify-between gap-6"><span>亲笔签名</span><span>20%</span></li>
             <li class="flex justify-between gap-6"><span>MC正版</span><span>10%</span></li>
@@ -63,20 +89,20 @@
         </ul>
     </div>
 
-    <div class="glass max-w-md w-full p-8 rounded-[3rem] shadow-2xl text-center z-10 mx-4">
+    <div class="glass max-w-md w-full p-8 rounded-[3rem] shadow-2xl text-center z-10 mx-4 relative">
         <h2 class="text-[10px] font-bold text-gray-700 tracking-[0.4em] uppercase mb-6">Lucky Wheel Event</h2>
         
         <div class="wheel-container">
             <div class="pointer"></div>
-            <div id="wheel"></div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[9px] font-bold text-gray-800 mb-6 px-4">
-            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-[#f87171] rounded"></span> 谢谢惠顾</div>
-            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-[#fbbf24] rounded"></span> 亲笔签名</div>
-            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-[#60a5fa] rounded"></span> MC账号</div>
-            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-[#34d399] rounded"></span> 送三连</div>
-            <div class="col-span-2 flex items-center justify-center gap-2"><span class="w-2.5 h-2.5 bg-[#a78bfa] rounded"></span> 超级大奖</div>
+            <div id="wheel" class="relative">
+                <div id="text-layer">
+                    <span class="prize-1">谢谢惠顾</span>
+                    <span class="prize-2">亲笔签名</span>
+                    <span class="prize-3">MC账号</span>
+                    <span class="prize-4">送三连</span>
+                    <span class="prize-5">超级大奖</span>
+                </div>
+            </div>
         </div>
         
         <div class="space-y-4">
@@ -88,7 +114,6 @@
             <button id="draw-btn" onclick="startSpin()" class="w-full py-5 bg-gray-800 text-white rounded-2xl font-bold tracking-widest hover:bg-black transition-all shadow-lg active:scale-95 uppercase text-xs">
                 Spin to Win
             </button>
-            
             <a href="about.html" class="block text-[11px] text-gray-800 font-bold hover:text-black transition-colors uppercase tracking-widest mt-3">Back to Home</a>
         </div>
     </div>
@@ -104,7 +129,7 @@
     </div>
 
     <script>
-        // 机会初始化核心逻辑
+        // 核心机会逻辑 (已设为 3)
         let chances = localStorage.getItem('draw_chances');
         if (chances === null) {
             chances = 3;
@@ -114,6 +139,7 @@
         }
         document.getElementById('chance-count').innerText = chances;
 
+        // 奖项配置： Conic-gradient 角度偏移
         const prizes = [
             { name: "谢谢惠顾", weight: 30, range: [0, 108] },
             { name: "Latetelly 亲笔签名", weight: 20, range: [108, 180] },
@@ -149,6 +175,7 @@
                 }
             }
 
+            // 计算旋转角度 (多转10圈 + 目标偏移)
             const sectorRandom = Math.random() * (winPrize.range[1] - winPrize.range[0]) + winPrize.range[0];
             const targetRotate = 3600 - sectorRandom; 
             currentRotation = targetRotate;
@@ -156,6 +183,7 @@
             const wheel = document.getElementById('wheel');
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
+            // 等待动画结束 (4秒)
             setTimeout(() => {
                 showResult(winPrize.name);
                 isSpinning = false;
