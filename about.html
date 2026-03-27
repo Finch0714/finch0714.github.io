@@ -6,12 +6,14 @@
     <title>Finch0714 | 个人主页</title>
     
     <link rel="icon" type="image/png" href="Favicon.png">
-    <link rel="preload" as="image" href="defbg.webp">
+    
+    <link rel="preconnect" href="https://picui.ogmua.cn">
+    <link rel="preload" as="image" href="https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp">
     <link rel="preconnect" href="https://fonts.loli.net">
     <link rel="dns-prefetch" href="https://visage.surgeplay.com">
 
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.loli.net/css2?family=Inter:wght@400;600;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.loli.net/css2?family=Inter:wght@400;600;700;900&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root { --font-main: 'Inter', sans-serif; --font-serif: 'Noto Serif SC', serif; }
@@ -20,22 +22,18 @@
             font-family: var(--font-main); 
             margin: 0; background-color: #111; overflow-x: hidden; 
             display: flex; justify-content: center; 
-            padding: 7rem 1.5rem 3rem 1.5rem; /* 增加顶部边距彻底隔离 */
+            padding: 7rem 1.5rem 3rem 1.5rem; 
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 优化加载视觉：初始模糊，加载后清晰 */
+        /* 背景层优化 */
         #bg-layer { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: url('defbg.webp') center/cover no-repeat;
-            transition: opacity 1s ease-out, filter 1s ease-out; 
+            background: url('https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp') center/cover no-repeat;
+            transition: opacity 1s ease-out; 
             z-index: -2;
-            filter: blur(0px); /* 默认清晰 */
         }
         
-        /* 当图片正在请求时，可以通过这种方式减少“撕裂感” */
-        .bg-loading #bg-layer { filter: blur(20px); opacity: 0.5; }
-
         #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.35); z-index: -1; }
         
         .glass { 
@@ -44,7 +42,7 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        /* 功能按钮：尺寸改回 10 (2.5rem) */
+        /* 功能按钮：尺寸 10 */
         .ctrl-ball {
             width: 2.5rem; height: 2.5rem;
             display: flex; align-items: center; justify-content: center;
@@ -59,9 +57,7 @@
         .expand-container.expanded { max-height: 1200px; }
 
         .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
-        @media (max-width: 1024px) { 
-            .hitokoto-card { writing-mode: horizontal-tb; } 
-        }
+        @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
 
         #contact-modal { display: none; }
         #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; }
@@ -83,10 +79,11 @@
     <canvas id="snow-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;"></canvas>
 
     <div class="flex flex-col items-center gap-10 w-full max-w-5xl z-10">
+        
         <div class="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-8 w-full">
             <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden order-2 lg:order-1">
                 <div class="p-10 text-center border-b border-black border-opacity-5">
-                    <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white">
+                    <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100">
                         <img src="avatar.jpg" alt="Avatar" class="w-full h-full object-cover">
                     </div>
                     <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Finch0714</h1>
@@ -174,19 +171,17 @@
     </div>
 
     <script>
-        // 1. 壁纸渲染优化
         const bgLayer = document.getElementById('bg-layer');
+
         function changeWallpaper() {
             const url = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
             const img = new Image();
-            bgLayer.style.filter = "blur(20px)"; // 切换时瞬间模糊占位
             img.src = url;
             img.onload = () => {
                 bgLayer.style.opacity = 0;
                 setTimeout(() => {
                     bgLayer.style.backgroundImage = `url('${url}')`;
                     bgLayer.style.opacity = 1;
-                    bgLayer.style.filter = "blur(0px)";
                 }, 400);
             };
         }
@@ -216,7 +211,6 @@
                 } catch(e) { document.getElementById('mc_online').innerText = "错误"; }
             } else {
                 sDisp.classList.add('hidden'); pDisp.classList.remove('hidden');
-                // 替换为 Visage API (全身渲染)
                 document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`;
                 iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden');
                 try {
@@ -239,7 +233,7 @@
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
 
-        // 雪花 Canvas
+        // 雪花特效
         const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
         let snowActive = true;
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
