@@ -8,7 +8,6 @@
     <link rel="icon" type="image/png" href="Favicon.png">
     
     <link rel="preload" as="image" href="./defbg.webp">
-    <link rel="preload" as="video" href="./rickroll.mp4" type="video/mp4">
     <link rel="preconnect" href="https://fonts.loli.net">
     <link rel="dns-prefetch" href="https://visage.surgeplay.com">
 
@@ -26,7 +25,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 2. 背景图也改用本地 CDN 路径 */
         #bg-layer { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: url('./defbg.webp') center/cover no-repeat;
@@ -55,17 +53,10 @@
         .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
         @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
 
-        /* 3. 本地视频弹窗样式 (适配原生 video) */
-        #video-modal { 
-            display: none; position: fixed; inset: 0; z-index: 300; 
-            background: rgba(0,0,0,0.9); align-items: center; justify-content: center; 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-        }
-        #video-modal.active { display: flex; animation: modalIn 0.4s forwards; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        
-        #contact-modal { display: none; }
+        /* 修复后的弹窗样式：提升 z-index 到 500 */
+        #contact-modal { display: none; position: fixed; inset: 0; z-index: 500; align-items: center; justify-content: center; p-6; background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         
         #mc_input::placeholder { color: #111827 !important; font-weight: 800; }
     </style>
@@ -145,7 +136,7 @@
 
         <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-4 items-center">
             <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full"></span>个人私藏网站</h2></div>
-            <button onclick="playLocalRickroll()" class="bg-gray-800 text-white px-16 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">点击进入</button>
+            <a href="https://b23.tv/to79uAN" class="bg-gray-800 text-white px-16 py-4 rounded-2xl text-xs font-bold text-center tracking-widest shadow-lg active:scale-95 transition-all">点击进入</a>
         </div>
 
         <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-5 items-center">
@@ -158,20 +149,14 @@
         </div>
     </div>
 
-    <div id="video-modal" onclick="closeVideoModal()">
-        <button class="absolute top-6 right-6 text-white text-3xl font-bold z-50">✕</button>
-        <div class="w-[90%] max-w-4xl rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20" onclick="event.stopPropagation()">
-            <video id="rickroll-player" src="./rickroll.mp4" controls class="w-full h-auto" preload="auto"></video>
-        </div>
-    </div>
-
-    <div id="contact-modal" class="fixed inset-0 z-[200] items-center justify-center p-6 bg-black/50 backdrop-blur-md" onclick="if(event.target==this) closeModal()">
-        <div class="glass max-w-sm w-full p-10 rounded-3xl shadow-2xl relative text-center">
+    <div id="contact-modal" onclick="if(event.target==this) closeModal()">
+        <div class="glass max-w-sm w-full p-10 rounded-3xl shadow-2xl relative text-center" onclick="event.stopPropagation()">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 p-2">✕</button>
             <h3 class="text-xs font-black text-gray-800 mb-8 uppercase tracking-widest">Connect</h3>
             <div class="space-y-4">
                 <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">QQ</span><span class="text-sm font-mono text-gray-900 font-black select-all">861288676</span></div>
                 <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">EMAIL</span><span class="text-sm font-mono text-gray-900 font-black select-all">finch0714@qq.com</span></div>
+                <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">STEAM</span><span class="text-sm font-mono text-gray-900 font-black select-all">Latetelly</span></div>
             </div>
         </div>
     </div>
@@ -184,22 +169,10 @@
             img.onload = () => { bgLayer.style.opacity = 0; setTimeout(() => { bgLayer.style.backgroundImage = `url('${url}')`; bgLayer.style.opacity = 1; }, 400); };
         }
 
-        // 6. 新增视频播放逻辑
-        const vModal = document.getElementById('video-modal');
-        const player = document.getElementById('rickroll-player');
-        function playLocalRickroll() {
-            vModal.classList.add('active');
-            player.play(); // 打开弹窗立刻播放
-        }
-        function closeVideoModal() {
-            vModal.classList.remove('active');
-            player.pause(); // 关闭弹窗立刻暂停
-            player.currentTime = 0; // 重置进度
-        }
-
         function toggleMC() { const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn'); const isExp = c.classList.toggle('expanded'); b.innerText = isExp ? "收起面板" : "展开详情"; }
         async function smartQuery() { const val = document.getElementById('mc_input').value.trim(); const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon'); if(!val) return; resBox.classList.remove('hidden'); if (val.includes('.')) { pDisp.classList.add('hidden'); sDisp.classList.remove('hidden'); try { const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json(); if(d.online) { document.getElementById('mc_online').innerText = "在线"; document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`; document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12); iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden'); } else { document.getElementById('mc_online').innerText = "离线"; } } catch(e) { document.getElementById('mc_online').innerText = "错误"; } } else { sDisp.classList.add('hidden'); pDisp.classList.remove('hidden'); document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`; iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden'); try { const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json(); if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id; document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`; document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`; } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; } } }
         function fetchHitokoto() { const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from'); t.style.opacity = 0; f.style.opacity = 0; fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => { t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`; t.style.opacity = 1; f.style.opacity = 0.9; }); } fetchHitokoto();
+        
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
 
