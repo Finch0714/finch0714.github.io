@@ -35,44 +35,63 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
         }
 
-        /* 2. 九宫格结构 */
+        /* 2. 九宫格结构 - 强制圆角 */
         .grid-container { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            width: 290px; height: 290px; margin: 0 auto 1.5rem; 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+            width: 300px; height: 300px; margin: 0 auto 1.5rem; 
         }
         .grid-item { 
             aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-            border-radius: 1.5rem; background: rgba(255,255,255,0.2);
+            border-radius: 1.5rem !important; /* 强制 3xl 圆角 */
+            background: rgba(255,255,255,0.2);
             transition: all 0.15s; border: 2px solid transparent;
             font-size: 11px; font-weight: 900; color: #000; text-align: center; padding: 0.5rem;
             text-transform: uppercase; line-height: 1.2;
         }
         .grid-item.active { 
-            background: rgba(255,255,255,0.9); border-color: #fff; 
-            transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.95); border-color: #fff; 
+            transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.6);
         }
 
-        /* 中央 GO 按钮 */
+        /* 中央 GO 按钮 - 强制圆角 */
         #draw-btn-grid {
-            background: #1f2937; color: white; border-radius: 1.5rem;
+            background: #1f2937; color: white; 
+            border-radius: 1.5rem !important; /* 强制 3xl 圆角 */
             display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 16px; cursor: pointer; transition: all 0.2s;
+            font-weight: 900; font-size: 18px; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        #draw-btn-grid:active { transform: scale(0.95); }
+        #draw-btn-grid:active { transform: scale(0.92); }
         #draw-btn-grid:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* 概率卡片 */
+        /* 概率卡片 - 增大尺寸 */
         .prob-card { 
-            position: fixed; bottom: 20px; left: 20px; padding: 15px; border-radius: 18px; 
-            width: 140px; background: rgba(255,255,255,0.95); z-index: 50;
+            position: fixed; bottom: 30px; left: 30px; padding: 20px; 
+            border-radius: 24px; /* 更大的圆角 */
+            width: 180px; background: rgba(255,255,255,0.98); z-index: 50;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
-        .prob-item { display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; color: #333; margin-top: 4px; }
+        .prob-title { 
+            font-size: 10px; font-weight: 900; color: #999; 
+            text-transform: uppercase; letter-spacing: 0.2em;
+            border-bottom: 1px solid #eee; margin-bottom: 10px; padding-bottom: 5px;
+        }
+        .prob-item { 
+            display: flex; justify-content: space-between; 
+            font-size: 11px; font-weight: 800; color: #222; margin-top: 6px; 
+        }
 
-        /* 弹窗样式修复 */
+        /* 结果弹窗按钮 - 强制圆角 */
+        .modal-btn {
+            width: 100%; py-4; border-radius: 1.5rem !important;
+            font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;
+            transition: all 0.2s;
+        }
+
         #result-modal { 
             display: none; position: fixed; inset: 0; z-index: 100; 
-            background: rgba(0,0,0,0.8); align-items: center; justify-content: center; 
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.85); align-items: center; justify-content: center; 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
         #result-modal.active { display: flex; }
     </style>
@@ -82,8 +101,8 @@
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
 
-    <div class="prob-card shadow-2xl">
-        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 mb-2 pb-1">Probability</p>
+    <div class="prob-card">
+        <p class="prob-title">Probability</p>
         <div class="prob-item"><span>谢谢惠顾</span><span>30%</span></div>
         <div class="prob-item"><span>亲笔签名</span><span>20%</span></div>
         <div class="prob-item"><span>MC正版</span><span>10%</span></div>
@@ -91,8 +110,8 @@
         <div class="prob-item"><span>超级大奖</span><span>20%</span></div>
     </div>
 
-    <div class="glass w-[90%] max-w-[360px] p-8 rounded-[2.5rem] text-center z-10">
-        <h2 class="text-[10px] font-black text-gray-800 tracking-[0.3em] uppercase mb-8">Lucky Draw Event</h2>
+    <div class="glass w-[90%] max-w-[380px] p-8 rounded-[2.5rem] text-center z-10">
+        <h2 class="text-[10px] font-black text-gray-800 tracking-[0.4em] uppercase mb-10">Lucky Draw Event</h2>
         
         <div class="grid-container" id="grid">
             <div class="grid-item" id="item-0"><span>谢谢<br>惠顾</span></div>
@@ -107,18 +126,18 @@
         </div>
         
         <div class="space-y-4">
-            <div class="flex justify-between items-center px-6 py-4 bg-white bg-opacity-30 rounded-2xl border border-white border-opacity-40">
+            <div class="flex justify-between items-center px-6 py-4 bg-white bg-opacity-30 rounded-[1.5rem] border border-white border-opacity-40">
                 <span class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Remaining</span>
                 <span id="chance-count" class="text-xl font-black text-black">3</span>
             </div>
-            <a href="about.html" class="block text-[10px] text-gray-700 font-bold underline uppercase mt-2">Return Home</a>
+            <a href="about.html" class="block text-[10px] text-gray-700 font-bold underline uppercase mt-4">Return Home</a>
         </div>
     </div>
 
     <div id="result-modal">
-        <div class="glass max-w-[280px] w-full p-8 rounded-[2rem] text-center shadow-2xl" onclick="event.stopPropagation()">
-            <h3 class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Result</h3>
-            <div id="prize-text" class="text-lg font-black text-black mb-6 leading-tight whitespace-pre-line"></div>
+        <div class="glass max-w-[300px] w-full p-8 rounded-[2.5rem] text-center shadow-2xl" onclick="event.stopPropagation()">
+            <h3 class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-3">Result</h3>
+            <div id="prize-text" class="text-xl font-black text-black mb-8 leading-tight whitespace-pre-line"></div>
             
             <div id="modal-footer" class="space-y-3">
                 </div>
@@ -163,8 +182,8 @@
             }
 
             const finalPos = winPrize.pos[Math.floor(Math.random() * winPrize.pos.length)];
-            let cycle = 8 * 5; 
-            let speed = 90; 
+            let cycle = 8 * 6; 
+            let speed = 100; 
             let steps = 0; 
             const track = [0, 1, 2, 3, 4, 5, 6, 7];
 
@@ -183,9 +202,9 @@
                         document.getElementById('draw-btn-grid').disabled = false;
                     }, 800);
                 } else {
-                    if (steps < cycle) speed -= 2;
+                    if (steps < cycle) speed -= 3;
                     else speed += 15;
-                    if (speed < 40) speed = 40;
+                    if (speed < 45) speed = 45;
                     timer = setTimeout(roll, speed);
                 }
             }
@@ -198,21 +217,19 @@
             const footer = document.getElementById('modal-footer');
             
             modal.classList.add('active');
-            footer.innerHTML = ''; // 清空之前按钮
+            footer.innerHTML = '';
 
             if (name.includes("超级大奖")) {
                 textEl.innerText = `恭喜获得：\n${name}`;
-                // 创建立即兑奖按钮
                 const claimBtn = document.createElement('button');
-                claimBtn.className = "w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all";
+                claimBtn.className = "w-full py-4 bg-gray-900 text-white rounded-[1.5rem] font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all";
                 claimBtn.innerText = "立即兑奖";
                 claimBtn.onclick = () => { window.location.href = "https://b23.tv/to79uAN"; };
                 footer.appendChild(claimBtn);
             } else {
                 textEl.innerText = name === "谢谢惠顾" ? "遗憾，未中奖" : `恭喜获得：\n${name}`;
-                // 创建普通确认按钮
                 const okBtn = document.createElement('button');
-                okBtn.className = "w-full py-4 bg-gray-900 text-white rounded-2xl font-bold text-xs uppercase tracking-widest";
+                okBtn.className = "w-full py-4 bg-gray-900 text-white rounded-[1.5rem] font-bold text-xs uppercase tracking-widest";
                 okBtn.innerText = "OK";
                 okBtn.onclick = closeModal;
                 footer.appendChild(okBtn);
