@@ -7,8 +7,8 @@
     
     <link rel="icon" type="image/png" href="Favicon.png">
     
-    <link rel="preconnect" href="https://picui.ogmua.cn">
-    <link rel="preload" as="image" href="https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp">
+    <link rel="preload" as="image" href="./defbg.webp">
+    <link rel="preload" as="video" href="./rickroll.mp4" type="video/mp4">
     <link rel="preconnect" href="https://fonts.loli.net">
     <link rel="dns-prefetch" href="https://visage.surgeplay.com">
 
@@ -26,10 +26,10 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 背景层优化 */
+        /* 2. 背景图也改用本地 CDN 路径 */
         #bg-layer { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: url('https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp') center/cover no-repeat;
+            background: url('./defbg.webp') center/cover no-repeat;
             transition: opacity 1s ease-out; 
             z-index: -2;
         }
@@ -42,14 +42,10 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        /* 功能按钮：尺寸 10 */
         .ctrl-ball {
-            width: 2.5rem; height: 2.5rem;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border-radius: 0.75rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 150; font-size: 1.2rem;
+            width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 150; font-size: 1.2rem;
         }
         .ctrl-ball:active { transform: scale(0.85); }
 
@@ -59,9 +55,17 @@
         .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
         @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
 
+        /* 3. 本地视频弹窗样式 (适配原生 video) */
+        #video-modal { 
+            display: none; position: fixed; inset: 0; z-index: 300; 
+            background: rgba(0,0,0,0.9); align-items: center; justify-content: center; 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        }
+        #video-modal.active { display: flex; animation: modalIn 0.4s forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
         #contact-modal { display: none; }
         #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
         #mc_input::placeholder { color: #111827 !important; font-weight: 800; }
     </style>
@@ -79,12 +83,11 @@
     <canvas id="snow-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;"></canvas>
 
     <div class="flex flex-col items-center gap-10 w-full max-w-5xl z-10">
-        
         <div class="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-8 w-full">
             <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden order-2 lg:order-1">
                 <div class="p-10 text-center border-b border-black border-opacity-5">
                     <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100">
-                        <img src="avatar.jpg" alt="Avatar" class="w-full h-full object-cover">
+                        <img src="./avatar.jpg" alt="Avatar" class="w-full h-full object-cover">
                     </div>
                     <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Finch0714</h1>
                     <p class="text-gray-600 mt-2 italic text-sm font-light">restless, resetless.</p>
@@ -109,21 +112,17 @@
 
         <div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col expand-container order-3">
             <div class="flex justify-between items-center min-h-[40px] px-2">
-                <h2 class="text-xs font-black text-gray-900 tracking-widest flex items-center gap-2 uppercase">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg"></span> MC智能信息查询
-                </h2>
+                <h2 class="text-xs font-black text-gray-900 tracking-widest flex items-center gap-2 uppercase"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg"></span> MC智能信息查询</h2>
                 <div class="flex items-center gap-4">
                     <img id="mc_icon" src="" class="w-8 h-8 rounded-lg shadow-md hidden bg-white/20">
                     <button id="mc_toggle_btn" onclick="toggleMC()" class="text-[10px] font-black text-gray-700 px-4 py-1.5 border border-black/10 rounded-full bg-white/20">展开详情</button>
                 </div>
             </div>
-
             <div class="mt-8 space-y-8 px-2">
                 <div class="flex flex-col md:flex-row gap-4">
                     <input id="mc_input" type="text" placeholder="输入服务器IP或玩家ID..." class="flex-1 bg-white bg-opacity-40 border-2 border-white border-opacity-60 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-green-500 text-gray-900 font-black transition-all shadow-inner">
                     <button onclick="smartQuery()" class="bg-gray-800 text-white px-10 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">开始查询</button>
                 </div>
-                
                 <div id="mc_result_box" class="hidden border-t border-black/5 pt-8">
                     <div id="player_display" class="hidden flex flex-col md:flex-row items-center md:items-start gap-10">
                         <img id="player_3d" src="" class="h-72 drop-shadow-2xl object-contain">
@@ -146,7 +145,7 @@
 
         <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-4 items-center">
             <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full"></span>个人私藏网站</h2></div>
-            <button onclick="rickrollRedirect()" class="bg-gray-800 text-white px-16 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">点击进入</button>
+            <button onclick="playLocalRickroll()" class="bg-gray-800 text-white px-16 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">点击进入</button>
         </div>
 
         <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-5 items-center">
@@ -156,6 +155,13 @@
                 <p class="text-xs text-gray-500 mb-8 uppercase tracking-widest font-bold font-main">Win exclusive rewards from Latetelly</p>
                 <a href="luckydraw.html" class="bg-gray-800 text-white px-20 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95">立即参与</a>
             </div>
+        </div>
+    </div>
+
+    <div id="video-modal" onclick="closeVideoModal()">
+        <button class="absolute top-6 right-6 text-white text-3xl font-bold z-50">✕</button>
+        <div class="w-[90%] max-w-4xl rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20" onclick="event.stopPropagation()">
+            <video id="rickroll-player" src="./rickroll.mp4" controls class="w-full h-auto" preload="auto"></video>
         </div>
     </div>
 
@@ -172,82 +178,37 @@
 
     <script>
         const bgLayer = document.getElementById('bg-layer');
-
         function changeWallpaper() {
             const url = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
-            const img = new Image();
-            img.src = url;
-            img.onload = () => {
-                bgLayer.style.opacity = 0;
-                setTimeout(() => {
-                    bgLayer.style.backgroundImage = `url('${url}')`;
-                    bgLayer.style.opacity = 1;
-                }, 400);
-            };
+            const img = new Image(); img.src = url;
+            img.onload = () => { bgLayer.style.opacity = 0; setTimeout(() => { bgLayer.style.backgroundImage = `url('${url}')`; bgLayer.style.opacity = 1; }, 400); };
         }
 
-        function rickrollRedirect() { window.open("https://player.bilibili.com/player.html?bvid=BV1UT42167xb&autoplay=1", '_blank'); }
-        function toggleMC() {
-            const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn');
-            const isExp = c.classList.toggle('expanded');
-            b.innerText = isExp ? "收起面板" : "展开详情";
+        // 6. 新增视频播放逻辑
+        const vModal = document.getElementById('video-modal');
+        const player = document.getElementById('rickroll-player');
+        function playLocalRickroll() {
+            vModal.classList.add('active');
+            player.play(); // 打开弹窗立刻播放
+        }
+        function closeVideoModal() {
+            vModal.classList.remove('active');
+            player.pause(); // 关闭弹窗立刻暂停
+            player.currentTime = 0; // 重置进度
         }
 
-        async function smartQuery() {
-            const val = document.getElementById('mc_input').value.trim();
-            const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon');
-            if(!val) return;
-            resBox.classList.remove('hidden');
-            if (val.includes('.')) {
-                pDisp.classList.add('hidden'); sDisp.classList.remove('hidden');
-                try {
-                    const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json();
-                    if(d.online) {
-                        document.getElementById('mc_online').innerText = "在线";
-                        document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`;
-                        document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12);
-                        iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden');
-                    } else { document.getElementById('mc_online').innerText = "离线"; }
-                } catch(e) { document.getElementById('mc_online').innerText = "错误"; }
-            } else {
-                sDisp.classList.add('hidden'); pDisp.classList.remove('hidden');
-                document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`;
-                iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden');
-                try {
-                    const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json();
-                    if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id;
-                    document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`;
-                    document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`;
-                } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; }
-            }
-        }
-
-        function fetchHitokoto() {
-            const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from');
-            t.style.opacity = 0; f.style.opacity = 0;
-            fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => {
-                t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`; t.style.opacity = 1; f.style.opacity = 0.9;
-            });
-        }
-        fetchHitokoto();
+        function toggleMC() { const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn'); const isExp = c.classList.toggle('expanded'); b.innerText = isExp ? "收起面板" : "展开详情"; }
+        async function smartQuery() { const val = document.getElementById('mc_input').value.trim(); const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon'); if(!val) return; resBox.classList.remove('hidden'); if (val.includes('.')) { pDisp.classList.add('hidden'); sDisp.classList.remove('hidden'); try { const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json(); if(d.online) { document.getElementById('mc_online').innerText = "在线"; document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`; document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12); iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden'); } else { document.getElementById('mc_online').innerText = "离线"; } } catch(e) { document.getElementById('mc_online').innerText = "错误"; } } else { sDisp.classList.add('hidden'); pDisp.classList.remove('hidden'); document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`; iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden'); try { const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json(); if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id; document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`; document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`; } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; } } }
+        function fetchHitokoto() { const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from'); t.style.opacity = 0; f.style.opacity = 0; fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => { t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`; t.style.opacity = 1; f.style.opacity = 0.9; }); } fetchHitokoto();
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
 
-        // 雪花特效
         const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
         let snowActive = true;
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
         let pts = Array.from({length:40}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.5+0.5}));
-        function anim() {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            if(snowActive) {
-                ctx.fillStyle = "rgba(255,255,255,0.45)";
-                pts.forEach(p => { p.y += 0.0008; if(p.y>1) p.y=0; ctx.beginPath(); ctx.arc(p.x*canvas.width, p.y*canvas.height, p.s, 0, Math.PI*2); ctx.fill(); });
-            }
-            requestAnimationFrame(anim);
-        }
-        anim();
+        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); if(snowActive) { ctx.fillStyle = "rgba(255,255,255,0.45)"; pts.forEach(p => { p.y += 0.0008; if(p.y>1) p.y=0; ctx.beginPath(); ctx.arc(p.x*canvas.width, p.y*canvas.height, p.s, 0, Math.PI*2); ctx.fill(); }); } requestAnimationFrame(anim); } anim();
         function toggleSnow() { snowActive = !snowActive; }
     </script>
 </body>
