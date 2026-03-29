@@ -6,7 +6,9 @@
     <title>Finch0714 | 个人主页</title>
     
     <link rel="icon" type="image/png" href="Favicon.png">
+    
     <link rel="preload" as="image" href="./defbg.webp">
+    <link rel="preload" as="video" href="./rickroll.mp4" type="video/mp4">
     <link rel="preconnect" href="https://fonts.loli.net">
     <link rel="dns-prefetch" href="https://visage.surgeplay.com">
 
@@ -15,28 +17,55 @@
     
     <style>
         :root { --font-main: 'Inter', sans-serif; --font-serif: 'Noto Serif SC', serif; }
+        
         body { 
-            font-family: var(--font-main); margin: 0; background-color: #111; overflow-x: hidden; 
-            display: flex; justify-content: center; padding: 7rem 1.5rem 3rem 1.5rem; 
+            font-family: var(--font-main); 
+            margin: 0; background-color: #111; overflow-x: hidden; 
+            display: flex; justify-content: center; 
+            padding: 7rem 1.5rem 3rem 1.5rem; 
             -webkit-font-smoothing: antialiased;
         }
-        #bg-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: url('./defbg.webp') center/cover no-repeat; transition: opacity 1s ease-out; z-index: -2; }
+
+        /* 2. 背景图也改用本地 CDN 路径 */
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: url('./defbg.webp') center/cover no-repeat;
+            transition: opacity 1s ease-out; 
+            z-index: -2;
+        }
+        
         #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.35); z-index: -1; }
-        .glass { background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.3); }
         
-        .ctrl-ball { width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 150; font-size: 1.2rem; }
+        .glass { 
+            background: rgba(255, 255, 255, 0.42); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .ctrl-ball {
+            width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 150; font-size: 1.2rem;
+        }
         .ctrl-ball:active { transform: scale(0.85); }
-        
+
         .expand-container { transition: max-height 0.5s ease-in-out; max-height: 85px; overflow: hidden; }
         .expand-container.expanded { max-height: 1200px; }
-        
+
         .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
         @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
 
-        /* 弹窗层级修复与样式升级 */
-        #contact-modal { display: none; position: fixed; inset: 0; z-index: 500; align-items: center; justify-content: center; padding: 1.5rem; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
-        #contact-modal.active { display: flex; animation: modalIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-        @keyframes modalIn { from { opacity: 0; transform: translateY(30px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        /* 3. 本地视频弹窗样式 (适配原生 video) */
+        #video-modal { 
+            display: none; position: fixed; inset: 0; z-index: 300; 
+            background: rgba(0,0,0,0.9); align-items: center; justify-content: center; 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        }
+        #video-modal.active { display: flex; animation: modalIn 0.4s forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        #contact-modal { display: none; }
+        #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; }
         
         #mc_input::placeholder { color: #111827 !important; font-weight: 800; }
     </style>
@@ -47,118 +76,107 @@
     <div id="bg-overlay"></div>
 
     <div class="fixed top-6 left-6 flex gap-4 z-[150]">
-        <div class="ctrl-ball glass" onclick="toggleSnow()" title="切换雪花">❄️</div>
-        <div class="ctrl-ball glass" onclick="changeWallpaper()" title="更换壁纸">🖼️</div>
+        <div class="ctrl-ball glass" onclick="toggleSnow()">❄️</div>
+        <div class="ctrl-ball glass" onclick="changeWallpaper()">🖼️</div>
     </div>
 
     <canvas id="snow-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;"></canvas>
 
     <div class="flex flex-col items-center gap-10 w-full max-w-5xl z-10">
         <div class="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-8 w-full">
-            <div id="profile-card" class="glass max-w-xl w-full rounded-[3rem] shadow-2xl overflow-hidden order-2 lg:order-1">
+            <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden order-2 lg:order-1">
                 <div class="p-10 text-center border-b border-black border-opacity-5">
-                    <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white">
+                    <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100">
                         <img src="./avatar.jpg" alt="Avatar" class="w-full h-full object-cover">
                     </div>
-                    <h1 class="text-3xl font-black text-gray-900 tracking-tight">Finch0714</h1>
-                    <p class="text-gray-600 mt-2 italic text-xs font-medium opacity-80 uppercase tracking-widest">restless, resetless.</p>
+                    <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Finch0714</h1>
+                    <p class="text-gray-600 mt-2 italic text-sm font-light">restless, resetless.</p>
                 </div>
                 <div class="p-10 text-center">
-                    <p class="text-gray-800 leading-relaxed mb-10 text-sm font-semibold opacity-90">你好！欢迎来到我的主页。我是一个热衷于终身学习和影视、游戏的探索者。</p>
+                    <p class="text-gray-800 leading-relaxed mb-10 text-sm font-semibold">你好！欢迎来到我的主页。我是一个热衷于终身学习和影视、游戏的探索者。</p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="https://space.bilibili.com/2066563707" target="_blank" class="px-10 py-3.5 bg-pink-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg active:scale-95 transition-all">Bilibili</a>
-                        <button onclick="openModal()" class="px-10 py-3.5 bg-white bg-opacity-40 text-gray-900 border border-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-md active:scale-95 transition-all">Connect</button>
+                        <a href="https://space.bilibili.com/2066563707" target="_blank" class="px-10 py-3 bg-pink-500 text-white rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-all">Bilibili</a>
+                        <button onclick="openModal()" class="px-10 py-3 bg-white bg-opacity-40 text-gray-800 border border-white rounded-2xl font-bold text-sm shadow-md active:scale-95 transition-all">获取联系</button>
                     </div>
                 </div>
             </div>
 
-            <div class="glass lg:w-32 w-full p-8 lg:py-12 rounded-[3rem] shadow-xl relative flex items-center justify-center order-1 lg:order-2">
-                <div class="hitokoto-card text-gray-900 font-bold">
-                    <span id="hitokoto_text" class="text-sm leading-loose tracking-[0.2em] opacity-0 transition-opacity duration-500">加载中...</span>
-                    <span id="hitokoto_from" class="text-[10px] text-gray-700 mt-6 font-black opacity-0 block text-right"></span>
+            <div class="glass lg:w-32 w-full p-8 lg:py-12 rounded-3xl shadow-xl relative flex items-center justify-center order-1 lg:order-2">
+                <div class="hitokoto-card text-gray-800 font-bold">
+                    <span id="hitokoto_text" class="text-base leading-loose tracking-widest opacity-0 transition-opacity duration-500">加载中...</span>
+                    <span id="hitokoto_from" class="text-xs text-gray-700 mt-6 font-black opacity-0 block text-right"></span>
                 </div>
-                <button onclick="fetchHitokoto()" class="absolute bottom-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-20 hover:bg-opacity-40 transition-all text-xs">🔄</button>
+                <button onclick="fetchHitokoto()" class="absolute bottom-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-20 hover:bg-opacity-40 transition-colors">🔄</button>
             </div>
         </div>
 
-        <div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-[3rem] shadow-xl flex flex-col expand-container order-3">
+        <div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col expand-container order-3">
             <div class="flex justify-between items-center min-h-[40px] px-2">
-                <h2 class="text-[10px] font-black text-gray-900 tracking-[0.3em] flex items-center gap-2 uppercase"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg"></span> MC Info Hub</h2>
+                <h2 class="text-xs font-black text-gray-900 tracking-widest flex items-center gap-2 uppercase"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg"></span> MC智能信息查询</h2>
                 <div class="flex items-center gap-4">
                     <img id="mc_icon" src="" class="w-8 h-8 rounded-lg shadow-md hidden bg-white/20">
-                    <button id="mc_toggle_btn" onclick="toggleMC()" class="text-[9px] font-black text-gray-700 px-5 py-2 border border-black/5 rounded-full bg-white/10 uppercase tracking-widest">Expand</button>
+                    <button id="mc_toggle_btn" onclick="toggleMC()" class="text-[10px] font-black text-gray-700 px-4 py-1.5 border border-black/10 rounded-full bg-white/20">展开详情</button>
                 </div>
             </div>
             <div class="mt-8 space-y-8 px-2">
                 <div class="flex flex-col md:flex-row gap-4">
-                    <input id="mc_input" type="text" placeholder="Server IP / Player ID..." class="flex-1 bg-white bg-opacity-30 border-2 border-white border-opacity-40 rounded-2xl px-6 py-4 text-xs focus:outline-none focus:border-green-400 text-gray-900 font-black shadow-inner">
-                    <button onclick="smartQuery()" class="bg-gray-900 text-white px-10 py-4 rounded-2xl text-[9px] font-black tracking-[0.2em] shadow-lg active:scale-95 transition-all">SEARCH</button>
+                    <input id="mc_input" type="text" placeholder="输入服务器IP或玩家ID..." class="flex-1 bg-white bg-opacity-40 border-2 border-white border-opacity-60 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-green-500 text-gray-900 font-black transition-all shadow-inner">
+                    <button onclick="smartQuery()" class="bg-gray-800 text-white px-10 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">开始查询</button>
                 </div>
                 <div id="mc_result_box" class="hidden border-t border-black/5 pt-8">
                     <div id="player_display" class="hidden flex flex-col md:flex-row items-center md:items-start gap-10">
                         <img id="player_3d" src="" class="h-72 drop-shadow-2xl object-contain">
                         <div class="flex-1 w-full space-y-6">
-                            <div><p class="text-[9px] font-black text-gray-400 uppercase mb-2 tracking-widest">UUID Registry</p><p id="player_uuid" class="text-[10px] font-mono bg-black/5 p-4 rounded-2xl break-all text-gray-800 font-bold border border-white/20"></p></div>
+                            <div><p class="text-[10px] font-bold text-gray-500 uppercase mb-2 tracking-widest">UUID</p><p id="player_uuid" class="text-xs font-mono bg-black/5 p-4 rounded-2xl break-all text-gray-800 font-bold"></p></div>
                             <div class="grid grid-cols-2 gap-3">
-                                <a id="btn_namemc" target="_blank" class="p-3 bg-white/20 border border-white/40 rounded-xl text-[9px] font-black text-center text-gray-800 uppercase tracking-tighter">NAMEMC</a>
-                                <a id="btn_skin" target="_blank" class="p-3 bg-white/20 border border-white/40 rounded-xl text-[9px] font-black text-center text-gray-800 uppercase tracking-tighter">Skin Source</a>
+                                <a id="btn_namemc" target="_blank" class="p-3 bg-white/30 border border-white/40 rounded-2xl text-[10px] font-black text-center text-gray-700">NAMEMC</a>
+                                <a id="btn_skin" target="_blank" class="p-3 bg-white/30 border border-white/40 rounded-2xl text-[10px] font-black text-center text-gray-700">SKIN</a>
                             </div>
                         </div>
                     </div>
-                    <div id="server_display" class="hidden grid grid-cols-3 gap-4 font-mono text-[10px]">
-                        <div class="p-5 bg-white/20 border border-white/30 rounded-2xl text-center"><p class="mb-2 text-gray-500 font-black text-[8px] uppercase">Status</p><span id="mc_online" class="font-black"></span></div>
-                        <div class="p-5 bg-white/20 border border-white/30 rounded-2xl text-center"><p class="mb-2 text-gray-500 font-black text-[8px] uppercase">Online</p><span id="mc_players" class="font-black"></span></div>
-                        <div class="p-5 bg-white/20 border border-white/30 rounded-2xl text-center"><p class="mb-2 text-gray-500 font-black text-[8px] uppercase">Version</p><span id="mc_ver" class="font-black"></span></div>
+                    <div id="server_display" class="hidden grid grid-cols-3 gap-4 font-mono text-xs">
+                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">STATUS</p><span id="mc_online" class="font-black"></span></div>
+                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">PLAYERS</p><span id="mc_players" class="font-black"></span></div>
+                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">VERSION</p><span id="mc_ver" class="font-black"></span></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-10 rounded-[3rem] shadow-xl flex flex-col order-4 items-center">
-            <div class="w-full flex justify-start mb-8"><h2 class="text-[10px] font-black text-gray-800 tracking-[0.4em] uppercase flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full shadow-lg"></span> Private Collection</h2></div>
-            <a href="https://b23.tv/to79uAN" class="bg-gray-900 text-white px-20 py-4.5 rounded-2xl text-[10px] font-black tracking-[0.3em] shadow-xl active:scale-95 transition-all">ENTER</a>
+        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-4 items-center">
+            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full"></span>个人私藏网站</h2></div>
+            <button onclick="playLocalRickroll()" class="bg-gray-800 text-white px-16 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">点击进入</button>
         </div>
 
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-10 rounded-[3rem] shadow-xl flex flex-col order-5 items-center">
-            <div class="w-full flex justify-start mb-8"><h2 class="text-[10px] font-black text-gray-800 tracking-[0.4em] uppercase flex items-center gap-2"><span class="w-2 h-2 bg-yellow-400 rounded-full shadow-lg"></span> Limited Event</h2></div>
-            <div class="text-center py-4">
-                <h3 class="text-2xl font-serif font-black text-gray-900 mb-2">Lucky Draw</h3>
-                <p class="text-[10px] text-gray-500 mb-10 uppercase tracking-[0.2em] font-black opacity-60">Win exclusive rewards from Latetelly</p>
-                <a href="luckydraw.html" class="bg-gray-900 text-white px-24 py-5 rounded-2xl text-[10px] font-black tracking-[0.3em] shadow-xl active:scale-95 transition-all">JOIN NOW</a>
+        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-5 items-center">
+            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-yellow-500 rounded-full"></span>限时活动</h2></div>
+            <div class="text-center py-2">
+                <h3 class="text-xl font-serif font-bold text-gray-800 mb-2">幸运大抽奖</h3>
+                <p class="text-xs text-gray-500 mb-8 uppercase tracking-widest font-bold font-main">Win exclusive rewards from Latetelly</p>
+                <a href="luckydraw.html" class="bg-gray-800 text-white px-20 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95">立即参与</a>
             </div>
         </div>
     </div>
 
-    <div id="contact-modal" onclick="closeModal()">
-        <div class="glass max-w-sm w-full p-12 rounded-[3.5rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] relative text-center border-2 border-white/40" onclick="event.stopPropagation()">
-            <button onclick="closeModal()" class="absolute top-8 right-8 text-gray-500 hover:text-black transition-colors font-black text-lg">✕</button>
-            <h3 class="text-[10px] font-black text-gray-900 mb-10 uppercase tracking-[0.4em] opacity-60">Connect With Me</h3>
-            
+    <div id="video-modal" onclick="closeVideoModal()">
+        <button class="absolute top-6 right-6 text-white text-3xl font-bold z-50">✕</button>
+        <div class="w-[90%] max-w-4xl rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20" onclick="event.stopPropagation()">
+            <video id="rickroll-player" src="./rickroll.mp4" controls class="w-full h-auto" preload="auto"></video>
+        </div>
+    </div>
+
+    <div id="contact-modal" class="fixed inset-0 z-[200] items-center justify-center p-6 bg-black/50 backdrop-blur-md" onclick="if(event.target==this) closeModal()">
+        <div class="glass max-w-sm w-full p-10 rounded-3xl shadow-2xl relative text-center">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 p-2">✕</button>
+            <h3 class="text-xs font-black text-gray-800 mb-8 uppercase tracking-widest">Connect</h3>
             <div class="space-y-4">
-                <div class="p-5 bg-white/30 border border-white/40 rounded-[2rem] flex items-center justify-between">
-                    <span class="text-[8px] font-black text-gray-500 uppercase tracking-widest">QQ</span>
-                    <span class="text-sm font-mono text-gray-900 font-black select-all tracking-tight">861288676</span>
-                </div>
-                <div class="p-5 bg-white/30 border border-white/40 rounded-[2rem] flex items-center justify-between">
-                    <span class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Email</span>
-                    <span class="text-[13px] font-mono text-gray-900 font-black select-all tracking-tighter">finch0714@qq.com</span>
-                </div>
-                <div class="p-5 bg-gray-900 bg-opacity-90 border border-white/10 rounded-[2rem] flex items-center justify-between">
-                    <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Steam</span>
-                    <span class="text-sm font-mono text-white font-black select-all tracking-tight">Latetelly</span>
-                </div>
-            </div>
-            
-            <div class="mt-10 flex justify-center gap-2">
-                <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
+                <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">QQ</span><span class="text-sm font-mono text-gray-900 font-black select-all">861288676</span></div>
+                <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">EMAIL</span><span class="text-sm font-mono text-gray-900 font-black select-all">finch0714@qq.com</span></div>
             </div>
         </div>
     </div>
 
     <script>
-        // 背景、MC查询、一言、雪花等原有逻辑均完整保留
         const bgLayer = document.getElementById('bg-layer');
         function changeWallpaper() {
             const url = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
@@ -166,46 +184,22 @@
             img.onload = () => { bgLayer.style.opacity = 0; setTimeout(() => { bgLayer.style.backgroundImage = `url('${url}')`; bgLayer.style.opacity = 1; }, 400); };
         }
 
-        function toggleMC() { const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn'); const isExp = c.classList.toggle('expanded'); b.innerText = isExp ? "Collapse" : "Expand"; }
-        async function smartQuery() {
-            const val = document.getElementById('mc_input').value.trim();
-            const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon');
-            if(!val) return;
-            resBox.classList.remove('hidden');
-            if (val.includes('.')) {
-                pDisp.classList.add('hidden'); sDisp.classList.remove('hidden');
-                try {
-                    const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json();
-                    if(d.online) {
-                        document.getElementById('mc_online').innerText = "ONLINE";
-                        document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`;
-                        document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12);
-                        iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden');
-                    } else { document.getElementById('mc_online').innerText = "OFFLINE"; }
-                } catch(e) { document.getElementById('mc_online').innerText = "ERROR"; }
-            } else {
-                sDisp.classList.add('hidden'); pDisp.classList.remove('hidden');
-                document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`;
-                iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden');
-                try {
-                    const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json();
-                    if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id;
-                    document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`;
-                    document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`;
-                } catch(e) { document.getElementById('player_uuid').innerText = "FAILED"; }
-            }
+        // 6. 新增视频播放逻辑
+        const vModal = document.getElementById('video-modal');
+        const player = document.getElementById('rickroll-player');
+        function playLocalRickroll() {
+            vModal.classList.add('active');
+            player.play(); // 打开弹窗立刻播放
         }
-        
-        function fetchHitokoto() {
-            const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from');
-            t.style.opacity = 0; f.style.opacity = 0;
-            fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => {
-                t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`;
-                t.style.opacity = 1; f.style.opacity = 0.9;
-            });
-        } 
-        fetchHitokoto();
+        function closeVideoModal() {
+            vModal.classList.remove('active');
+            player.pause(); // 关闭弹窗立刻暂停
+            player.currentTime = 0; // 重置进度
+        }
 
+        function toggleMC() { const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn'); const isExp = c.classList.toggle('expanded'); b.innerText = isExp ? "收起面板" : "展开详情"; }
+        async function smartQuery() { const val = document.getElementById('mc_input').value.trim(); const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon'); if(!val) return; resBox.classList.remove('hidden'); if (val.includes('.')) { pDisp.classList.add('hidden'); sDisp.classList.remove('hidden'); try { const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json(); if(d.online) { document.getElementById('mc_online').innerText = "在线"; document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`; document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12); iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden'); } else { document.getElementById('mc_online').innerText = "离线"; } } catch(e) { document.getElementById('mc_online').innerText = "错误"; } } else { sDisp.classList.add('hidden'); pDisp.classList.remove('hidden'); document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`; iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden'); try { const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json(); if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id; document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`; document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`; } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; } } }
+        function fetchHitokoto() { const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from'); t.style.opacity = 0; f.style.opacity = 0; fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => { t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`; t.style.opacity = 1; f.style.opacity = 0.9; }); } fetchHitokoto();
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
 
@@ -213,19 +207,8 @@
         let snowActive = true;
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
-        let pts = Array.from({length:45}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.5+0.5, o:Math.random()*0.5+0.2}));
-        function anim() {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            if(snowActive) {
-                pts.forEach(p => {
-                    p.y += 0.0008; if(p.y>1) p.y=0;
-                    ctx.fillStyle = `rgba(255,255,255,${p.o})`;
-                    ctx.beginPath(); ctx.arc(p.x*canvas.width, p.y*canvas.height, p.s, 0, Math.PI*2); ctx.fill();
-                });
-            }
-            requestAnimationFrame(anim);
-        } 
-        anim();
+        let pts = Array.from({length:40}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.5+0.5}));
+        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); if(snowActive) { ctx.fillStyle = "rgba(255,255,255,0.45)"; pts.forEach(p => { p.y += 0.0008; if(p.y>1) p.y=0; ctx.beginPath(); ctx.arc(p.x*canvas.width, p.y*canvas.height, p.s, 0, Math.PI*2); ctx.fill(); }); } requestAnimationFrame(anim); } anim();
         function toggleSnow() { snowActive = !snowActive; }
     </script>
 </body>
