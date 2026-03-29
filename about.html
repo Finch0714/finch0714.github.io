@@ -58,7 +58,6 @@
         #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; align-items: center; justify-content: center; }
         
         @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        #mc_input::placeholder { color: #111827 !important; font-weight: 800; }
     </style>
 </head>
 
@@ -138,24 +137,19 @@
             <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full"></span>个人私藏网站</h2></div>
             <a href="https://b23.tv/to79uAN" target="_blank" class="bg-gray-800 text-white px-16 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">点击进入</a>
         </div>
-
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-5 items-center">
-            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-yellow-500 rounded-full"></span>限时活动</h2></div>
-            <div class="text-center py-2">
-                <h3 class="text-xl font-serif font-bold text-gray-800 mb-2">幸运大抽奖</h3>
-                <p class="text-xs text-gray-500 mb-8 uppercase tracking-widest font-bold font-main">Win exclusive rewards from Latetelly</p>
-                <a href="luckydraw.html" class="bg-gray-800 text-white px-20 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95">立即参与</a>
-            </div>
-        </div>
     </div>
 
-    <footer class="w-full flex justify-center py-8 z-10">
-        <div class="flex items-center gap-3 opacity-20 hover:opacity-80 transition-opacity cursor-default">
-            <span class="text-[8px] font-bold text-gray-500 uppercase tracking-widest">PV</span>
-            <span id="busuanzi_value_site_pv" class="text-[9px] font-mono text-gray-700 font-black">...</span>
-            <span class="text-gray-400 text-[8px]">/</span>
-            <span class="text-[8px] font-bold text-gray-500 uppercase tracking-widest">UV</span>
-            <span id="busuanzi_value_site_uv" class="text-[9px] font-mono text-gray-700 font-black">...</span>
+    <footer class="w-full flex justify-center py-10 z-10">
+        <div class="flex items-center gap-4 opacity-60 hover:opacity-100 transition-opacity cursor-default bg-white bg-opacity-10 px-6 py-2 rounded-full border border-white border-opacity-10">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">浏览数</span>
+                <span id="busuanzi_value_site_pv" class="text-xs font-mono text-gray-800 font-black">...</span>
+            </div>
+            <span class="text-gray-500 opacity-30">|</span>
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">访客数</span>
+                <span id="busuanzi_value_site_uv" class="text-xs font-mono text-gray-800 font-black">...</span>
+            </div>
         </div>
     </footer>
 
