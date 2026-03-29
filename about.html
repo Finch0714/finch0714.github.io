@@ -61,7 +61,21 @@
         #mc_input::placeholder { color: #111827 !important; font-weight: 800; }
     </style>
 </head>
+<div class="w-full flex justify-center pb-12 opacity-60">
+    <div class="glass px-6 py-2 rounded-full border border-white/20 shadow-sm flex items-center gap-4">
+        <div class="flex items-center gap-2">
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Views</span>
+            <span id="busuanzi_value_site_pv" class="text-xs font-mono text-gray-900 font-black tracking-tighter">...</span>
+        </div>
+        <div class="w-px h-3 bg-gray-300"></div>
+        <div class="flex items-center gap-2">
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Visitors</span>
+            <span id="busuanzi_value_site_uv" class="text-xs font-mono text-gray-900 font-black tracking-tighter">...</span>
+        </div>
+    </div>
+</div>
 
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <body>
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
