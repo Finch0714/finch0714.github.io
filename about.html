@@ -3,198 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finch0714 | 个人主页</title>
+    <title>About | Finch0714</title>
     
     <link rel="icon" type="image/png" href="Favicon.png">
-    
-    <link rel="preload" as="image" href="./defbg.webp">
-    <link rel="preconnect" href="https://fonts.loli.net">
-    <link rel="dns-prefetch" href="https://visage.surgeplay.com">
-
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.loli.net/css2?family=Inter:wght@400;600;700;900&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.loli.net/css2?family=Inter:wght@400;700;900&family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --font-main: 'Inter', sans-serif; --font-serif: 'Noto Serif SC', serif; }
-        
+        :root { --font-main: 'Inter', sans-serif; }
         body { 
-            font-family: var(--font-main); 
-            margin: 0; background-color: #111; overflow-x: hidden; 
-            display: flex; justify-content: center; 
-            padding: 7rem 1.5rem 3rem 1.5rem; 
-            -webkit-font-smoothing: antialiased;
+            font-family: var(--font-main); background-color: #111; 
+            margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden;
+            display: flex; flex-direction: column; align-items: center;
         }
 
+        /* 背景层 */
         #bg-layer { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: url('./defbg.webp') center/cover no-repeat;
-            transition: opacity 1s ease-out; 
-            z-index: -2;
+            background: url('./defbg.webp') center/cover no-repeat; z-index: -2; 
         }
-        
-        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.35); z-index: -1; }
-        
+        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: -1; }
+
         .glass { 
-            background: rgba(255, 255, 255, 0.42); 
+            background: rgba(255, 255, 255, 0.45); 
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .ctrl-ball {
-            width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 150; font-size: 1.2rem;
-        }
-        .ctrl-ball:active { transform: scale(0.85); }
+        /* 强制 3xl 圆角 (1.5rem) */
+        .rounded-3xl-custom { border-radius: 1.5rem !important; }
+        .rounded-4xl-custom { border-radius: 2.5rem !important; }
 
-        .expand-container { transition: max-height 0.5s ease-in-out; max-height: 85px; overflow: hidden; }
-        .expand-container.expanded { max-height: 1200px; }
+        /* 链接交互 */
+        .nav-link { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .nav-link:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.8); }
 
-        .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
-        @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
+        /* 弹窗动画 */
+        #contact-modal { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); }
+        #contact-modal.active { display: flex; align-items: center; justify-content: center; }
 
-        /* 修复后的弹窗样式：提升 z-index 到 500 */
-        #contact-modal { display: none; position: fixed; inset: 0; z-index: 500; align-items: center; justify-content: center; p-6; background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        
-        #mc_input::placeholder { color: #111827 !important; font-weight: 800; }
+        /* 雪花效果容器 */
+        #snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
     </style>
 </head>
-<div class="w-full flex justify-center pb-8">
-    <div class="flex items-center gap-3 opacity-30 hover:opacity-80 transition-opacity">
-        <span class="text-[8px] font-bold text-gray-500 uppercase tracking-[0.2em]">PV</span>
-        <span id="busuanzi_value_site_pv" class="text-[9px] font-mono text-gray-700">...</span>
-        <span class="text-gray-400">/</span>
-        <span class="text-[8px] font-bold text-gray-500 uppercase tracking-[0.2em]">UV</span>
-        <span id="busuanzi_value_site_uv" class="text-[9px] font-mono text-gray-700">...</span>
-    </div>
-</div>
-
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <body>
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
+    <div id="snow-container"></div>
 
-    <div class="fixed top-6 left-6 flex gap-4 z-[150]">
-        <div class="ctrl-ball glass" onclick="toggleSnow()">❄️</div>
-        <div class="ctrl-ball glass" onclick="changeWallpaper()">🖼️</div>
-    </div>
-
-    <canvas id="snow-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;"></canvas>
-
-    <div class="flex flex-col items-center gap-10 w-full max-w-5xl z-10">
-        <div class="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-8 w-full">
-            <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden order-2 lg:order-1">
-                <div class="p-10 text-center border-b border-black border-opacity-5">
-                    <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100">
-                        <img src="./avatar.jpg" alt="Avatar" class="w-full h-full object-cover">
-                    </div>
-                    <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Finch0714</h1>
-                    <p class="text-gray-600 mt-2 italic text-sm font-light">restless, resetless.</p>
-                </div>
-                <div class="p-10 text-center">
-                    <p class="text-gray-800 leading-relaxed mb-10 text-sm font-semibold">你好！欢迎来到我的主页。我是一个热衷于终身学习和影视、游戏的探索者。</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="https://space.bilibili.com/2066563707" target="_blank" class="px-10 py-3 bg-pink-500 text-white rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-all">Bilibili</a>
-                        <button onclick="openModal()" class="px-10 py-3 bg-white bg-opacity-40 text-gray-800 border border-white rounded-2xl font-bold text-sm shadow-md active:scale-95 transition-all">获取联系</button>
-                    </div>
-                </div>
+    <main class="w-full max-w-lg px-6 pt-20 pb-10 flex-grow">
+        <div class="glass p-8 rounded-4xl-custom shadow-2xl text-center mb-6">
+            <div class="relative inline-block mb-6">
+                <img src="avatar.jpg" class="w-24 h-24 rounded-full border-4 border-white shadow-lg mx-auto" alt="Avatar">
+                <div class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></div>
             </div>
-
-            <div class="glass lg:w-32 w-full p-8 lg:py-12 rounded-3xl shadow-xl relative flex items-center justify-center order-1 lg:order-2">
-                <div class="hitokoto-card text-gray-800 font-bold">
-                    <span id="hitokoto_text" class="text-base leading-loose tracking-widest opacity-0 transition-opacity duration-500">加载中...</span>
-                    <span id="hitokoto_from" class="text-xs text-gray-700 mt-6 font-black opacity-0 block text-right"></span>
-                </div>
-                <button onclick="fetchHitokoto()" class="absolute bottom-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-20 hover:bg-opacity-40 transition-colors">🔄</button>
+            
+            <h1 class="text-3xl font-black text-gray-900 tracking-tighter mb-2">Finch0714</h1>
+            <p class="text-[10px] font-bold text-gray-600 uppercase tracking-[0.3em] mb-8">High School Student / Piano Player</p>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <a href="https://space.bilibili.com/2091924618" target="_blank" class="glass nav-link p-4 rounded-3xl-custom flex flex-col items-center">
+                    <span class="text-[9px] font-black text-gray-500 uppercase mb-1">Bilibili</span>
+                    <span class="text-xs font-bold text-gray-800">个人主页</span>
+                </a>
+                <a href="luckydraw.html" class="glass nav-link p-4 rounded-3xl-custom flex flex-col items-center">
+                    <span class="text-[9px] font-black text-gray-500 uppercase mb-1">Activity</span>
+                    <span class="text-xs font-bold text-gray-800">幸运抽奖</span>
+                </a>
+                <button onclick="toggleModal()" class="glass nav-link p-4 rounded-3xl-custom flex flex-col items-center">
+                    <span class="text-[9px] font-black text-gray-500 uppercase mb-1">Contact</span>
+                    <span class="text-xs font-bold text-gray-800">联系方式</span>
+                </button>
+                <a href="https://b23.tv/to79uAN" target="_blank" class="glass nav-link p-4 rounded-3xl-custom flex flex-col items-center">
+                    <span class="text-[9px] font-black text-gray-500 uppercase mb-1">Collection</span>
+                    <span class="text-xs font-bold text-gray-800">私藏网站</span>
+                </a>
             </div>
         </div>
 
-        <div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col expand-container order-3">
-            <div class="flex justify-between items-center min-h-[40px] px-2">
-                <h2 class="text-xs font-black text-gray-900 tracking-widest flex items-center gap-2 uppercase"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg"></span> MC智能信息查询</h2>
-                <div class="flex items-center gap-4">
-                    <img id="mc_icon" src="" class="w-8 h-8 rounded-lg shadow-md hidden bg-white/20">
-                    <button id="mc_toggle_btn" onclick="toggleMC()" class="text-[10px] font-black text-gray-700 px-4 py-1.5 border border-black/10 rounded-full bg-white/20">展开详情</button>
-                </div>
-            </div>
-            <div class="mt-8 space-y-8 px-2">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <input id="mc_input" type="text" placeholder="输入服务器IP或玩家ID..." class="flex-1 bg-white bg-opacity-40 border-2 border-white border-opacity-60 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-green-500 text-gray-900 font-black transition-all shadow-inner">
-                    <button onclick="smartQuery()" class="bg-gray-800 text-white px-10 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">开始查询</button>
-                </div>
-                <div id="mc_result_box" class="hidden border-t border-black/5 pt-8">
-                    <div id="player_display" class="hidden flex flex-col md:flex-row items-center md:items-start gap-10">
-                        <img id="player_3d" src="" class="h-72 drop-shadow-2xl object-contain">
-                        <div class="flex-1 w-full space-y-6">
-                            <div><p class="text-[10px] font-bold text-gray-500 uppercase mb-2 tracking-widest">UUID</p><p id="player_uuid" class="text-xs font-mono bg-black/5 p-4 rounded-2xl break-all text-gray-800 font-bold"></p></div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <a id="btn_namemc" target="_blank" class="p-3 bg-white/30 border border-white/40 rounded-2xl text-[10px] font-black text-center text-gray-700">NAMEMC</a>
-                                <a id="btn_skin" target="_blank" class="p-3 bg-white/30 border border-white/40 rounded-2xl text-[10px] font-black text-center text-gray-700">SKIN</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="server_display" class="hidden grid grid-cols-3 gap-4 font-mono text-xs">
-                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">STATUS</p><span id="mc_online" class="font-black"></span></div>
-                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">PLAYERS</p><span id="mc_players" class="font-black"></span></div>
-                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">VERSION</p><span id="mc_ver" class="font-black"></span></div>
-                    </div>
-                </div>
-            </div>
+        <div class="glass p-6 rounded-3xl-custom text-center mb-10">
+            <p id="hitokoto_text" class="text-sm font-bold text-gray-800 leading-relaxed">正在加载一言...</p>
+            <p id="hitokoto_from" class="text-[9px] font-black text-gray-500 uppercase mt-4 tracking-widest">— 加载中</p>
         </div>
+    </main>
 
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-4 items-center">
-            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full"></span>个人私藏网站</h2></div>
-            <a href="https://b23.tv/to79uAN" class="bg-gray-800 text-white px-16 py-4 rounded-2xl text-xs font-bold text-center tracking-widest shadow-lg active:scale-95 transition-all">点击进入</a>
+    <footer class="w-full flex justify-center pb-8">
+        <div class="flex items-center gap-3 opacity-30 hover:opacity-80 transition-opacity cursor-default">
+            <span class="text-[8px] font-bold text-gray-500 uppercase tracking-widest">PV</span>
+            <span id="busuanzi_value_site_pv" class="text-[9px] font-mono text-gray-700 font-bold">...</span>
+            <span class="text-gray-400 text-[8px]">/</span>
+            <span class="text-[8px] font-bold text-gray-500 uppercase tracking-widest">UV</span>
+            <span id="busuanzi_value_site_uv" class="text-[9px] font-mono text-gray-700 font-bold">...</span>
         </div>
+    </footer>
 
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-5 items-center">
-            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-yellow-500 rounded-full"></span>限时活动</h2></div>
-            <div class="text-center py-2">
-                <h3 class="text-xl font-serif font-bold text-gray-800 mb-2">幸运大抽奖</h3>
-                <p class="text-xs text-gray-500 mb-8 uppercase tracking-widest font-bold font-main">Win exclusive rewards from Latetelly</p>
-                <a href="luckydraw.html" class="bg-gray-800 text-white px-20 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95">立即参与</a>
-            </div>
-        </div>
-    </div>
-
-    <div id="contact-modal" onclick="if(event.target==this) closeModal()">
-        <div class="glass max-w-sm w-full p-10 rounded-3xl shadow-2xl relative text-center" onclick="event.stopPropagation()">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 p-2">✕</button>
-            <h3 class="text-xs font-black text-gray-800 mb-8 uppercase tracking-widest">Contact</h3>
+    <div id="contact-modal" onclick="toggleModal()">
+        <div class="glass max-w-[280px] w-full p-8 rounded-4xl-custom text-center shadow-2xl" onclick="event.stopPropagation()">
+            <h3 class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-6">Contact</h3>
             <div class="space-y-4">
-                <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">QQ</span><span class="text-sm font-mono text-gray-900 font-black select-all">861288676</span></div>
-                <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">EMAIL</span><span class="text-sm font-mono text-gray-900 font-black select-all">finch0714@qq.com</span></div>
-                <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">STEAM</span><span class="text-sm font-mono text-gray-900 font-black select-all">Latetelly</span></div>
+                <div class="p-4 bg-white bg-opacity-40 rounded-3xl-custom border border-white border-opacity-30">
+                    <p class="text-[9px] font-black text-gray-400 uppercase mb-1">QQ Group</p>
+                    <p class="text-sm font-bold text-gray-900">769733074</p>
+                </div>
+                <div class="p-4 bg-white bg-opacity-40 rounded-3xl-custom border border-white border-opacity-30">
+                    <p class="text-[9px] font-black text-gray-400 uppercase mb-1">Email</p>
+                    <p class="text-sm font-bold text-gray-900">finch0714@outlook.com</p>
+                </div>
             </div>
+            <button onclick="toggleModal()" class="w-full mt-8 py-4 bg-gray-900 text-white rounded-3xl-custom font-black text-xs uppercase tracking-widest">Close</button>
         </div>
     </div>
 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
-        const bgLayer = document.getElementById('bg-layer');
-        function changeWallpaper() {
-            const url = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
-            const img = new Image(); img.src = url;
-            img.onload = () => { bgLayer.style.opacity = 0; setTimeout(() => { bgLayer.style.backgroundImage = `url('${url}')`; bgLayer.style.opacity = 1; }, 400); };
+        // 弹窗控制
+        function toggleModal() {
+            document.getElementById('contact-modal').classList.toggle('active');
         }
 
-        function toggleMC() { const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn'); const isExp = c.classList.toggle('expanded'); b.innerText = isExp ? "收起面板" : "展开详情"; }
-        async function smartQuery() { const val = document.getElementById('mc_input').value.trim(); const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon'); if(!val) return; resBox.classList.remove('hidden'); if (val.includes('.')) { pDisp.classList.add('hidden'); sDisp.classList.remove('hidden'); try { const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json(); if(d.online) { document.getElementById('mc_online').innerText = "在线"; document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`; document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12); iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden'); } else { document.getElementById('mc_online').innerText = "离线"; } } catch(e) { document.getElementById('mc_online').innerText = "错误"; } } else { sDisp.classList.add('hidden'); pDisp.classList.remove('hidden'); document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`; iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden'); try { const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json(); if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id; document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`; document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`; } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; } } }
-        function fetchHitokoto() { const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from'); t.style.opacity = 0; f.style.opacity = 0; fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => { t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`; t.style.opacity = 1; f.style.opacity = 0.9; }); } fetchHitokoto();
-        
-        function openModal() { document.getElementById('contact-modal').classList.add('active'); }
-        function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
+        // 一言加载
+        fetch('https://v1.hitokoto.cn')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('hitokoto_text').innerText = data.hitokoto;
+                document.getElementById('hitokoto_from').innerText = `— 「${data.from}」`;
+            })
+            .catch(console.error);
 
-        const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
-        let snowActive = true;
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
-        let pts = Array.from({length:40}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.5+0.5}));
-        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); if(snowActive) { ctx.fillStyle = "rgba(255,255,255,0.45)"; pts.forEach(p => { p.y += 0.0008; if(p.y>1) p.y=0; ctx.beginPath(); ctx.arc(p.x*canvas.width, p.y*canvas.height, p.s, 0, Math.PI*2); ctx.fill(); }); } requestAnimationFrame(anim); } anim();
-        function toggleSnow() { snowActive = !snowActive; }
+        // 雪花效果
+        function createSnowflake() {
+            const snow = document.getElementById('snow-container');
+            const snowflake = document.createElement('div');
+            const size = Math.random() * 3 + 2 + 'px';
+            
+            snowflake.style.position = 'absolute';
+            snowflake.style.backgroundColor = 'white';
+            snowflake.style.borderRadius = '50%';
+            snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+            snowflake.style.width = size;
+            snowflake.style.height = size;
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.top = '-10px';
+            snowflake.style.filter = 'blur(1px)';
+            
+            const duration = Math.random() * 5 + 5;
+            snowflake.style.transition = `transform ${duration}s linear, opacity ${duration}s linear`;
+            
+            snow.appendChild(snowflake);
+            
+            setTimeout(() => {
+                snowflake.style.transform = `translateY(100vh) translateX(${Math.random() * 200 - 100}px)`;
+                snowflake.style.opacity = '0';
+            }, 100);
+            
+            setTimeout(() => snowflake.remove(), duration * 1000);
+        }
+        setInterval(createSnowflake, 200);
     </script>
 </body>
 </html>
