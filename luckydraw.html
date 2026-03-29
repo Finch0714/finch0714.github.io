@@ -4,72 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lucky Wheel | Finch0714</title>
-    
     <link rel="icon" type="image/png" href="Favicon.png">
-    
     <link rel="preload" as="image" href="./defbg.webp">
-    <link rel="prefetch" href="./rickroll.mp4">
-    
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.loli.net/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        :root { --font-main: 'Inter', sans-serif; }
         body { 
-            font-family: var(--font-main); margin: 0; background-color: #111; 
-            overflow: hidden; display: flex; justify-content: center; align-items: center; 
-            height: 100vh; -webkit-font-smoothing: antialiased; 
+            font-family: 'Inter', sans-serif; margin: 0; background-color: #111; 
+            overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; 
         }
-
-        #bg-layer { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: url('./defbg.webp') center/cover no-repeat;
-            z-index: -2; 
-        }
-        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: -1; }
-
-        .glass { 
-            background: rgba(255, 255, 255, 0.45); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        }
-
-        .wheel-container { position: relative; width: 280px; height: 280px; margin: 0 auto 1.5rem; }
+        #bg-layer { position: fixed; inset: 0; background: url('./defbg.webp') center/cover no-repeat; z-index: -2; }
+        #bg-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: -1; }
+        .glass { background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        
+        /* 转盘样式 */
+        .wheel-container { position: relative; width: 300px; height: 300px; margin: 0 auto 2rem; }
         #wheel { 
-            width: 100%; height: 100%; border-radius: 50%; border: 6px solid #fff;
-            position: relative; overflow: hidden;
-            transition: transform 4s cubic-bezier(0.2, 0, 0.1, 1);
-            will-change: transform;
-            background: conic-gradient(#ff6b6b 0deg 108deg, #ffd93d 108deg 180deg, #6bc1ff 180deg 216deg, #6bffab 216deg 288deg, #b66bff 288deg 360deg);
+            width: 100%; height: 100%; border-radius: 50%; border: 8px solid #fff;
+            position: relative; overflow: hidden; transition: transform 4.5s cubic-bezier(0.15, 0, 0.15, 1);
+            background: conic-gradient(
+                #ff6b6b 0deg 108deg,   /* 谢谢 */
+                #ffd93d 108deg 180deg, /* 签名 */
+                #6bc1ff 180deg 216deg, /* MC */
+                #6bffab 216deg 288deg, /* 三连 */
+                #b66bff 288deg 360deg  /* 大奖 */
+            );
+        }
+        .prize-text { position: absolute; inset: 0; pointer-events: none; }
+        .prize-item { 
+            position: absolute; top: 0; left: 50%; width: 100px; height: 50%; 
+            margin-left: -50px; transform-origin: bottom center;
+            display: flex; justify-content: center; align-items: flex-start;
+            padding-top: 30px; font-size: 12px; font-weight: 900; color: #000;
+        }
+        /* 修正文字角度：扇区中心点 */
+        .item1 { transform: rotate(54deg); } .item2 { transform: rotate(144deg); } 
+        .item3 { transform: rotate(198deg); } .item4 { transform: rotate(252deg); } .item5 { transform: rotate(324deg); }
+
+        .pointer { 
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent;
+            border-top: 35px solid #fff; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
         }
 
-        .prize-text { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
-        .prize-item { position: absolute; top: 0; left: 50%; width: 100px; height: 50%; margin-left: -50px; transform-origin: bottom center; display: flex; justify-content: center; align-items: flex-start; padding-top: 25px; box-sizing: border-box; font-size: 11px; font-weight: 900; color: #000; text-transform: uppercase; }
-        .item1 { transform: rotate(54deg); } .item2 { transform: rotate(144deg); } .item3 { transform: rotate(198deg); } .item4 { transform: rotate(252deg); } .item5 { transform: rotate(324deg); }
-        .pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #fff; z-index: 20; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
-        .prob-card { position: fixed; bottom: 20px; left: 20px; padding: 15px; border-radius: 18px; width: 140px; background: rgba(255,255,255,0.95); z-index: 50; }
-        .prob-item { display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; color: #333; margin-top: 4px; }
-        #result-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        #result-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         #result-modal.active { display: flex; }
     </style>
 </head>
-
 <body>
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
 
-    <div class="prob-card shadow-2xl">
-        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 mb-2 pb-1">Probability</p>
-        <div class="prob-item"><span>谢谢惠顾</span><span>30%</span></div>
-        <div class="prob-item"><span>亲笔签名</span><span>20%</span></div>
-        <div class="prob-item"><span>MC正版</span><span>10%</span></div>
-        <div class="prob-item"><span>送三连</span><span>20%</span></div>
-        <div class="prob-item"><span>超级大奖</span><span>20%</span></div>
-    </div>
-
-    <div class="glass w-[90%] max-w-[360px] p-8 rounded-[2.5rem] text-center z-10">
-        <h2 class="text-[10px] font-black text-gray-800 tracking-[0.3em] uppercase mb-8">Lucky Draw Event</h2>
+    <div class="glass w-[92%] max-w-[380px] p-8 rounded-[3rem] text-center shadow-2xl">
+        <h2 class="text-[11px] font-black text-gray-800 tracking-[0.4em] uppercase mb-8">Lucky Wheel</h2>
+        
         <div class="wheel-container">
             <div class="pointer"></div>
             <div id="wheel">
@@ -82,60 +70,96 @@
                 </div>
             </div>
         </div>
-        <div class="space-y-4">
-            <div class="flex justify-between items-center px-6 py-4 bg-white bg-opacity-30 rounded-2xl border border-white border-opacity-40"><span class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Remaining</span><span id="chance-count" class="text-xl font-black text-black">3</span></div>
-            <button id="draw-btn" onclick="startSpin()" class="w-full py-5 bg-gray-900 text-white rounded-2xl font-black tracking-[0.2em] active:scale-95 transition-all text-xs shadow-xl">START SPINNING</button>
-            <a href="about.html" class="block text-[10px] text-gray-700 font-bold underline uppercase mt-2">Return Home</a>
+
+        <div class="flex justify-between items-center px-6 py-4 bg-white/30 rounded-2xl mb-6">
+            <span class="text-[10px] font-black text-gray-700 uppercase">Chances Left</span>
+            <span id="chance-count" class="text-xl font-black text-black">3</span>
         </div>
+
+        <button onclick="startSpin()" class="w-full py-5 bg-gray-900 text-white rounded-2xl font-black tracking-widest active:scale-95 transition-all text-xs shadow-xl">START SPINNING</button>
     </div>
 
     <div id="result-modal">
-        <div class="glass max-w-[280px] w-full p-8 rounded-[2rem] text-center shadow-2xl" onclick="event.stopPropagation()">
+        <div class="glass max-w-[280px] w-full p-8 rounded-[2rem] text-center shadow-2xl">
             <h3 class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Result</h3>
-            <div id="prize-text" class="text-lg font-black text-black mb-6 leading-tight"></div>
-            <button id="modal-btn" class="w-full py-4 bg-gray-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest">OK</button>
+            <div id="prize-text" class="text-lg font-black text-black mb-6"></div>
+            <button id="modal-btn" class="w-full py-4 bg-gray-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg"></button>
         </div>
     </div>
 
     <script>
         let chances = localStorage.getItem('draw_chances') === null ? 3 : parseInt(localStorage.getItem('draw_chances'));
         document.getElementById('chance-count').innerText = chances;
-        const prizes = [
-            { name: "谢谢惠顾", weight: 30, offset: 54 },
-            { name: "Latetelly 亲笔签名", weight: 20, offset: 144 },
-            { name: "我的世界正版账号", weight: 10, offset: 198 },
-            { name: "Latetelly 的三连", weight: 20, offset: 252 },
-            { name: "✨ 超级大奖 ✨", weight: 20, offset: 324 }
-        ];
-        let isSpinning = false;
-        let currentRotation = 0;
 
-        function startSpin() { if (isSpinning || chances <= 0) { if(chances <= 0) alert("今日机会已用完！"); return; } isSpinning = true; chances--; localStorage.setItem('draw_chances', chances); document.getElementById('chance-count').innerText = chances; const random = Math.random() * 100; let currentWeight = 0; let winPrize = prizes[0]; for (const p of prizes) { currentWeight += p.weight; if (random <= currentWeight) { winPrize = p; break; } } const baseSpins = 5 * 360; const targetOffset = 360 - winPrize.offset; currentRotation += baseSpins + (targetOffset - (currentRotation % 360)) + (Math.random() * 20 - 10); const wheel = document.getElementById('wheel'); wheel.style.transform = `rotate(${currentRotation}deg)`; setTimeout(() => { showResult(winPrize.name); isSpinning = false; }, 4200); }
+        // 奖项及其对应的度数区间 [min, max]
+        const prizes = [
+            { name: "谢谢惠顾", weight: 30, range: [0, 108] },
+            { name: "Latetelly 亲笔签名", weight: 20, range: [108, 180] },
+            { name: "我的世界正版账号", weight: 10, range: [180, 216] },
+            { name: "Latetelly 的三连", weight: 20, range: [216, 288] },
+            { name: "✨ 超级大奖 ✨", weight: 20, range: [288, 360] }
+        ];
+
+        let isSpinning = false;
+        let totalRotation = 0; // 记录总旋转度数
+
+        function startSpin() {
+            if (isSpinning || chances <= 0) {
+                if(chances <= 0) alert("今日机会已用完！");
+                return;
+            }
+
+            isSpinning = true;
+            chances--;
+            localStorage.setItem('draw_chances', chances);
+            document.getElementById('chance-count').innerText = chances;
+
+            // 1. 权重随机
+            const random = Math.random() * 100;
+            let currentWeight = 0;
+            let winPrize = prizes[0];
+            for (const p of prizes) {
+                currentWeight += p.weight;
+                if (random <= currentWeight) { winPrize = p; break; }
+            }
+
+            // 2. 核心数学修复：计算旋转增量
+            // 在奖项区间内取随机点，并避开色块分界线
+            const sectorRandom = 8 + Math.random() * (winPrize.range[1] - winPrize.range[0] - 16);
+            const targetPos = winPrize.range[0] + sectorRandom;
+            
+            // 指针在顶部(0度)，转盘顺时针转，所以落点相对于转盘初始位置是 (360 - targetPos)
+            const finalAngle = 360 - targetPos;
+            
+            // 确保每次旋转至少转 10 圈 (3600度)，且在上一抽的基础上增加
+            const currentMod = totalRotation % 360;
+            const extraRounds = (10 + Math.floor(Math.random() * 5)) * 360;
+            const compensation = (finalAngle - currentMod + 360) % 360;
+            
+            totalRotation += extraRounds + compensation;
+
+            const wheel = document.getElementById('wheel');
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+            setTimeout(() => {
+                showResult(winPrize.name);
+                isSpinning = false;
+            }, 4600);
+        }
 
         function showResult(name) {
             const modal = document.getElementById('result-modal');
             const text = document.getElementById('prize-text');
             const btn = document.getElementById('modal-btn');
             
-            // 默认普通奖项的关闭逻辑
-            const normalClose = () => { modal.classList.remove('active'); };
-
             if (name === "✨ 超级大奖 ✨") {
                 text.innerText = `恭喜获得：\n${name}`;
                 btn.innerText = "立即兑奖";
-                btn.classList.add('bg-purple-600'); // 加点紫色炫酷
-                btn.classList.remove('bg-gray-900');
-                // 1. 修改按钮点击事件：跳转到本地视频链接
-                btn.onclick = () => {
-                    window.location.href = "./rickroll.mp4";
-                };
+                btn.onclick = () => { window.location.href = "https://b23.tv/to79uAN"; };
             } else {
                 text.innerText = name === "谢谢惠顾" ? "遗憾，未中奖" : `恭喜获得：\n${name}`;
                 btn.innerText = "OK";
-                btn.classList.remove('bg-purple-600');
-                btn.classList.add('bg-gray-900');
-                // 普通奖项：恢复默认关闭弹窗
-                btn.onclick = normalClose;
+                btn.onclick = () => { modal.classList.remove('active'); };
             }
             modal.classList.add('active');
         }
