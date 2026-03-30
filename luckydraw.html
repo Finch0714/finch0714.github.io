@@ -85,11 +85,21 @@
         </div>
     </div>
 
-    <script>
-        let chances = 3;
+<script>
+        // --- 次数逻辑修改：从 localStorage 读取 ---
+        let chances = localStorage.getItem('lottery_chances');
+        if (chances === null) {
+            chances = 3; // 初始次数
+            localStorage.setItem('lottery_chances', chances);
+        } else {
+            chances = parseInt(chances);
+        }
+        document.getElementById('count').innerText = chances;
+        // ---------------------------------------
+
         let isRunning = false;
-        let currentIndex = -1; // 当前选中的索引
-        const sequence = [0, 1, 2, 3, 4, 5, 6, 7]; // 顺时针旋转序列
+        let currentIndex = -1; 
+        const sequence = [0, 1, 2, 3, 4, 5, 6, 7]; 
         
         const prizes = {
             0: { name: "点赞", desc: "由Latetelly免费送出的一个点赞" },
@@ -103,17 +113,25 @@
         };
 
         function startLottery() {
-            if (isRunning || chances <= 0) return;
+            if (isRunning || chances <= 0) {
+                if (chances <= 0) alert("您的抽奖次数已用完！");
+                return;
+            }
 
             isRunning = true;
+            
+            // --- 更新次数并同步到缓存 ---
             chances--;
+            localStorage.setItem('lottery_chances', chances);
             document.getElementById('count').innerText = chances;
+            // -------------------------
+
             document.getElementById('start-node').classList.add('disabled');
 
             let speed = 100;
             let cycles = 0;
-            const totalCycles = 4; // 至少转多少圈
-            const targetIndex = Math.floor(Math.random() * 8); // 随机目标
+            const totalCycles = 4; 
+            const targetIndex = Math.floor(Math.random() * 8); 
 
             function roll() {
                 currentIndex++;
@@ -122,17 +140,14 @@
                     cycles++;
                 }
 
-                // 清除所有高亮
                 sequence.forEach(idx => document.getElementById(`cell-${idx}`).classList.remove('active'));
-                // 高亮当前
                 document.getElementById(`cell-${sequence[currentIndex]}`).classList.add('active');
 
-                // 速度控制逻辑
                 if (cycles >= totalCycles && currentIndex === targetIndex) {
                     stopAt(targetIndex);
                 } else {
-                    if (cycles < totalCycles - 1) speed -= 2; // 加速
-                    else speed += 15; // 减速
+                    if (cycles < totalCycles - 1) speed -= 2; 
+                    else speed += 15; 
                     if (speed < 40) speed = 40;
                     setTimeout(roll, speed);
                 }
@@ -154,9 +169,8 @@
 
             nameEl.innerText = prize.name;
             descEl.innerText = prize.desc;
-            actionArea.innerHTML = ''; // 清空
+            actionArea.innerHTML = ''; 
 
-            // 如果是超级大奖，加兑奖按钮
             if (prize.special) {
                 const btn = document.createElement('button');
                 btn.className = "w-full py-3 bg-pink-500 rounded-xl font-bold text-sm shadow-lg";
@@ -165,7 +179,6 @@
                 actionArea.appendChild(btn);
             }
 
-            // 关闭按钮
             const closeBtn = document.createElement('button');
             closeBtn.className = "w-full py-3 bg-white/20 rounded-xl font-bold text-sm";
             closeBtn.innerText = "确定";
