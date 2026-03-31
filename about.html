@@ -28,18 +28,19 @@
 
         #bg-layer { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            /* 仅修改此处背景图链接 */
             background: url('https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp') center/cover no-repeat;
             transition: opacity 1s ease-out; 
             z-index: -2;
         }
         
-        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.35); z-index: -1; }
+        /* 调低遮罩层，让背景更亮更清晰 */
+        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); z-index: -1; }
         
+        /* 调低卡片背景不透明度，增加通透感 */
         .glass { 
-            background: rgba(255, 255, 255, 0.32); 
+            background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .ctrl-ball {
@@ -136,10 +137,12 @@
 
         <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-4 items-center">
             <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full"></span>个人私藏网站</h2></div>
-            <div class="flex flex-col gap-4 w-full items-center">
-                <a href="https://b23.tv/to79uAN" target="_blank" class="w-full max-w-xs bg-gray-800 text-white py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all text-center">点击进入</a>
-                <a href="./luckydraw.html" class="w-full max-w-xs bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-md active:scale-95 transition-all text-center">幸运抽奖</a>
-            </div>
+            <a href="https://b23.tv/to79uAN" target="_blank" class="w-full max-w-xs bg-gray-800 text-white py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all text-center">点击进入</a>
+        </div>
+
+        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-5 items-center">
+            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-pink-500 rounded-full"></span>幸运福利</h2></div>
+            <a href="./luckydraw.html" class="w-full max-w-xs bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-md active:scale-95 transition-all text-center">幸运抽奖</a>
         </div>
     </div>
 
