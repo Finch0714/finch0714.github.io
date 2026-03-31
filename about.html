@@ -43,6 +43,36 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        /* --- 兼容性布局补丁 --- */
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 64rem; /* 对应 max-w-5xl */
+            z-index: 10;
+            flex-grow: 1;
+            /* 使用负 margin 抵消子元素的 margin，防止整体偏移 */
+            margin: -1.25rem 0; 
+        }
+
+        .main-card {
+            margin: 1.25rem 0; /* 替代 gap-10 的效果 */
+        }
+
+        .flex-row-stack {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            margin: -1rem; /* 抵消内部 gap */
+        }
+
+        .inner-card {
+            margin: 1rem;
+        }
+        /* ------------------- */
+
         .ctrl-ball {
             width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
             cursor: pointer; border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
@@ -74,9 +104,10 @@
 
     <canvas id="snow-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;"></canvas>
 
-    <div class="flex flex-col items-center gap-10 w-full max-w-5xl z-10 flex-grow">
-        <div class="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-8 w-full">
-            <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden order-2 lg:order-1">
+    <div class="card-container">
+        
+        <div class="flex-row-stack main-card">
+            <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden inner-card">
                 <div class="p-10 text-center border-b border-black border-opacity-5">
                     <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100">
                         <img src="./avatar.jpg" alt="Avatar" class="w-full h-full object-cover">
@@ -93,7 +124,7 @@
                 </div>
             </div>
 
-            <div class="glass lg:w-32 w-full p-8 lg:py-12 rounded-3xl shadow-xl relative flex items-center justify-center order-1 lg:order-2">
+            <div class="glass lg:w-32 w-full p-8 lg:py-12 rounded-3xl shadow-xl relative flex items-center justify-center inner-card">
                 <div class="hitokoto-card text-gray-800 font-bold">
                     <span id="hitokoto_text" class="text-base leading-loose tracking-widest opacity-0 transition-opacity duration-500">加载中...</span>
                     <span id="hitokoto_from" class="text-xs text-gray-700 mt-6 font-black opacity-0 block text-right"></span>
@@ -102,7 +133,7 @@
             </div>
         </div>
 
-        <div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col expand-container order-3">
+        <div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col expand-container main-card">
             <div class="flex justify-between items-center min-h-[40px] px-2">
                 <h2 class="text-xs font-black text-gray-900 tracking-widest flex items-center gap-2 uppercase"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg"></span> MC智能信息查询</h2>
                 <div class="flex items-center gap-4">
@@ -135,12 +166,12 @@
             </div>
         </div>
 
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-4 items-center">
+        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
             <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full"></span>个人私藏网站</h2></div>
             <a href="https://b23.tv/to79uAN" target="_blank" class="w-full max-w-xs bg-gray-800 text-white py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all text-center">点击进入</a>
         </div>
 
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col order-5 items-center">
+        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
             <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-pink-500 rounded-full"></span>幸运福利</h2></div>
             <a href="./luckydraw.html" class="w-full max-w-xs bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-md active:scale-95 transition-all text-center">幸运抽奖</a>
         </div>
@@ -176,8 +207,6 @@
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
         const bgLayer = document.getElementById('bg-layer');
-        
-        // --- 壁纸逻辑升级 ---
         const myWallpapers = [
             "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
             "https://picui.ogmua.cn/s1/2026/03/31/69cbe0b27f7c7.webp",
@@ -186,19 +215,16 @@
             "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f903373.webp"
         ];
         
-        let currentIdx = Math.floor(Math.random() * myWallpapers.length); // 初始随机
+        let currentIdx = Math.floor(Math.random() * myWallpapers.length);
         let useAPI = false;
-
-        // 初始化背景
         bgLayer.style.backgroundImage = `url('${myWallpapers[currentIdx]}')`;
 
         function changeWallpaper() {
             let nextUrl = "";
-            
             if (!useAPI) {
                 currentIdx++;
                 if (currentIdx >= myWallpapers.length) {
-                    useAPI = true; // 指定图换完了，开启API模式
+                    useAPI = true;
                     nextUrl = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
                 } else {
                     nextUrl = myWallpapers[currentIdx];
@@ -206,7 +232,6 @@
             } else {
                 nextUrl = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
             }
-
             const img = new Image(); 
             img.src = nextUrl;
             img.onload = () => { 
@@ -217,15 +242,12 @@
                 }, 400); 
             };
         }
-        // -------------------
 
         function toggleMC() { const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn'); const isExp = c.classList.toggle('expanded'); b.innerText = isExp ? "收起面板" : "展开详情"; }
         async function smartQuery() { const val = document.getElementById('mc_input').value.trim(); const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon'); if(!val) return; resBox.classList.remove('hidden'); if (val.includes('.')) { pDisp.classList.add('hidden'); sDisp.classList.remove('hidden'); try { const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json(); if(d.online) { document.getElementById('mc_online').innerText = "在线"; document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`; document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12); iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden'); } else { document.getElementById('mc_online').innerText = "离线"; } } catch(e) { document.getElementById('mc_online').innerText = "错误"; } } else { sDisp.classList.add('hidden'); pDisp.classList.remove('hidden'); document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`; iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden'); try { const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json(); if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id; document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`; document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`; } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; } } }
         function fetchHitokoto() { const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from'); t.style.opacity = 0; f.style.opacity = 0; fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => { t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`; t.style.opacity = 1; f.style.opacity = 0.9; }); } fetchHitokoto();
-        
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
-
         const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
         let snowActive = true;
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
