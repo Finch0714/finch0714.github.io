@@ -43,35 +43,36 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* --- 兼容性布局补丁 --- */
+        /* --- 老旧浏览器兼容性布局补丁 --- */
         .card-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 64rem; /* 对应 max-w-5xl */
+            max-width: 64rem; 
             z-index: 10;
             flex-grow: 1;
-            /* 使用负 margin 抵消子元素的 margin，防止整体偏移 */
+            /* 垂直方向的负 margin，抵消 main-card 的间距 */
             margin: -1.25rem 0; 
         }
 
         .main-card {
-            margin: 1.25rem 0; /* 替代 gap-10 的效果 */
+            margin: 1.25rem 0; /* 替代 gap-10 */
         }
 
         .flex-row-stack {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* 自动换行 */
             justify-content: center;
             width: 100%;
-            margin: -1rem; /* 抵消内部 gap */
+            /* 水平方向负 margin，抵消 inner-card 的间距 */
+            margin: -1rem; 
         }
 
         .inner-card {
-            margin: 1rem;
+            margin: 1rem; /* 替代 gap-8 */
         }
-        /* ------------------- */
+        /* ---------------------------- */
 
         .ctrl-ball {
             width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
@@ -105,8 +106,16 @@
     <canvas id="snow-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;"></canvas>
 
     <div class="card-container">
-        
         <div class="flex-row-stack main-card">
+            
+            <div class="glass lg:w-32 w-full p-8 lg:py-12 rounded-3xl shadow-xl relative flex items-center justify-center inner-card">
+                <div class="hitokoto-card text-gray-800 font-bold">
+                    <span id="hitokoto_text" class="text-base leading-loose tracking-widest opacity-0 transition-opacity duration-500">加载中...</span>
+                    <span id="hitokoto_from" class="text-xs text-gray-700 mt-6 font-black opacity-0 block text-right"></span>
+                </div>
+                <button onclick="fetchHitokoto()" class="absolute bottom-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-20 hover:bg-opacity-40 transition-colors">🔄</button>
+            </div>
+
             <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden inner-card">
                 <div class="p-10 text-center border-b border-black border-opacity-5">
                     <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100">
@@ -124,13 +133,6 @@
                 </div>
             </div>
 
-            <div class="glass lg:w-32 w-full p-8 lg:py-12 rounded-3xl shadow-xl relative flex items-center justify-center inner-card">
-                <div class="hitokoto-card text-gray-800 font-bold">
-                    <span id="hitokoto_text" class="text-base leading-loose tracking-widest opacity-0 transition-opacity duration-500">加载中...</span>
-                    <span id="hitokoto_from" class="text-xs text-gray-700 mt-6 font-black opacity-0 block text-right"></span>
-                </div>
-                <button onclick="fetchHitokoto()" class="absolute bottom-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-20 hover:bg-opacity-40 transition-colors">🔄</button>
-            </div>
         </div>
 
         <div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col expand-container main-card">
