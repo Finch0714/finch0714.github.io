@@ -28,15 +28,15 @@
 
         #bg-layer { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: url('https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp') center/cover no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             transition: opacity 1s ease-out; 
             z-index: -2;
         }
         
-        /* 调低遮罩层，让背景更亮更清晰 */
         #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); z-index: -1; }
         
-        /* 调低卡片背景不透明度，增加通透感 */
         .glass { 
             background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
@@ -176,11 +176,48 @@
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
         const bgLayer = document.getElementById('bg-layer');
+        
+        // --- 壁纸逻辑升级 ---
+        const myWallpapers = [
+            "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
+            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0b27f7c7.webp",
+            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f9533b3.webp",
+            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0b2b8305.webp",
+            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f903373.webp"
+        ];
+        
+        let currentIdx = Math.floor(Math.random() * myWallpapers.length); // 初始随机
+        let useAPI = false;
+
+        // 初始化背景
+        bgLayer.style.backgroundImage = `url('${myWallpapers[currentIdx]}')`;
+
         function changeWallpaper() {
-            const url = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
-            const img = new Image(); img.src = url;
-            img.onload = () => { bgLayer.style.opacity = 0; setTimeout(() => { bgLayer.style.backgroundImage = `url('${url}')`; bgLayer.style.opacity = 1; }, 400); };
+            let nextUrl = "";
+            
+            if (!useAPI) {
+                currentIdx++;
+                if (currentIdx >= myWallpapers.length) {
+                    useAPI = true; // 指定图换完了，开启API模式
+                    nextUrl = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
+                } else {
+                    nextUrl = myWallpapers[currentIdx];
+                }
+            } else {
+                nextUrl = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
+            }
+
+            const img = new Image(); 
+            img.src = nextUrl;
+            img.onload = () => { 
+                bgLayer.style.opacity = 0; 
+                setTimeout(() => { 
+                    bgLayer.style.backgroundImage = `url('${nextUrl}')`; 
+                    bgLayer.style.opacity = 1; 
+                }, 400); 
+            };
         }
+        // -------------------
 
         function toggleMC() { const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn'); const isExp = c.classList.toggle('expanded'); b.innerText = isExp ? "收起面板" : "展开详情"; }
         async function smartQuery() { const val = document.getElementById('mc_input').value.trim(); const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon'); if(!val) return; resBox.classList.remove('hidden'); if (val.includes('.')) { pDisp.classList.add('hidden'); sDisp.classList.remove('hidden'); try { const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json(); if(d.online) { document.getElementById('mc_online').innerText = "在线"; document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`; document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12); iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden'); } else { document.getElementById('mc_online').innerText = "离线"; } } catch(e) { document.getElementById('mc_online').innerText = "错误"; } } else { sDisp.classList.add('hidden'); pDisp.classList.remove('hidden'); document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`; iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden'); try { const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json(); if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id; document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`; document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`; } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; } } }
