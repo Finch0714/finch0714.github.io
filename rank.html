@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>在线排行榜生成器 - 移动优化版</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <style>
+        :root { --bg-color: #1a1a1a; --text-color: #ffffff; --border-color: #333; }
+        body { font-family: sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .header { text-align: center; margin-bottom: 20px; }
+        .controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        
+        /* 排行榜区域 */
+        #capture-area { width: 100%; max-width: 800px; background: #000; border: 1px solid var(--border-color); }
+        .tier-row { display: flex; min-height: 90px; border-bottom: 1px solid var(--border-color); }
+        .tier-label { width: 80px; min-width: 80px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 1rem; text-align: center; padding: 5px; }
+        
+        /* 关键：拖拽目标区域 */
+        .tier-content { flex-grow: 1; display: flex; flex-wrap: wrap; padding: 5px; gap: 5px; min-height: 90px; background: #111; transition: background 0.2s; }
+        .sortable-ghost { opacity: 0.4; background: #333 !important; }
+
+        /* 配色还原 */
+        .tier-夯 { background-color: #ff4b4b; }
+        .tier-顶级 { background-color: #ff9f1c; }
+        .tier-人上人 { background-color: #ffcf33; }
+        .tier-NPC { background-color: #ffeb99; }
+        .tier-拉完了 { background-color: #e5e7eb; }
+
+        /* 图片样式 */
+        .item { width: 70px; height: 70px; object-fit: cover; border-radius: 4px; cursor: pointer; touch-action: none; }
+
+        /* 上传与下载按钮 */
+        .btn { background: #444; color: white; padding: 12px 24px; border-radius: 8px; cursor: pointer; border: none; font-size: 14px; font-weight: bold; }
+        .btn-download { background: #22c55e; }
+        #file-input { display: none; }
+
+        /* 待分配池 */
+        .pool-container { width: 100%; max-width: 800px; margin-top: 30px; padding: 15px; border: 2px dashed #444; border-radius: 12px; }
+        #pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 100px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>排行榜生成器</h1>
+        <p style="font-size: 12px; color: #888;">手机端长按图片即可拖动排序</p>
+    </div>
+
+    <div class="controls">
+        <label for="file-input" class="btn">➕ 添加图片</label>
+        <input type="file" id="file-input" multiple accept="image/*" onchange="handleFiles(this.files)">
+        <button class="btn btn-download" onclick="downloadRank()">保存为图片</button>
+    </div>
+
+    <div id="capture-area">
+        <div class="tier-row">
+            <div class="tier-label tier-夯">夯</div>
+            <div class="tier-content tier-list"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label tier-顶级">顶级</div>
+            <div class="tier-content tier-list"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label tier-人上人">人上人</div>
+            <div class="tier-content tier-list"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label tier-NPC">NPC</div>
+            <div class="tier-content tier-list"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label tier-拉完了">拉完了</div>
+            <div class="tier-content tier-list"></div>
+        </div>
+    </div>
+
+    <div class="pool-container">
+        <p style="margin-top:0; font-size:12px; color:#aaa;">待分配图片池：</p>
+        <div id="pool" class="tier-list"></div>
+    </div>
+
+    <script>
+        // 初始化所有拖拽区域
+        const lists = document.querySelectorAll('.tier-list');
+        lists.forEach(el => {
+            new Sortable(el, {
+                group: 'shared', // 允许在不同行之间移动
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                fallbackTolerance: 3, // 稍微移动即触发，防止误触点击
+                delay: 100, // 手机端延迟100ms触发拖拽，防止滚动页面时误触发
+                delayOnTouchOnly: true
+            });
+        });
+
+        // 处理文件上传并转为 Base64（方便 html2canvas 渲染）
+        function handleFiles(files) {
+            const pool = document.getElementById('pool');
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'item';
+                    pool.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 核心功能：下载图片
+        async function downloadRank() {
+            const area = document.getElementById('capture-area');
+            const btn = document.querySelector('.btn-download');
+            
+            btn.innerText = "正在生成...";
+            btn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(area, {
+                    backgroundColor: "#000",
+                    scale: 2, // 提高清晰度
+                    useCORS: true, // 允许跨域图片
+                    logging: false
+                });
+
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.download = `My-Rank-${Date.now()}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            } catch (err) {
+                alert("生成失败，请尝试手动截屏");
+                console.error(err);
+            } finally {
+                btn.innerText = "保存为图片";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
