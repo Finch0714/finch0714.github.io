@@ -43,7 +43,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* --- 老旧浏览器兼容性布局补丁 --- */
         .card-container {
             display: flex;
             flex-direction: column;
@@ -52,27 +51,12 @@
             max-width: 64rem; 
             z-index: 10;
             flex-grow: 1;
-            /* 垂直方向的负 margin，抵消 main-card 的间距 */
             margin: -1.25rem 0; 
         }
 
-        .main-card {
-            margin: 1.25rem 0; /* 替代 gap-10 */
-        }
-
-        .flex-row-stack {
-            display: flex;
-            flex-wrap: wrap; /* 自动换行 */
-            justify-content: center;
-            width: 100%;
-            /* 水平方向负 margin，抵消 inner-card 的间距 */
-            margin: -1rem; 
-        }
-
-        .inner-card {
-            margin: 1rem; /* 替代 gap-8 */
-        }
-        /* ---------------------------- */
+        .main-card { margin: 1.25rem 0; }
+        .flex-row-stack { display: flex; flex-wrap: wrap; justify-content: center; width: 100%; margin: -1rem; }
+        .inner-card { margin: 1rem; }
 
         .ctrl-ball {
             width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
@@ -107,7 +91,6 @@
 
     <div class="card-container">
         <div class="flex-row-stack main-card">
-            
             <div class="glass lg:w-32 w-full p-8 lg:py-12 rounded-3xl shadow-xl relative flex items-center justify-center inner-card">
                 <div class="hitokoto-card text-gray-800 font-bold">
                     <span id="hitokoto_text" class="text-base leading-loose tracking-widest opacity-0 transition-opacity duration-500">加载中...</span>
@@ -132,57 +115,10 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
-        <div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col expand-container main-card">
-            <div class="flex justify-between items-center min-h-[40px] px-2">
-                <h2 class="text-xs font-black text-gray-900 tracking-widest flex items-center gap-2 uppercase"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg"></span> MC智能信息查询</h2>
-                <div class="flex items-center gap-4">
-                    <img id="mc_icon" src="" class="w-8 h-8 rounded-lg shadow-md hidden bg-white/20">
-                    <button id="mc_toggle_btn" onclick="toggleMC()" class="text-[10px] font-black text-gray-700 px-4 py-1.5 border border-black/10 rounded-full bg-white/20">展开详情</button>
-                </div>
+        <div id="feature-list" class="w-full flex flex-col items-center">
             </div>
-            <div class="mt-8 space-y-8 px-2">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <input id="mc_input" type="text" placeholder="输入服务器IP或玩家id 如mc.hypixel.net/Dream" class="flex-1 bg-white bg-opacity-40 border-2 border-white border-opacity-60 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-green-500 text-gray-900 font-black transition-all shadow-inner">
-                    <button onclick="smartQuery()" class="bg-gray-800 text-white px-10 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">开始查询</button>
-                </div>
-                <div id="mc_result_box" class="hidden border-t border-black/5 pt-8">
-                    <div id="player_display" class="hidden flex flex-col md:flex-row items-center md:items-start gap-10">
-                        <img id="player_3d" src="" class="h-72 drop-shadow-2xl object-contain">
-                        <div class="flex-1 w-full space-y-6">
-                            <div><p class="text-[10px] font-bold text-gray-500 uppercase mb-2 tracking-widest">UUID</p><p id="player_uuid" class="text-xs font-mono bg-black/5 p-4 rounded-2xl break-all text-gray-800 font-bold"></p></div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <a id="btn_namemc" target="_blank" class="p-3 bg-white/30 border border-white/40 rounded-2xl text-[10px] font-black text-center text-gray-700">NameMC</a>
-                                <a id="btn_skin" target="_blank" class="p-3 bg-white/30 border border-white/40 rounded-2xl text-[10px] font-black text-center text-gray-700">Skin</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="server_display" class="hidden grid grid-cols-3 gap-4 font-mono text-xs">
-                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">STATUS</p><span id="mc_online" class="font-black"></span></div>
-                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">PLAYERS</p><span id="mc_players" class="font-black"></span></div>
-                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">VERSION</p><span id="mc_ver" class="font-black"></span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
-            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full"></span>个人私藏网站</h2></div>
-            <a href="https://b23.tv/to79uAN" target="_blank" class="w-full max-w-xs bg-gray-800 text-white py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all text-center">点击进入</a>
-        </div>
-
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
-            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-pink-500 rounded-full"></span>幸运福利</h2></div>
-            <a href="./luckydraw.html" class="w-full max-w-xs bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-md active:scale-95 transition-all text-center">幸运抽奖</a>
-        </div>
-
-        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
-            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 bg-yellow-500 rounded-full"></span>荣誉排行</h2></div>
-            <a href="./rank.html" class="w-full max-w-xs bg-gray-800 text-white py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all text-center">排行入口</a>
-        </div>
-
     </div>
 
     <footer class="w-full flex justify-center py-10 z-10">
@@ -214,6 +150,65 @@
 
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
+        // 核心功能渲染逻辑
+        async function renderFeatures() {
+            try {
+                const response = await fetch('./features.json');
+                const features = await response.json();
+                const list = document.getElementById('feature-list');
+                
+                list.innerHTML = features.map(item => {
+                    if(item.id === 'mc_query') {
+                        return `
+                        <div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col expand-container main-card">
+                            <div class="flex justify-between items-center min-h-[40px] px-2">
+                                <h2 class="text-xs font-black text-gray-900 tracking-widest flex items-center gap-2 uppercase"><span class="w-2 h-2 ${item.color} rounded-full animate-pulse shadow-lg"></span> ${item.title}</h2>
+                                <div class="flex items-center gap-4">
+                                    <img id="mc_icon" src="" class="w-8 h-8 rounded-lg shadow-md hidden bg-white/20">
+                                    <button id="mc_toggle_btn" onclick="toggleMC()" class="text-[10px] font-black text-gray-700 px-4 py-1.5 border border-black/10 rounded-full bg-white/20">展开详情</button>
+                                </div>
+                            </div>
+                            <div class="mt-8 space-y-8 px-2">
+                                <div class="flex flex-col md:flex-row gap-4">
+                                    <input id="mc_input" type="text" placeholder="输入服务器IP或玩家id" class="flex-1 bg-white bg-opacity-40 border-2 border-white border-opacity-60 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-green-500 text-gray-900 font-black transition-all shadow-inner">
+                                    <button onclick="smartQuery()" class="bg-gray-800 text-white px-10 py-4 rounded-2xl text-xs font-bold tracking-widest shadow-lg active:scale-95 transition-all">开始查询</button>
+                                </div>
+                                <div id="mc_result_box" class="hidden border-t border-black/5 pt-8">
+                                    <div id="player_display" class="hidden flex flex-col md:flex-row items-center md:items-start gap-10">
+                                        <img id="player_3d" src="" class="h-72 drop-shadow-2xl object-contain">
+                                        <div class="flex-1 w-full space-y-6">
+                                            <div><p class="text-[10px] font-bold text-gray-500 uppercase mb-2 tracking-widest">UUID</p><p id="player_uuid" class="text-xs font-mono bg-black/5 p-4 rounded-2xl break-all text-gray-800 font-bold"></p></div>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <a id="btn_namemc" target="_blank" class="p-3 bg-white/30 border border-white/40 rounded-2xl text-[10px] font-black text-center text-gray-700">NameMC</a>
+                                                <a id="btn_skin" target="_blank" class="p-3 bg-white/30 border border-white/40 rounded-2xl text-[10px] font-black text-center text-gray-700">Skin</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="server_display" class="hidden grid grid-cols-3 gap-4 font-mono text-xs">
+                                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">STATUS</p><span id="mc_online" class="font-black"></span></div>
+                                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">PLAYERS</p><span id="mc_players" class="font-black"></span></div>
+                                        <div class="p-4 bg-white/30 rounded-2xl text-center"><p class="mb-1 text-gray-500 font-bold text-[9px]">VERSION</p><span id="mc_ver" class="font-black"></span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    } else {
+                        // 通用卡片
+                        const isDark = item.theme === 'dark';
+                        const btnStyle = isDark 
+                            ? "bg-gray-800 text-white shadow-lg" 
+                            : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
+                        return `
+                        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
+                            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 ${item.color} rounded-full"></span>${item.title}</h2></div>
+                            <a href="${item.url}" class="w-full max-w-xs ${btnStyle} py-4 rounded-2xl text-xs font-bold tracking-widest active:scale-95 transition-all text-center">${item.btnText}</a>
+                        </div>`;
+                    }
+                }).join('');
+            } catch (err) { console.error("Load JSON failed:", err); }
+        }
+        renderFeatures();
+
         const bgLayer = document.getElementById('bg-layer');
         const myWallpapers = [
             "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
@@ -240,8 +235,7 @@
             } else {
                 nextUrl = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
             }
-            const img = new Image(); 
-            img.src = nextUrl;
+            const img = new Image(); img.src = nextUrl;
             img.onload = () => { 
                 bgLayer.style.opacity = 0; 
                 setTimeout(() => { 
