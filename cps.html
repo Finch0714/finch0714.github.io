@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>点击速度测试</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.loli.net/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111;
+            color: white;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #click-area {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+        }
+        
+        #click-area:active { background: radial-gradient(circle at center, rgba(59, 130, 246, 0.2) 0%, transparent 70%); }
+
+        .stat-box {
+            padding: 1rem 2rem;
+            border-radius: 1.5rem;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .mode-btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .mode-btn.active {
+            background: white;
+            color: black;
+            border-color: white;
+        }
+
+        .result-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .result-overlay.active { display: flex; animation: fadeIn 0.3s forwards; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .click-animation {
+            position: absolute;
+            pointer-events: none;
+            color: rgba(255,255,255,0.5);
+            font-weight: 900;
+            animation: floatUp 0.5s ease-out forwards;
+        }
+        @keyframes floatUp {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-50px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="click-area" onclick="handleClick(event)">
+        <div class="fixed top-10 flex gap-4 pointer-events-auto">
+            <button id="btn-5s" class="mode-btn active" onclick="setMode(5, event)">5 SECONDS</button>
+            <button id="btn-10s" class="mode-btn" onclick="setMode(10, event)">10 SECONDS</button>
+        </div>
+
+        <div class="flex gap-6 mb-10 pointer-events-none">
+            <div class="glass stat-box">
+                <p class="text-[10px] font-bold opacity-50 uppercase tracking-widest mb-1">Time Left</p>
+                <p id="timer-display" class="text-3xl font-black font-mono">5.0</p>
+            </div>
+            <div class="glass stat-box">
+                <p class="text-[10px] font-bold opacity-50 uppercase tracking-widest mb-1">Clicks</p>
+                <p id="count-display" class="text-3xl font-black font-mono">0</p>
+            </div>
+        </div>
+
+        <div class="text-center pointer-events-none">
+            <h1 id="hint-text" class="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4">Click to Start</h1>
+            <p class="text-sm opacity-40 font-bold uppercase tracking-widest">尽量快地点击屏幕</p>
+        </div>
+    </div>
+
+    <div id="result-modal" class="result-overlay">
+        <div class="glass p-10 rounded-[2.5rem] max-w-sm w-full text-center mx-4">
+            <h2 class="text-xs font-black opacity-50 uppercase tracking-[0.3em] mb-2">测试结果</h2>
+            <div id="final-cps" class="text-6xl font-black mb-1">0.0</div>
+            <p class="text-xs font-bold text-blue-400 mb-8 uppercase tracking-widest">Clicks Per Second</p>
+            
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-white/5 p-4 rounded-2xl">
+                    <p class="text-[9px] opacity-40 font-bold uppercase mb-1">总点击</p>
+                    <p id="total-clicks" class="text-xl font-black">0</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-2xl">
+                    <p class="text-[9px] opacity-40 font-bold uppercase mb-1">称号</p>
+                    <p id="rank-name" class="text-xl font-black text-yellow-500">新手</p>
+                </div>
+            </div>
+
+            <button onclick="resetTest()" class="w-full py-4 bg-white text-black rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-all">重新开始</button>
+            <a href="about.html" class="inline-block mt-6 text-[10px] opacity-30 hover:opacity-100 transition-opacity uppercase tracking-widest font-bold">返回主页</a>
+        </div>
+    </div>
+
+    <script>
+        let clicks = 0;
+        let timeLeft = 5;
+        let initialTime = 5;
+        let isRunning = false;
+        let timer = null;
+
+        const timerDisplay = document.getElementById('timer-display');
+        const countDisplay = document.getElementById('count-display');
+        const hintText = document.getElementById('hint-text');
+        const resultModal = document.getElementById('result-modal');
+
+        function setMode(sec, e) {
+            e.stopPropagation();
+            if (isRunning) return;
+            initialTime = sec;
+            timeLeft = sec;
+            timerDisplay.innerText = sec.toFixed(1);
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${sec}s`).classList.add('active');
+        }
+
+        function handleClick(e) {
+            if (timeLeft <= 0) return;
+
+            if (!isRunning) {
+                startTimer();
+            }
+
+            clicks++;
+            countDisplay.innerText = clicks;
+            hintText.innerText = "KEEP GOING!";
+            
+            // 点击特效
+            const particle = document.createElement('div');
+            particle.className = 'click-animation';
+            particle.innerText = '+1';
+            particle.style.left = e.clientX + 'px';
+            particle.style.top = e.clientY + 'px';
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 500);
+        }
+
+        function startTimer() {
+            isRunning = true;
+            const startTime = Date.now();
+            
+            timer = setInterval(() => {
+                const elapsed = (Date.now() - startTime) / 1000;
+                timeLeft = Math.max(0, initialTime - elapsed);
+                timerDisplay.innerText = timeLeft.toFixed(1);
+
+                if (timeLeft <= 0) {
+                    endTest();
+                }
+            }, 100);
+        }
+
+        function endTest() {
+            clearInterval(timer);
+            isRunning = false;
+            
+            const cps = (clicks / initialTime).toFixed(1);
+            document.getElementById('final-cps').innerText = cps;
+            document.getElementById('total-clicks').innerText = clicks;
+            document.getElementById('rank-name').innerText = getRank(cps);
+            
+            resultModal.classList.add('active');
+        }
+
+        function getRank(cps) {
+            if (cps < 5) return "乌龟";
+            if (cps < 8) return "凡人";
+            if (cps < 11) return "猎豹";
+            if (cps < 14) return "触手";
+            return "外挂！";
+        }
+
+        function resetTest() {
+            clicks = 0;
+            timeLeft = initialTime;
+            isRunning = false;
+            countDisplay.innerText = "0";
+            timerDisplay.innerText = initialTime.toFixed(1);
+            hintText.innerText = "CLICK TO START";
+            resultModal.classList.remove('active');
+        }
+    </script>
+</body>
+</html>
