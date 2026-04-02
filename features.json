@@ -1,0 +1,48 @@
+[
+    {
+        "id": "mc_query",
+        "title": "MC智能信息查询",
+        "type": "special",
+        "color": "bg-green-500"
+    },
+    {
+        "id": "reaction_test",
+        "title": "反应速度测试",
+        "url": "./reactiontest.html",
+        "btnText": "进入测试",
+        "color": "bg-blue-500",
+        "theme": "light"
+    },
+    {
+        "id": "cps_test",
+        "title": "点击速度测试",
+        "url": "./cps.html",
+        "btnText": "开始挑战",
+        "color": "bg-green-400",
+        "theme": "dark"
+    },
+    {
+        "id": "private_sites",
+        "title": "个人私藏网站",
+        "url": "https://b23.tv/to79uAN",
+        "btnText": "点击进入",
+        "color": "bg-purple-500",
+        "theme": "dark"
+    },
+    {
+        "id": "lucky_draw",
+        "title": "幸运福利",
+        "url": "./luckydraw.html",
+        "btnText": "幸运抽奖",
+        "color": "bg-pink-500",
+        "theme": "light"
+    },
+    {
+        "id": "rank_list",
+        "title": "夯到拉排行制作",
+        "url": "./rank.html",
+        "btnText": "排行入口",
+        "color": "bg-yellow-500",
+        "theme": "dark"
+    }
+]
