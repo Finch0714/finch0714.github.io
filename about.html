@@ -28,8 +28,10 @@
 
         #bg-layer { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background-size: cover;
-            background-position: center;
+            /* 修改这里：高度撑满，宽度根据比例自适应，确保长图可以左右滚动 */
+            background-size: auto 100%;
+            /* 初始位置靠左 */
+            background-position: 0% center;
             background-repeat: no-repeat;
             transition: opacity 1s ease-out; 
             z-index: -2;
@@ -61,7 +63,7 @@
         .ctrl-ball {
             width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
             cursor: pointer; border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 150; font-size: 1.2rem;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 200; font-size: 1.2rem;
         }
         .ctrl-ball:active { transform: scale(0.85); }
 
@@ -82,7 +84,7 @@
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
 
-    <div class="fixed top-6 left-6 flex gap-4 z-[150]">
+    <div class="fixed top-6 left-6 flex gap-4 z-[200]">
         <div class="ctrl-ball glass" onclick="toggleSnow()">❄️</div>
         <div class="ctrl-ball glass" onclick="changeWallpaper()">🖼️</div>
     </div>
@@ -193,7 +195,6 @@
                             </div>
                         </div>`;
                     } else {
-                        // 通用卡片
                         const isDark = item.theme === 'dark';
                         const btnStyle = isDark 
                             ? "bg-gray-800 text-white shadow-lg" 
@@ -221,6 +222,18 @@
         let currentIdx = Math.floor(Math.random() * myWallpapers.length);
         let useAPI = false;
         bgLayer.style.backgroundImage = `url('${myWallpapers[currentIdx]}')`;
+
+        // --- 背景跟随滚动逻辑 ---
+        window.onscroll = function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            // 计算滚动百分比 (0 到 1)
+            let scrollPercent = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+            // 限制在 0-1 之间
+            scrollPercent = Math.max(0, Math.min(1, scrollPercent));
+            // 将百分比映射到背景图的 X 轴位置 (0% 到 100%)
+            bgLayer.style.backgroundPosition = `${scrollPercent * 100}% center`;
+        };
 
         function changeWallpaper() {
             let nextUrl = "";
