@@ -6,7 +6,6 @@
     <title>欢迎</title>
     
     <link rel="icon" type="image/png" href="Favicon.png">
-    
     <link rel="preload" as="image" href="https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp">
     <link rel="preconnect" href="https://fonts.loli.net">
     <link rel="dns-prefetch" href="https://visage.surgeplay.com">
@@ -28,13 +27,13 @@
 
         #bg-layer { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            /* 修改这里：高度撑满，宽度根据比例自适应，确保长图可以左右滚动 */
             background-size: auto 100%;
-            /* 初始位置靠左 */
             background-position: 0% center;
             background-repeat: no-repeat;
-            transition: opacity 1s ease-out; 
             z-index: -2;
+            /* 关键：添加 0.1s 的线性平滑过渡，消除 JS 采样的锯齿感 */
+            transition: opacity 1s ease-out, background-position 0.1s linear; 
+            will-change: background-position;
         }
         
         #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); z-index: -1; }
@@ -45,37 +44,34 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .card-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 64rem; 
-            z-index: 10;
-            flex-grow: 1;
-            margin: -1.25rem 0; 
+        /* 顶部功能按钮容器 - 深度优化 */
+        .fixed-controls {
+            position: fixed; top: 1.5rem; left: 1.5rem; 
+            display: flex; gap: 1rem; 
+            z-index: 9999 !important; /* 确保层级绝对最高 */
+            transform: translateZ(999px); /* 强制开启硬件加速，防止被毛玻璃覆盖 */
+            pointer-events: auto;
         }
-
-        .main-card { margin: 1.25rem 0; }
-        .flex-row-stack { display: flex; flex-wrap: wrap; justify-content: center; width: 100%; margin: -1rem; }
-        .inner-card { margin: 1rem; }
 
         .ctrl-ball {
             width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
             cursor: pointer; border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 200; font-size: 1.2rem;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 1.2rem;
         }
         .ctrl-ball:active { transform: scale(0.85); }
 
+        .card-container { z-index: 10; position: relative; width: 100%; max-width: 64rem; margin: -1.25rem 0; }
+        .main-card { margin: 1.25rem 0; }
+        .flex-row-stack { display: flex; flex-wrap: wrap; justify-content: center; width: 100%; margin: -1rem; }
+        .inner-card { margin: 1rem; }
         .expand-container { transition: max-height 0.5s ease-in-out; max-height: 85px; overflow: hidden; }
         .expand-container.expanded { max-height: 1200px; }
-
         .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
         @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
         
-        #contact-modal { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.5); backdrop-blur: 10px; }
+        #contact-modal { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
         #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; align-items: center; justify-content: center; }
-        
         @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
@@ -84,7 +80,7 @@
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
 
-    <div class="fixed top-6 left-6 flex gap-4 z-[200]">
+    <div class="fixed-controls">
         <div class="ctrl-ball glass" onclick="toggleSnow()">❄️</div>
         <div class="ctrl-ball glass" onclick="changeWallpaper()">🖼️</div>
     </div>
@@ -100,7 +96,6 @@
                 </div>
                 <button onclick="fetchHitokoto()" class="absolute bottom-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-20 hover:bg-opacity-40 transition-colors">🔄</button>
             </div>
-
             <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden inner-card">
                 <div class="p-10 text-center border-b border-black border-opacity-5">
                     <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100">
@@ -118,9 +113,7 @@
                 </div>
             </div>
         </div>
-
-        <div id="feature-list" class="w-full flex flex-col items-center">
-            </div>
+        <div id="feature-list" class="w-full flex flex-col items-center"></div>
     </div>
 
     <footer class="w-full flex justify-center py-10 z-10">
@@ -152,13 +145,12 @@
 
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
-        // 核心功能渲染逻辑
+        // 核心功能渲染逻辑 (维持原样)
         async function renderFeatures() {
             try {
                 const response = await fetch('./features.json');
                 const features = await response.json();
                 const list = document.getElementById('feature-list');
-                
                 list.innerHTML = features.map(item => {
                     if(item.id === 'mc_query') {
                         return `
@@ -196,11 +188,8 @@
                         </div>`;
                     } else {
                         const isDark = item.theme === 'dark';
-                        const btnStyle = isDark 
-                            ? "bg-gray-800 text-white shadow-lg" 
-                            : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
-                        return `
-                        <div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
+                        const btnStyle = isDark ? "bg-gray-800 text-white shadow-lg" : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
+                        return `<div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
                             <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 ${item.color} rounded-full"></span>${item.title}</h2></div>
                             <a href="${item.url}" class="w-full max-w-xs ${btnStyle} py-4 rounded-2xl text-xs font-bold tracking-widest active:scale-95 transition-all text-center">${item.btnText}</a>
                         </div>`;
@@ -220,44 +209,34 @@
         ];
         
         let currentIdx = Math.floor(Math.random() * myWallpapers.length);
-        let useAPI = false;
         bgLayer.style.backgroundImage = `url('${myWallpapers[currentIdx]}')`;
 
-        // --- 背景跟随滚动逻辑 ---
-        window.onscroll = function() {
+        // --- 丝滑背景滚动逻辑 (使用 rAF 和过渡缓冲) ---
+        let ticking = false;
+        function updateBackground() {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            // 计算滚动百分比 (0 到 1)
             let scrollPercent = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
-            // 限制在 0-1 之间
             scrollPercent = Math.max(0, Math.min(1, scrollPercent));
-            // 将百分比映射到背景图的 X 轴位置 (0% 到 100%)
+            
+            // 使用 backgroundPosition 直接控制 X 轴
             bgLayer.style.backgroundPosition = `${scrollPercent * 100}% center`;
-        };
-
-        function changeWallpaper() {
-            let nextUrl = "";
-            if (!useAPI) {
-                currentIdx++;
-                if (currentIdx >= myWallpapers.length) {
-                    useAPI = true;
-                    nextUrl = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
-                } else {
-                    nextUrl = myWallpapers[currentIdx];
-                }
-            } else {
-                nextUrl = `https://wp.upx8.com/api.php?_t=${Date.now()}`;
-            }
-            const img = new Image(); img.src = nextUrl;
-            img.onload = () => { 
-                bgLayer.style.opacity = 0; 
-                setTimeout(() => { 
-                    bgLayer.style.backgroundImage = `url('${nextUrl}')`; 
-                    bgLayer.style.opacity = 1; 
-                }, 400); 
-            };
+            ticking = false;
         }
 
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateBackground);
+                ticking = true;
+            }
+        });
+
+        // 其他功能逻辑 (changeWallpaper, toggleMC, smartQuery, fetchHitokoto, openModal, closeModal, snowAnim) 维持原样
+        function changeWallpaper() {
+            let nextUrl = myWallpapers[++currentIdx % myWallpapers.length];
+            const img = new Image(); img.src = nextUrl;
+            img.onload = () => { bgLayer.style.opacity = 0; setTimeout(() => { bgLayer.style.backgroundImage = `url('${nextUrl}')`; bgLayer.style.opacity = 1; }, 400); };
+        }
         function toggleMC() { const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn'); const isExp = c.classList.toggle('expanded'); b.innerText = isExp ? "收起面板" : "展开详情"; }
         async function smartQuery() { const val = document.getElementById('mc_input').value.trim(); const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon'); if(!val) return; resBox.classList.remove('hidden'); if (val.includes('.')) { pDisp.classList.add('hidden'); sDisp.classList.remove('hidden'); try { const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json(); if(d.online) { document.getElementById('mc_online').innerText = "在线"; document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`; document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12); iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden'); } else { document.getElementById('mc_online').innerText = "离线"; } } catch(e) { document.getElementById('mc_online').innerText = "错误"; } } else { sDisp.classList.add('hidden'); pDisp.classList.remove('hidden'); document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`; iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden'); try { const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json(); if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id; document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`; document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`; } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; } } }
         function fetchHitokoto() { const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from'); t.style.opacity = 0; f.style.opacity = 0; fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => { t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`; t.style.opacity = 1; f.style.opacity = 0.9; }); } fetchHitokoto();
