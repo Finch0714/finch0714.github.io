@@ -6,7 +6,7 @@
     <title>欢迎</title>
     
     <link rel="icon" type="image/png" href="Favicon.png">
-    <link rel="preload" as="image" href="https://wp.upx8.com/api.php?_t=">
+    <link rel="preload" as="image" href="https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp">
     <link rel="preconnect" href="https://fonts.loli.net">
     <link rel="dns-prefetch" href="https://visage.surgeplay.com">
 
@@ -25,10 +25,10 @@
             min-height: 100vh;
         }
 
-        /* 极致丝滑背景层：硬件加速位移 */
+        /* 零延迟背景层：使用 Transform 驱动 */
         #bg-layer { 
             position: fixed; top: 0; left: 0; 
-            width: 125vw; height: 100vh; /* 宽度设为125%，预留充足的左右滑动空间 */
+            width: 125vw; height: 100vh; 
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -37,7 +37,6 @@
             will-change: transform;
             pointer-events: none;
             transform: translate3d(0, 0, 0);
-            background-image: url('https://wp.upx8.com/api.php?_t=');
         }
         
         #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); z-index: -1; }
@@ -48,7 +47,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* 顶部按钮：强制提升渲染层级，防止被滚动卡片遮挡 */
         .fixed-controls {
             position: fixed; top: 1.5rem; left: 1.5rem; 
             display: flex; gap: 1rem; 
@@ -71,7 +69,6 @@
         .inner-card { margin: 1rem; }
         .expand-container { transition: max-height 0.5s ease-in-out; max-height: 85px; overflow: hidden; }
         .expand-container.expanded { max-height: 1200px; }
-        
         .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
         @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
         
@@ -151,7 +148,6 @@
 
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
-        // 渲染功能列表逻辑
         async function renderFeatures() {
             try {
                 const response = await fetch('./features.json');
@@ -170,47 +166,62 @@
         renderFeatures();
 
         const bgLayer = document.getElementById('bg-layer');
+        
+        // --- 壁纸逻辑配置 ---
+        const myWallpapers = [
+            "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
+            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0b27f7c7.webp",
+            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f9533b3.webp",
+            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0b2b8305.webp",
+            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f903373.webp"
+        ];
         const wallpaperAPI = "https://wp.upx8.com/api.php?_t=";
+        
+        // 初始随机选一张图床图片
+        let clickCount = 0;
+        let currentIdx = Math.floor(Math.random() * myWallpapers.length);
+        bgLayer.style.backgroundImage = `url('${myWallpapers[currentIdx]}')`;
 
         // --- 零延迟背景滚动引擎 ---
         function updateBackground() {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             if (scrollHeight <= 0) return;
-            
-            // 计算滚动百分比
             let scrollPercent = Math.max(0, Math.min(1, scrollTop / scrollHeight));
-            
-            // 计算背景向左滑动的最大位移量 (背景宽 125vw - 屏幕宽 100vw = 25vw)
             const moveRange = bgLayer.offsetWidth - window.innerWidth;
             const moveX = -(scrollPercent * moveRange);
-
-            // 直接通过 translate3d 实现零延迟硬件位移
             bgLayer.style.transform = `translate3d(${moveX}px, 0, 0)`;
         }
 
-        // 监听滚动，使用 passive 选项优化性能
         window.addEventListener('scroll', updateBackground, { passive: true });
         window.addEventListener('resize', updateBackground);
         updateBackground();
 
-        // --- 动态调用 API 切换壁纸 ---
+        // --- 核心切换逻辑：图床 -> API ---
         function changeWallpaper() {
-            // 通过在末尾叠加当前时间戳，确保每次请求都绕过浏览器缓存，获取新图
-            const nextUrl = wallpaperAPI + new Date().getTime();
+            clickCount++;
+            let nextUrl;
+
+            // 如果点击次数小于等于图床图片数量，继续在图床图片中轮询
+            if (clickCount < myWallpapers.length) {
+                currentIdx = (currentIdx + 1) % myWallpapers.length;
+                nextUrl = myWallpapers[currentIdx];
+            } else {
+                // 超过次数后，调用 API 模式
+                nextUrl = wallpaperAPI + new Date().getTime();
+            }
+
             const img = new Image();
             img.src = nextUrl;
-            
             img.onload = () => {
-                bgLayer.style.opacity = 0; // 淡出旧图
+                bgLayer.style.opacity = 0;
                 setTimeout(() => {
                     bgLayer.style.backgroundImage = `url('${nextUrl}')`;
-                    bgLayer.style.opacity = 1; // 淡入新图
-                }, 800);
+                    bgLayer.style.opacity = 1;
+                }, 400); // 400ms 淡入淡出，保持丝滑
             };
         }
 
-        // 一言加载
         function fetchHitokoto() {
             const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from');
             t.style.opacity = 0; f.style.opacity = 0;
@@ -224,7 +235,6 @@
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
 
-        // 雪花动效
         const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
         let snowActive = true;
         function resizeSnow() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
