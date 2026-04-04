@@ -30,14 +30,6 @@
         "theme": "dark"
     },
     {
-        "id": "lucky_draw",
-        "title": "幸运福利",
-        "url": "./luckydraw.html",
-        "btnText": "幸运抽奖",
-        "color": "bg-pink-500",
-        "theme": "light"
-    },
-    {
         "id": "rank_list",
         "title": "夯到拉排行制作",
         "url": "./rank.html",
