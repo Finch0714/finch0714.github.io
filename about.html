@@ -6,7 +6,7 @@
     <title>欢迎</title>
     
     <link rel="icon" type="image/png" href="Favicon.png">
-    <link rel="preload" as="image" href="https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp">
+    <link rel="preload" as="image" href="https://wp.upx8.com/api.php?_t=">
     <link rel="preconnect" href="https://fonts.loli.net">
     <link rel="dns-prefetch" href="https://visage.surgeplay.com">
 
@@ -25,18 +25,19 @@
             min-height: 100vh;
         }
 
-        /* 优化后的背景层：使用 Transform 实现物理零延迟 */
+        /* 极致丝滑背景层：硬件加速位移 */
         #bg-layer { 
             position: fixed; top: 0; left: 0; 
-            width: 120vw; height: 100vh; /* 宽度略大于屏幕，提供滚动空间 */
+            width: 125vw; height: 100vh; /* 宽度设为125%，预留充足的左右滑动空间 */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             z-index: -2;
-            transition: opacity 1s ease-out; /* 仅保留透明度过渡 */
+            transition: opacity 0.8s ease-in-out; 
             will-change: transform;
             pointer-events: none;
             transform: translate3d(0, 0, 0);
+            background-image: url('https://wp.upx8.com/api.php?_t=');
         }
         
         #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); z-index: -1; }
@@ -47,12 +48,12 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* 顶部功能按钮：强制置顶且防遮挡 */
+        /* 顶部按钮：强制提升渲染层级，防止被滚动卡片遮挡 */
         .fixed-controls {
             position: fixed; top: 1.5rem; left: 1.5rem; 
             display: flex; gap: 1rem; 
             z-index: 99999 !important; 
-            transform: translateZ(999px); /* 强制提升至最高合成层 */
+            transform: translateZ(999px);
             pointer-events: auto;
         }
 
@@ -70,6 +71,7 @@
         .inner-card { margin: 1rem; }
         .expand-container { transition: max-height 0.5s ease-in-out; max-height: 85px; overflow: hidden; }
         .expand-container.expanded { max-height: 1200px; }
+        
         .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
         @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
         
@@ -99,6 +101,7 @@
                 </div>
                 <button onclick="fetchHitokoto()" class="absolute bottom-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-20 hover:bg-opacity-40 transition-colors">🔄</button>
             </div>
+            
             <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden inner-card">
                 <div class="p-10 text-center border-b border-black border-opacity-5">
                     <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100">
@@ -148,85 +151,97 @@
 
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
+        // 渲染功能列表逻辑
         async function renderFeatures() {
             try {
                 const response = await fetch('./features.json');
                 const features = await response.json();
                 const list = document.getElementById('feature-list');
                 list.innerHTML = features.map(item => {
-                    if(item.id === 'mc_query') {
-                        return `<div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col expand-container main-card">...</div>`; // 这里保持你原来的MC渲染代码
-                    } else {
-                        const isDark = item.theme === 'dark';
-                        const btnStyle = isDark ? "bg-gray-800 text-white shadow-lg" : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
-                        return `<div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
-                            <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 ${item.color} rounded-full"></span>${item.title}</h2></div>
-                            <a href="${item.url}" class="w-full max-w-xs ${btnStyle} py-4 rounded-2xl text-xs font-bold tracking-widest active:scale-95 transition-all text-center">${item.btnText}</a>
-                        </div>`;
-                    }
+                    const isDark = item.theme === 'dark';
+                    const btnStyle = isDark ? "bg-gray-800 text-white shadow-lg" : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
+                    return `<div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
+                        <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 ${item.color} rounded-full"></span>${item.title}</h2></div>
+                        <a href="${item.url}" class="w-full max-w-xs ${btnStyle} py-4 rounded-2xl text-xs font-bold tracking-widest active:scale-95 transition-all text-center">${item.btnText}</a>
+                    </div>`;
                 }).join('');
             } catch (err) {}
         }
         renderFeatures();
 
         const bgLayer = document.getElementById('bg-layer');
-        const myWallpapers = [
-            "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
-            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0b27f7c7.webp",
-            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f9533b3.webp",
-            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0b2b8305.webp",
-            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f903373.webp"
-        ];
-        
-        let currentIdx = Math.floor(Math.random() * myWallpapers.length);
-        bgLayer.style.backgroundImage = `url('${myWallpapers[currentIdx]}')`;
+        const wallpaperAPI = "https://wp.upx8.com/api.php?_t=";
 
-        // --- 零延迟、不掉帧背景滚动核心逻辑 ---
+        // --- 零延迟背景滚动引擎 ---
         function updateBackground() {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            
             if (scrollHeight <= 0) return;
-
-            let scrollPercent = scrollTop / scrollHeight;
-            scrollPercent = Math.max(0, Math.min(1, scrollPercent));
-
-            // 计算背景向左位移的距离 (背景宽 120vw - 屏幕宽 100vw = 20vw)
+            
+            // 计算滚动百分比
+            let scrollPercent = Math.max(0, Math.min(1, scrollTop / scrollHeight));
+            
+            // 计算背景向左滑动的最大位移量 (背景宽 125vw - 屏幕宽 100vw = 25vw)
             const moveRange = bgLayer.offsetWidth - window.innerWidth;
             const moveX = -(scrollPercent * moveRange);
 
-            // 直接通过 transform 修改位置，跳过所有过渡和重排
+            // 直接通过 translate3d 实现零延迟硬件位移
             bgLayer.style.transform = `translate3d(${moveX}px, 0, 0)`;
         }
 
-        // 使用 passive 监听器提升滚动性能
+        // 监听滚动，使用 passive 选项优化性能
         window.addEventListener('scroll', updateBackground, { passive: true });
         window.addEventListener('resize', updateBackground);
         updateBackground();
 
+        // --- 动态调用 API 切换壁纸 ---
         function changeWallpaper() {
-            let nextUrl = myWallpapers[++currentIdx % myWallpapers.length];
-            const img = new Image(); img.src = nextUrl;
-            img.onload = () => { 
-                bgLayer.style.opacity = 0; 
-                setTimeout(() => { 
-                    bgLayer.style.backgroundImage = `url('${nextUrl}')`; 
-                    bgLayer.style.opacity = 1; 
-                }, 400); 
+            // 通过在末尾叠加当前时间戳，确保每次请求都绕过浏览器缓存，获取新图
+            const nextUrl = wallpaperAPI + new Date().getTime();
+            const img = new Image();
+            img.src = nextUrl;
+            
+            img.onload = () => {
+                bgLayer.style.opacity = 0; // 淡出旧图
+                setTimeout(() => {
+                    bgLayer.style.backgroundImage = `url('${nextUrl}')`;
+                    bgLayer.style.opacity = 1; // 淡入新图
+                }, 800);
             };
         }
 
-        // 其它业务逻辑 (fetchHitokoto, Modal, Snow) 保持不变即可
-        function fetchHitokoto() { const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from'); t.style.opacity = 0; f.style.opacity = 0; fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => { t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`; t.style.opacity = 1; f.style.opacity = 0.9; }); } 
+        // 一言加载
+        function fetchHitokoto() {
+            const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from');
+            t.style.opacity = 0; f.style.opacity = 0;
+            fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => {
+                t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`;
+                t.style.opacity = 1; f.style.opacity = 0.9;
+            });
+        }
         fetchHitokoto();
+
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
+
+        // 雪花动效
         const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
         let snowActive = true;
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; updateBackground(); }
-        window.addEventListener('resize', resize); resize();
+        function resizeSnow() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeSnow); resizeSnow();
         let pts = Array.from({length:40}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.5+0.5}));
-        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); if(snowActive) { ctx.fillStyle = "rgba(255,255,255,0.45)"; pts.forEach(p => { p.y += 0.0008; if(p.y>1) p.y=0; ctx.beginPath(); ctx.arc(p.x*canvas.width, p.y*canvas.height, p.s, 0, Math.PI*2); ctx.fill(); }); } requestAnimationFrame(anim); } anim();
+        function anim() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            if(snowActive) {
+                ctx.fillStyle = "rgba(255,255,255,0.45)";
+                pts.forEach(p => {
+                    p.y += 0.0008; if(p.y>1) p.y=0;
+                    ctx.beginPath(); ctx.arc(p.x*canvas.width, p.y*canvas.height, p.s, 0, Math.PI*2); ctx.fill();
+                });
+            }
+            requestAnimationFrame(anim);
+        }
+        anim();
         function toggleSnow() { snowActive = !snowActive; }
     </script>
 </body>
