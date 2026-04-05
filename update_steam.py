@@ -27,7 +27,7 @@ MANUAL_GAMES = [
 def get_data():
     # 核心修复：添加了 &include_played_free_games=1 以抓取 CS2 等免费游戏
     summary_url = f"http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={KEY}&steamids={ID}"
-    library_url = f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={KEY}&steamid={ID}&format=json&include_appinfo=true&include_played_free_games=1"
+    library_url = f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={KEY}&steamid={ID}&format=json&include_appinfo=true&include_played_free_games=true"
 
     try:
         summary_res = requests.get(summary_url).json()
