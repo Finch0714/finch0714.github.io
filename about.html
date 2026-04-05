@@ -315,25 +315,113 @@
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
 
-        const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
-        let snowActive = true;
-        function resizeSnow() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resizeSnow); resizeSnow();
-        // 修改：雪花数量从 40 增加到 100
-        let pts = Array.from({length:100}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.5+0.5}));
-        function anim() {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            if(snowActive) {
-                ctx.fillStyle = "rgba(255,255,255,0.45)";
-                pts.forEach(p => {
-                    p.y += 0.0008; if(p.y>1) p.y=0;
-                    ctx.beginPath(); ctx.arc(p.x*canvas.width, p.y*canvas.height, p.s, 0, Math.PI*2); ctx.fill();
-                });
-            }
-            requestAnimationFrame(anim);
+        // --- ❄️ 离屏渲染优化版雪花特效 ---
+const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
+let snowActive = true;
+const dpr = window.devicePixelRatio || 1; // 处理高清屏模糊问题
+
+function resizeSnow() {
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    ctx.scale(dpr, dpr); // 缩放绘图上下文
+}
+window.addEventListener('resize', resizeSnow);
+resizeSnow();
+
+// 1. **核心优化：创建离屏缓存贴图**
+const snowCache = [];
+const cacheSizes = [2, 3, 4, 5]; // 4种不同的雪花尺寸
+const cacheColors = [
+    'rgba(255, 255, 255, 0.3)', // 远景（更透明）
+    'rgba(255, 255, 255, 0.45)', // 中景
+    'rgba(255, 255, 255, 0.6)'  // 近景（更亮）
+];
+
+function createSnowCache() {
+    cacheSizes.forEach((size, idx) => {
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = size * 2 * dpr;
+        offCanvas.height = size * 2 * dpr;
+        const offCtx = offCanvas.getContext('2d');
+        offCtx.scale(dpr, dpr);
+
+        offCtx.fillStyle = cacheColors[Math.min(idx, cacheColors.length - 1)];
+        offCtx.beginPath();
+        offCtx.arc(size, size, size, 0, Math.PI * 2);
+        offCtx.fill();
+        
+        // 可选：给大雪花加一点点模糊效果，更有层次感
+        if (size > 3) {
+            offCtx.shadowColor = offCtx.fillStyle;
+            offCtx.shadowBlur = 2;
         }
-        anim();
-        function toggleSnow() { snowActive = !snowActive; }
+
+        snowCache.push({
+            canvas: offCanvas,
+            size: size
+        });
+    });
+}
+createSnowCache();
+
+// 2. **初始化雪花数据**
+// 修改：雪花数量从 100 优化为 70 (性能与视觉的平衡)，并随机分配缓存贴图
+let pts = Array.from({length: 70}, () => ({
+    x: Math.random(),
+    y: Math.random(),
+    cacheIdx: Math.floor(Math.random() * snowCache.length), // 随机分配一种贴图
+    vy: Math.random() * 0.0005 + 0.0003, // 垂直速度
+    vx: Math.random() * 0.0002 - 0.0001 // 轻微的左右摆动
+}));
+
+// 3. **优化后的动画主循环**
+function anim() {
+    // 使用 clearRect 清除，比 fillRect 性能更好
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    
+    if (snowActive) {
+        pts.forEach(p => {
+            // 更新位置
+            p.y += p.vy;
+            p.x += p.vx;
+            
+            // 边界检查
+            if (p.y > 1.01) p.y = -0.01;
+            if (p.x > 1.01) p.x = -0.01;
+            if (p.x < -0.01) p.x = 1.01;
+            
+            // **核心优化：直接绘制缓存的贴图**
+            const cache = snowCache[p.cacheIdx];
+            const renderX = p.x * (canvas.width / dpr);
+            const renderY = p.y * (canvas.width / dpr); // 保持纵横比一致，防止拉伸
+            
+            // 如果雪花超出了 Canvas 底部，不需要绘制
+            if (renderY < (canvas.height / dpr)) {
+                ctx.drawImage(cache.canvas, renderX, renderY, cache.size * 2, cache.size * 2);
+            }
+        });
+    }
+    requestAnimationFrame(anim);
+}
+
+// 4. **性能进阶：视口检测**
+// 当用户向下滚动，Canvas 不在可见区域时，暂停动画
+if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+        snowActive = entries[0].isIntersecting;
+    }, { threshold: 0.1 });
+    observer.observe(canvas);
+} else {
+    // 降级方案：监听滚动事件
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        snowActive = scrollTop < window.innerHeight; // 只在首屏激活雪花
+    }, { passive: true });
+}
+
+anim();
+
+function toggleSnow() { snowActive = !snowActive; }
     </script>
 </body>
 </html>
