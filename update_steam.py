@@ -16,7 +16,7 @@ MANUAL_GAMES = [
     },
     {
         "appid": "manual_02",
-        "name": "Minecraft",
+        "name": "Minecraft Java Edition",
         "playtime": 832,
         "icon": "https://wallpaperm.cmcm.com/182ceb54d84374469e5ea079a4f0befc.jpg" # 这里可以放任何图片的直连链接
     }
