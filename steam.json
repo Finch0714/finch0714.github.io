@@ -3,14 +3,14 @@
     "avatar": "https://avatars.steamstatic.com/ab8193d79ba94bfa0672afc3fda07ef7b220621e_full.jpg",
     "state": 0,
     "game_ingame": null,
-    "total_hours": 2081.4,
+    "total_hours": 876.5,
     "game_count": 7,
     "updated_at": 1775231601,
     "games_list": [
         {
             "appid": "manual_02",
             "name": "Minecraft",
-            "playtime": 2037,
+            "playtime": 832,
             "icon": "https://wallpaperm.cmcm.com/182ceb54d84374469e5ea079a4f0befc.jpg"
         },
         {
