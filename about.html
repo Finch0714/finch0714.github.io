@@ -56,6 +56,18 @@
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
+        /* Steam 专用样式 */
+        .steam-card {
+            background: linear-gradient(135deg, rgba(23, 26, 33, 0.9) 0%, rgba(42, 71, 94, 0.8) 100%);
+            border: 1px solid rgba(102, 192, 232, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .steam-status-playing { color: #66c0f4; text-shadow: 0 0 10px rgba(102, 192, 232, 0.5); }
+        .steam-game-img { 
+            mask-image: linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0)); 
+            -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0)); 
+        }
+
         .fixed-controls {
             position: fixed; top: 1.5rem; left: 1.5rem; 
             display: flex; gap: 1rem; 
@@ -90,7 +102,6 @@
         #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; align-items: center; justify-content: center; }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         
-        /* 强制修正 MC查询 placeholder */
         #mc_input::placeholder { color: #1f2937 !important; font-weight: 800; opacity: 0.5; }
         #mc_input:focus::placeholder { opacity: 0.3; }
     </style>
@@ -168,16 +179,22 @@
 
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
-        // --- 核心渲染逻辑 ---
+        // --- 核心渲染逻辑 (已集成 Steam) ---
         async function renderFeatures() {
             try {
-                const response = await fetch('./features.json');
-                const features = await response.json();
+                // 并发获取基础列表和 Steam 实时状态
+                const [featRes, steamRes] = await Promise.all([
+                    fetch('./features.json'),
+                    fetch('./steam.json').catch(() => null)
+                ]);
+                
+                const features = await featRes.json();
+                const steamData = steamRes ? await steamRes.json() : null;
                 const list = document.getElementById('feature-list');
                 
                 list.innerHTML = features.map(item => {
-                    // 特殊处理 MC查询
-                    if (item.type === "special" || item.id === "mc_query") {
+                    // 1. MC查询特殊处理
+                    if (item.id === "mc_query") {
                         return `<div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col main-card expand-container">
                             <div class="flex justify-between items-center min-h-[40px] px-2">
                                 <h2 class="text-xs font-black text-gray-800 tracking-widest flex items-center gap-2 uppercase">
@@ -213,7 +230,30 @@
                             </div>
                         </div>`;
                     }
-                    // 普通卡片渲染
+
+                    // 2. Steam 状态卡片渲染逻辑
+                    if (item.id === "steam_status" && steamData) {
+                        const isPlaying = !!steamData.game_name;
+                        return `<div class="steam-card max-w-xl lg:max-w-4xl w-full rounded-3xl shadow-2xl main-card overflow-hidden relative group">
+                            <div class="flex flex-col md:flex-row items-center">
+                                ${isPlaying ? `<img src="${steamData.game_img}" class="w-full md:w-1/2 h-48 md:h-auto object-cover steam-game-img">` : ''}
+                                <div class="p-8 flex-1 w-full">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="w-3 h-3 rounded-full ${isPlaying ? 'bg-blue-400 animate-pulse' : 'bg-gray-500'}"></div>
+                                        <span class="text-[10px] font-black text-blue-300 uppercase tracking-widest">${isPlaying ? 'In-Game' : 'Offline / Private'}</span>
+                                    </div>
+                                    <h3 class="text-xl font-black text-white mb-2">${isPlaying ? steamData.game_name : '最近没有在玩游戏'}</h3>
+                                    <div class="flex gap-6 mt-6">
+                                        <div><p class="text-[9px] font-bold text-blue-200/50 uppercase">2Wks Hours</p><p class="text-sm font-mono text-white font-bold">${steamData.play_time_2weeks || '0'}h</p></div>
+                                        <div><p class="text-[9px] font-bold text-blue-200/50 uppercase">User</p><p class="text-sm font-mono text-white font-bold">Latetelly</p></div>
+                                    </div>
+                                    <a href="${item.url}" target="_blank" class="inline-block mt-8 px-6 py-2 bg-blue-500/20 hover:bg-blue-500/40 border border-blue-400/30 text-blue-200 text-[10px] font-black rounded-lg transition-all uppercase tracking-tighter">View Steam Profile</a>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+
+                    // 3. 普通卡片渲染
                     const isDark = item.theme === 'dark';
                     const btnStyle = isDark ? "bg-gray-800 text-white shadow-lg" : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
                     return `<div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
@@ -225,7 +265,7 @@
         }
         renderFeatures();
 
-        // --- 功能函数 ---
+        // --- 其余功能函数完全保留 ---
         function toggleMC() {
             const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn');
             const isExp = c.classList.toggle('expanded');
@@ -238,7 +278,7 @@
             if(!val) return;
             resBox.classList.remove('hidden');
             
-            if (val.includes('.')) { // 判定为服务器
+            if (val.includes('.')) {
                 pDisp.classList.add('hidden'); sDisp.classList.remove('hidden');
                 try {
                     const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json();
@@ -253,7 +293,7 @@
                         document.getElementById('mc_online').className = "font-black text-red-600";
                     }
                 } catch(e) { document.getElementById('mc_online').innerText = "错误"; }
-            } else { // 判定为玩家
+            } else {
                 sDisp.classList.add('hidden'); pDisp.classList.remove('hidden');
                 document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`;
                 iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden');
@@ -268,7 +308,6 @@
 
         function toggleTheme() { document.body.classList.toggle('light-gray-theme'); }
 
-        // --- 背景动态管理 ---
         const bgLayer = document.getElementById('bg-layer');
         const myWallpapers = [
             "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
@@ -311,7 +350,6 @@
             };
         }
 
-        // --- 一言获取 ---
         function fetchHitokoto() {
             const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from');
             t.style.opacity = 0; f.style.opacity = 0;
@@ -325,7 +363,6 @@
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
 
-        // --- 雪花粒子系统 ---
         const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
         let snowActive = true;
         function resizeSnow() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -347,5 +384,4 @@
         function toggleSnow() { snowActive = !snowActive; }
     </script>
 </body>
-</html></body>
 </html>
