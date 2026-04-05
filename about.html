@@ -41,10 +41,19 @@
         
         #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); z-index: -1; }
         
+        /* 玻璃效果基类 */
         .glass { 
             background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
             border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background 0.3s ease, backdrop-filter 0.3s ease;
+        }
+
+        /* 浅灰色主题类 */
+        body.light-gray-theme .glass {
+            background: rgba(230, 230, 230, 0.85);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .fixed-controls {
@@ -88,6 +97,7 @@
     <div class="fixed-controls">
         <div class="ctrl-ball glass" onclick="toggleSnow()">❄️</div>
         <div class="ctrl-ball glass" onclick="changeWallpaper()">🖼️</div>
+        <div class="ctrl-ball glass" onclick="toggleTheme()">🌓</div>
     </div>
 
     <canvas id="snow-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;"></canvas>
@@ -158,7 +168,6 @@
                 const features = await response.json();
                 const list = document.getElementById('feature-list');
                 list.innerHTML = features.map(item => {
-                    // 如果是 MC 查询特殊组件
                     if (item.type === "special" || item.id === "mc_query") {
                         return `<div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col main-card expand-container">
                             <div class="flex justify-between items-center min-h-[40px] px-2">
@@ -195,7 +204,6 @@
                             </div>
                         </div>`;
                     }
-                    // 普通按钮
                     const isDark = item.theme === 'dark';
                     const btnStyle = isDark ? "bg-gray-800 text-white shadow-lg" : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
                     return `<div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
@@ -207,7 +215,6 @@
         }
         renderFeatures();
 
-        // --- MC查询具体 JS 修复 ---
         function toggleMC() {
             const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn');
             const isExp = c.classList.toggle('expanded');
@@ -241,6 +248,11 @@
                     document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`;
                 } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; }
             }
+        }
+
+        // 主题切换函数
+        function toggleTheme() {
+            document.body.classList.toggle('light-gray-theme');
         }
 
         const bgLayer = document.getElementById('bg-layer');
@@ -307,7 +319,8 @@
         let snowActive = true;
         function resizeSnow() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeSnow); resizeSnow();
-        let pts = Array.from({length:40}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.5+0.5}));
+        // 修改：雪花数量从 40 增加到 100
+        let pts = Array.from({length:100}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.5+0.5}));
         function anim() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
             if(snowActive) {
