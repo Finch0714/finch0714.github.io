@@ -179,7 +179,7 @@
 
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
-        // --- 核心渲染逻辑 (已集成 Steam) ---
+        // --- 核心渲染逻辑 (已整合 Steam 与基础列表) ---
         async function renderFeatures() {
             try {
                 // 并发获取基础列表和 Steam 实时状态
@@ -231,7 +231,7 @@
                         </div>`;
                     }
 
-                    // 2. Steam 状态卡片渲染逻辑
+                    // 2. Steam 状态卡片渲染
                     if (item.id === "steam_status" && steamData) {
                         const isPlaying = !!steamData.game_name;
                         return `<div class="steam-card max-w-xl lg:max-w-4xl w-full rounded-3xl shadow-2xl main-card overflow-hidden relative group">
@@ -257,7 +257,7 @@
                     const isDark = item.theme === 'dark';
                     const btnStyle = isDark ? "bg-gray-800 text-white shadow-lg" : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
                     return `<div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
-                        <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 ${item.color} rounded-full"></span>${item.title}</h2></div>
+                        <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 ${item.color || 'bg-gray-500'} rounded-full"></span>${item.title}</h2></div>
                         <a href="${item.url}" class="w-full max-w-xs ${btnStyle} py-4 rounded-2xl text-xs font-bold tracking-widest active:scale-95 transition-all text-center">${item.btnText}</a>
                     </div>`;
                 }).join('');
@@ -265,7 +265,7 @@
         }
         renderFeatures();
 
-        // --- 其余功能函数完全保留 ---
+        // --- 功能函数 ---
         function toggleMC() {
             const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn');
             const isExp = c.classList.toggle('expanded');
