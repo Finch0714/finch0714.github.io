@@ -6,6 +6,9 @@
         "color": "bg-green-500"
     },
     {
+        "id": "steam_status"
+    },
+    {
         "id": "reaction_test",
         "title": "反应速度测试",
         "url": "./reactiontest.html",
