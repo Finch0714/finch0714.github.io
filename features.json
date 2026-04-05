@@ -7,6 +7,11 @@
     },
     {
         "id": "steam_status"
+        "title": "Steam信息",
+        "url": "./steaminfo.html",
+        "btnText": "点击查看",
+        "color": "bg-blue-500",
+        "theme": "light"
     },
     {
         "id": "reaction_test",
