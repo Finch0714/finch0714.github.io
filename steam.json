@@ -3,33 +3,45 @@
     "avatar": "https://avatars.steamstatic.com/ab8193d79ba94bfa0672afc3fda07ef7b220621e_full.jpg",
     "state": 0,
     "game_ingame": null,
-    "total_hours": 23.4,
-    "game_count": 5,
+    "total_hours": 2081.4,
+    "game_count": 7,
     "updated_at": 1775231601,
     "games_list": [
+        {
+            "appid": "manual_02",
+            "name": "Minecraft",
+            "playtime": 2037,
+            "icon": "https://wallpaperm.cmcm.com/182ceb54d84374469e5ea079a4f0befc.jpg"
+        },
+        {
+            "appid": "manual_01",
+            "name": "赛博朋克2077",
+            "playtime": 21,
+            "icon": "https://ts1.tc.mm.bing.net/th/id/R-C.4766d3a3044fc96967d19538153043c2?rik=Rq1FI%2fX5qARXSA&pid=ImgRaw&r=0"
+        },
         {
             "appid": 271590,
             "name": "Grand Theft Auto V Legacy",
             "playtime": 19.3,
-            "icon": "http://media.steampowered.com/steamcommunity/public/images/apps/271590/1e72f87eb927fa1485e68aefaff23c7fd7178251.jpg"
+            "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/271590/capsule_184x69.jpg"
         },
         {
             "appid": 431960,
             "name": "Wallpaper Engine",
             "playtime": 2.6,
-            "icon": "http://media.steampowered.com/steamcommunity/public/images/apps/431960/72edaed9d748c6cf7397ffb1c83f0b837b9ebd9d.jpg"
+            "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/431960/capsule_184x69.jpg"
         },
         {
             "appid": 413150,
             "name": "Stardew Valley",
             "playtime": 0.9,
-            "icon": "http://media.steampowered.com/steamcommunity/public/images/apps/413150/35d1377200084a4034238c05b0c8930451e2fb40.jpg"
+            "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/413150/capsule_184x69.jpg"
         },
         {
             "appid": 2358720,
             "name": "Black Myth: Wukong",
             "playtime": 0.6,
-            "icon": "http://media.steampowered.com/steamcommunity/public/images/apps/2358720/764ad8ff458f7020d63a3f7f0abf6ad8882c05df.jpg"
+            "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2358720/capsule_184x69.jpg"
         }
     ]
 }
