@@ -3,8 +3,8 @@
     "avatar": "https://avatars.steamstatic.com/ab8193d79ba94bfa0672afc3fda07ef7b220621e_full.jpg",
     "state": 0,
     "game_ingame": null,
-    "total_hours": 876.5,
-    "game_count": 7,
+    "total_hours": 901.7,
+    "game_count": 8,
     "updated_at": 1775231601,
     "games_list": [
         {
@@ -12,6 +12,12 @@
             "name": "Minecraft Java Edition",
             "playtime": 832,
             "icon": "https://wallpaperm.cmcm.com/182ceb54d84374469e5ea079a4f0befc.jpg"
+        },
+        {
+            "appid": 730,
+            "name": "Counter-Strike 2",
+            "playtime": 24.7,
+            "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/730/capsule_184x69.jpg"
         },
         {
             "appid": "manual_01",
@@ -42,6 +48,12 @@
             "name": "Black Myth: Wukong",
             "playtime": 0.6,
             "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2358720/capsule_184x69.jpg"
+        },
+        {
+            "appid": 578080,
+            "name": "PUBG: BATTLEGROUNDS",
+            "playtime": 0.5,
+            "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/578080/capsule_184x69.jpg"
         }
     ]
 }
