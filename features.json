@@ -6,7 +6,7 @@
         "color": "bg-green-500"
     },
     {
-        "id": "steam_status"
+        "id": "steam_status",
         "title": "Steam信息",
         "url": "./steaminfo.html",
         "btnText": "点击查看",
