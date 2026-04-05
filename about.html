@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>欢迎</title>
+    <title>欢迎 - Finch0714</title>
     
     <link rel="icon" type="image/png" href="Favicon.png">
     <link rel="preload" as="image" href="https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp">
@@ -25,7 +25,7 @@
             min-height: 100vh;
         }
 
-        /* 零延迟背景层：使用 Transform 驱动 */
+        /* 零延迟背景层 */
         #bg-layer { 
             position: fixed; top: 0; left: 0; 
             width: 125vw; height: 100vh; 
@@ -46,13 +46,13 @@
             background: rgba(255, 255, 255, 0.08); 
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
             border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: background 0.3s ease, backdrop-filter 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         /* 浅灰色主题类 */
         body.light-gray-theme .glass {
             background: rgba(230, 230, 230, 0.25);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
@@ -76,17 +76,23 @@
         .main-card { margin: 1.25rem 0; }
         .flex-row-stack { display: flex; flex-wrap: wrap; justify-content: center; width: 100%; margin: -1rem; }
         .inner-card { margin: 1rem; }
-        .expand-container { transition: max-height 0.5s ease-in-out; max-height: 85px; overflow: hidden; width:100%; }
+
+        /* 展开动画容器 */
+        .expand-container { transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1); max-height: 85px; overflow: hidden; width:100%; }
         .expand-container.expanded { max-height: 1200px; }
+
+        /* 一言卡片样式 */
         .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
         @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
         
+        /* 弹窗样式 */
         #contact-modal { display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
         #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; align-items: center; justify-content: center; }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         
-        /* MC查询 placeholder 样式修正 */
-        #mc_input::placeholder { color: #111827 !important; font-weight: 800; opacity: 0.6; }
+        /* 强制修正 MC查询 placeholder */
+        #mc_input::placeholder { color: #1f2937 !important; font-weight: 800; opacity: 0.5; }
+        #mc_input:focus::placeholder { opacity: 0.3; }
     </style>
 </head>
 
@@ -95,9 +101,9 @@
     <div id="bg-overlay"></div>
 
     <div class="fixed-controls">
-        <div class="ctrl-ball glass" onclick="toggleSnow()">❄️</div>
-        <div class="ctrl-ball glass" onclick="changeWallpaper()">🖼️</div>
-        <div class="ctrl-ball glass" onclick="toggleTheme()">🌓</div>
+        <div class="ctrl-ball glass" onclick="toggleSnow()" title="开关降雪">❄️</div>
+        <div class="ctrl-ball glass" onclick="changeWallpaper()" title="切换壁纸">🖼️</div>
+        <div class="ctrl-ball glass" onclick="toggleTheme()" title="切换主题">🌓</div>
     </div>
 
     <canvas id="snow-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;"></canvas>
@@ -129,6 +135,7 @@
                 </div>
             </div>
         </div>
+
         <div id="feature-list" class="w-full flex flex-col items-center"></div>
     </div>
 
@@ -147,7 +154,7 @@
     </footer>
 
     <div id="contact-modal" onclick="if(event.target==this) closeModal()">
-        <div class="glass max-sm w-full p-10 rounded-3xl shadow-2xl relative text-center" onclick="event.stopPropagation()">
+        <div class="glass max-w-sm w-full p-10 rounded-3xl shadow-2xl relative text-center" onclick="event.stopPropagation()">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 p-2 hover:text-gray-800 transition-colors">✕</button>
             <h3 class="text-xs font-black text-gray-800 mb-8 uppercase tracking-widest">Contact</h3>
             <div class="space-y-4">
@@ -161,13 +168,15 @@
 
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script>
-        // --- 修复渲染逻辑 ---
+        // --- 核心渲染逻辑 ---
         async function renderFeatures() {
             try {
                 const response = await fetch('./features.json');
                 const features = await response.json();
                 const list = document.getElementById('feature-list');
+                
                 list.innerHTML = features.map(item => {
+                    // 特殊处理 MC查询
                     if (item.type === "special" || item.id === "mc_query") {
                         return `<div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col main-card expand-container">
                             <div class="flex justify-between items-center min-h-[40px] px-2">
@@ -204,6 +213,7 @@
                             </div>
                         </div>`;
                     }
+                    // 普通卡片渲染
                     const isDark = item.theme === 'dark';
                     const btnStyle = isDark ? "bg-gray-800 text-white shadow-lg" : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
                     return `<div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
@@ -211,10 +221,11 @@
                         <a href="${item.url}" class="w-full max-w-xs ${btnStyle} py-4 rounded-2xl text-xs font-bold tracking-widest active:scale-95 transition-all text-center">${item.btnText}</a>
                     </div>`;
                 }).join('');
-            } catch (err) {}
+            } catch (err) { console.error("加载列表失败", err); }
         }
         renderFeatures();
 
+        // --- 功能函数 ---
         function toggleMC() {
             const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn');
             const isExp = c.classList.toggle('expanded');
@@ -226,18 +237,23 @@
             const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon');
             if(!val) return;
             resBox.classList.remove('hidden');
-            if (val.includes('.')) {
+            
+            if (val.includes('.')) { // 判定为服务器
                 pDisp.classList.add('hidden'); sDisp.classList.remove('hidden');
                 try {
                     const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json();
                     if(d.online) {
                         document.getElementById('mc_online').innerText = "在线";
+                        document.getElementById('mc_online').className = "font-black text-green-600";
                         document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`;
                         document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12);
-                        iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden');
-                    } else { document.getElementById('mc_online').innerText = "离线"; }
+                        iconImg.src = d.icon || `https://visage.surgeplay.com/face/128/steve`; iconImg.classList.remove('hidden');
+                    } else { 
+                        document.getElementById('mc_online').innerText = "离线";
+                        document.getElementById('mc_online').className = "font-black text-red-600";
+                    }
                 } catch(e) { document.getElementById('mc_online').innerText = "错误"; }
-            } else {
+            } else { // 判定为玩家
                 sDisp.classList.add('hidden'); pDisp.classList.remove('hidden');
                 document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`;
                 iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden');
@@ -250,11 +266,9 @@
             }
         }
 
-        // 主题切换函数
-        function toggleTheme() {
-            document.body.classList.toggle('light-gray-theme');
-        }
+        function toggleTheme() { document.body.classList.toggle('light-gray-theme'); }
 
+        // --- 背景动态管理 ---
         const bgLayer = document.getElementById('bg-layer');
         const myWallpapers = [
             "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
@@ -284,13 +298,7 @@
 
         function changeWallpaper() {
             clickCount++;
-            let nextUrl;
-            if (clickCount < myWallpapers.length) {
-                currentIdx = (currentIdx + 1) % myWallpapers.length;
-                nextUrl = myWallpapers[currentIdx];
-            } else {
-                nextUrl = wallpaperAPI + new Date().getTime();
-            }
+            let nextUrl = (clickCount < myWallpapers.length) ? myWallpapers[(currentIdx + clickCount) % myWallpapers.length] : (wallpaperAPI + Date.now());
             const img = new Image();
             img.src = nextUrl;
             img.onload = () => {
@@ -298,10 +306,12 @@
                 setTimeout(() => {
                     bgLayer.style.backgroundImage = `url('${nextUrl}')`;
                     bgLayer.style.opacity = 1;
+                    updateBackground();
                 }, 400);
             };
         }
 
+        // --- 一言获取 ---
         function fetchHitokoto() {
             const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from');
             t.style.opacity = 0; f.style.opacity = 0;
@@ -315,18 +325,19 @@
         function openModal() { document.getElementById('contact-modal').classList.add('active'); }
         function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
 
+        // --- 雪花粒子系统 ---
         const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
         let snowActive = true;
         function resizeSnow() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeSnow); resizeSnow();
-        // 修改：雪花数量从 40 增加到 100
-        let pts = Array.from({length:100}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.5+0.5}));
+        
+        let pts = Array.from({length:100}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.8+0.4}));
         function anim() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
             if(snowActive) {
                 ctx.fillStyle = "rgba(255,255,255,0.45)";
                 pts.forEach(p => {
-                    p.y += 0.0008; if(p.y>1) p.y=0;
+                    p.y += 0.0007; if(p.y>1) p.y=0;
                     ctx.beginPath(); ctx.arc(p.x*canvas.width, p.y*canvas.height, p.s, 0, Math.PI*2); ctx.fill();
                 });
             }
@@ -336,4 +347,5 @@
         function toggleSnow() { snowActive = !snowActive; }
     </script>
 </body>
+</html></body>
 </html>
