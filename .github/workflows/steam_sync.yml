@@ -2,20 +2,25 @@ name: Sync Steam Data
 
 on:
   schedule:
-    - cron: '0 16 * * *' # 每天运行一次
-  workflow_dispatch: # 允许你手动点击运行
+    - cron: '0 16 * * *' # 每天 UTC 16:00 (北京时间凌晨 0:00) 运行
+  workflow_dispatch: # 允许手动触发
+
+# --- 关键：必须显式声明写权限 ---
+permissions:
+  contents: write
+# ----------------------------
 
 jobs:
   update-json:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # 升级到 v4 解决 Node 警告
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # 升级到 v5 解决 Node 警告
         with:
-          python-version: '3.9'
+          python-version: '3.11' # 使用更现代的 Python
 
       - name: Install dependencies
         run: pip install requests
@@ -24,6 +29,7 @@ jobs:
         env:
           STEAM_KEY: ${{ secrets.STEAM_KEY }}
           STEAM_ID: ${{ secrets.STEAM_ID }}
+        # 确保你的 Python 文件名确实是 update_steam.py
         run: python update_steam.py
 
       - name: Commit and Push
@@ -31,5 +37,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add steam.json
-          git commit -m "Update Steam Status" || exit 0
+          # 如果文件没有变化，commit 会跳过，不会报错
+          git commit -m "Update Steam Status (CS2 included)" || exit 0
           git push
