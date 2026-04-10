@@ -24,7 +24,9 @@ jobs:
 
       # 2. 运行格式化（直接执行命令，绕过 Action 的参数解析坑）
       - name: Run Prettier
-        run: npx prettier --write "**/*.{html,css,js,json,py}"
+        # 2. 运行格式化（加上忽略未知文件参数）
+      - name: Run Prettier
+        run: npx prettier --write "**/*.{html,css,js,json,py}" --ignore-unknown
 
       # 3. 提交变动
       - name: Commit changes
