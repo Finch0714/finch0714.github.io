@@ -16,14 +16,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # 必须设置为 0 以获取完整的提交历史，确保推送成功
           fetch-depth: 0
 
       - name: Format code
         uses: actionsx/prettier@v3
         with:
-          # 需要美化的文件后缀
+          # 核心改动：去掉前面的空格或特殊格式，确保它是一段纯文本
           args: --write **/*.{html,css,js,json,py}
         env:
-          # 必须传入 GITHUB_TOKEN 才能将修改后的代码推回仓库
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
