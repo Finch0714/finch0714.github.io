@@ -1,178 +1,389 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>欢迎</title>
-    
-    <link rel="icon" type="image/png" href="Favicon.png">
-    <link rel="preload" as="image" href="https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp">
-    <link rel="preconnect" href="https://fonts.loli.net">
-    <link rel="dns-prefetch" href="https://visage.surgeplay.com">
 
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.loli.net/css2?family=Inter:wght@400;600;700;900&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link rel="icon" type="image/png" href="Favicon.png" />
+    <link
+      rel="preload"
+      as="image"
+      href="https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp"
+    />
+    <link rel="preconnect" href="https://fonts.loli.net" />
+    <link rel="dns-prefetch" href="https://visage.surgeplay.com" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.loli.net/css2?family=Inter:wght@400;600;700;900&family=Noto+Serif+SC:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
-        :root { --font-main: 'Inter', sans-serif; --font-serif: 'Noto Serif SC', serif; }
-        
-        body { 
-            font-family: var(--font-main); 
-            margin: 0; background-color: #111; overflow-x: hidden; 
-            display: flex; flex-direction: column; align-items: center;
-            padding: 7rem 1.5rem 3rem 1.5rem; 
-            -webkit-font-smoothing: antialiased;
-            min-height: 100vh;
-        }
+      :root {
+        --font-main: "Inter", sans-serif;
+        --font-serif: "Noto Serif SC", serif;
+      }
 
-        /* 零延迟背景层：使用 Transform 驱动 */
-        #bg-layer { 
-            position: fixed; top: 0; left: 0; 
-            width: 125vw; height: 100vh; 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: -2;
-            transition: opacity 0.8s ease-in-out; 
-            will-change: transform;
-            pointer-events: none;
-            transform: translate3d(0, 0, 0);
-        }
-        
-        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); z-index: -1; }
-        
-        /* 玻璃效果基类 */
-        .glass { 
-            background: rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: background 0.3s ease, backdrop-filter 0.3s ease;
-        }
+      body {
+        font-family: var(--font-main);
+        margin: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 7rem 1.5rem 3rem 1.5rem;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+      }
 
-        /* 浅灰色主题类 */
-        body.light-gray-theme .glass {
-            background: rgba(230, 230, 230, 0.85);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
+      /* 零延迟背景层：使用 Transform 驱动 */
+      #bg-layer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 125vw;
+        height: 100vh;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        z-index: -2;
+        transition: opacity 0.8s ease-in-out;
+        will-change: transform;
+        pointer-events: none;
+        transform: translate3d(0, 0, 0);
+      }
 
-        .fixed-controls {
-            position: fixed; top: 1.5rem; left: 1.5rem; 
-            display: flex; gap: 1rem; 
-            z-index: 99999 !important; 
-            transform: translateZ(999px);
-            pointer-events: auto;
-        }
+      #bg-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.15);
+        z-index: -1;
+      }
 
-        .ctrl-ball {
-            width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-size: 1.2rem;
-        }
-        .ctrl-ball:active { transform: scale(0.85); }
+      /* 玻璃效果基类 */
+      .glass {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition:
+          background 0.3s ease,
+          backdrop-filter 0.3s ease;
+      }
 
-        .card-container { z-index: 10; position: relative; width: 100%; max-width: 64rem; margin: -1.25rem 0; }
-        .main-card { margin: 1.25rem 0; }
-        .flex-row-stack { display: flex; flex-wrap: wrap; justify-content: center; width: 100%; margin: -1rem; }
-        .inner-card { margin: 1rem; }
-        .expand-container { transition: max-height 0.5s ease-in-out; max-height: 85px; overflow: hidden; width:100%; }
-        .expand-container.expanded { max-height: 1200px; }
-        .hitokoto-card { font-family: var(--font-serif); writing-mode: vertical-rl; text-orientation: mixed; }
-        @media (max-width: 1024px) { .hitokoto-card { writing-mode: horizontal-tb; } }
-        
-        #contact-modal { display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
-        #contact-modal.active { display: flex; animation: modalIn 0.3s forwards; align-items: center; justify-content: center; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        
-        /* MC查询 placeholder 样式修正 */
-        #mc_input::placeholder { color: #111827 !important; font-weight: 800; opacity: 0.6; }
+      /* 浅灰色主题类 */
+      body.light-gray-theme .glass {
+        background: rgba(230, 230, 230, 0.85);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .fixed-controls {
+        position: fixed;
+        top: 1.5rem;
+        left: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        z-index: 99999 !important;
+        transform: translateZ(999px);
+        pointer-events: auto;
+      }
+
+      .ctrl-ball {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        font-size: 1.2rem;
+      }
+      .ctrl-ball:active {
+        transform: scale(0.85);
+      }
+
+      .card-container {
+        z-index: 10;
+        position: relative;
+        width: 100%;
+        max-width: 64rem;
+        margin: -1.25rem 0;
+      }
+      .main-card {
+        margin: 1.25rem 0;
+      }
+      .flex-row-stack {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        margin: -1rem;
+      }
+      .inner-card {
+        margin: 1rem;
+      }
+      .expand-container {
+        transition: max-height 0.5s ease-in-out;
+        max-height: 85px;
+        overflow: hidden;
+        width: 100%;
+      }
+      .expand-container.expanded {
+        max-height: 1200px;
+      }
+      .hitokoto-card {
+        font-family: var(--font-serif);
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+      }
+      @media (max-width: 1024px) {
+        .hitokoto-card {
+          writing-mode: horizontal-tb;
+        }
+      }
+
+      #contact-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+      }
+      #contact-modal.active {
+        display: flex;
+        animation: modalIn 0.3s forwards;
+        align-items: center;
+        justify-content: center;
+      }
+      @keyframes modalIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* MC查询 placeholder 样式修正 */
+      #mc_input::placeholder {
+        color: #111827 !important;
+        font-weight: 800;
+        opacity: 0.6;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="bg-layer"></div>
     <div id="bg-overlay"></div>
 
     <div class="fixed-controls">
-        <div class="ctrl-ball glass" onclick="toggleSnow()">❄️</div>
-        <div class="ctrl-ball glass" onclick="changeWallpaper()">🖼️</div>
-        <div class="ctrl-ball glass" onclick="toggleTheme()">🌓</div>
+      <div class="ctrl-ball glass" onclick="toggleSnow()">❄️</div>
+      <div class="ctrl-ball glass" onclick="changeWallpaper()">🖼️</div>
+      <div class="ctrl-ball glass" onclick="toggleTheme()">🌓</div>
     </div>
 
-    <canvas id="snow-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;"></canvas>
+    <canvas
+      id="snow-canvas"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 5;
+      "
+    ></canvas>
 
     <div class="card-container">
-        <div class="flex-row-stack main-card">
-            <div class="glass lg:w-32 w-full p-8 lg:py-12 rounded-3xl shadow-xl relative flex items-center justify-center inner-card">
-                <div class="hitokoto-card text-gray-800 font-bold">
-                    <span id="hitokoto_text" class="text-base leading-loose tracking-widest opacity-0 transition-opacity duration-500">加载中...</span>
-                    <span id="hitokoto_from" class="text-xs text-gray-700 mt-6 font-black opacity-0 block text-right"></span>
-                </div>
-                <button onclick="fetchHitokoto()" class="absolute bottom-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-20 hover:bg-opacity-40 transition-colors">🔄</button>
-            </div>
-            
-            <div id="profile-card" class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden inner-card">
-                <div class="p-10 text-center border-b border-black border-opacity-5">
-                    <div class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100">
-                        <img src="./avatar.jpg" alt="Avatar" class="w-full h-full object-cover">
-                    </div>
-                    <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Finch0714</h1>
-                    <p class="text-gray-600 mt-2 italic text-sm font-light">restless, resetless.</p>
-                </div>
-                <div class="p-10 text-center">
-                    <p class="text-gray-800 leading-relaxed mb-10 text-sm font-semibold">你好！欢迎来到我的主页。我是一个热衷于终身学习和影视、游戏的探索者。</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="https://space.bilibili.com/2066563707" target="_blank" class="px-10 py-3 bg-pink-500 text-white rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-all">Bilibili</a>
-                        <button onclick="openModal()" class="px-10 py-3 bg-white bg-opacity-40 text-gray-800 border border-white rounded-2xl font-bold text-sm shadow-md active:scale-95 transition-all">获取联系</button>
-                    </div>
-                </div>
-            </div>
+      <div class="flex-row-stack main-card">
+        <div
+          class="glass lg:w-32 w-full p-8 lg:py-12 rounded-3xl shadow-xl relative flex items-center justify-center inner-card"
+        >
+          <div class="hitokoto-card text-gray-800 font-bold">
+            <span
+              id="hitokoto_text"
+              class="text-base leading-loose tracking-widest opacity-0 transition-opacity duration-500"
+              >加载中...</span
+            >
+            <span
+              id="hitokoto_from"
+              class="text-xs text-gray-700 mt-6 font-black opacity-0 block text-right"
+            ></span>
+          </div>
+          <button
+            onclick="fetchHitokoto()"
+            class="absolute bottom-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-20 hover:bg-opacity-40 transition-colors"
+          >
+            🔄
+          </button>
         </div>
-        <div id="feature-list" class="w-full flex flex-col items-center"></div>
+
+        <div
+          id="profile-card"
+          class="glass max-w-xl w-full rounded-3xl shadow-2xl overflow-hidden inner-card"
+        >
+          <div class="p-10 text-center border-b border-black border-opacity-5">
+            <div
+              class="w-20 h-20 rounded-full mx-auto mb-6 shadow-xl overflow-hidden border-4 border-white bg-gray-100"
+            >
+              <img
+                src="./avatar.jpg"
+                alt="Avatar"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 tracking-tight">
+              Finch0714
+            </h1>
+            <p class="text-gray-600 mt-2 italic text-sm font-light">
+              restless, resetless.
+            </p>
+          </div>
+          <div class="p-10 text-center">
+            <p
+              class="text-gray-800 leading-relaxed mb-10 text-sm font-semibold"
+            >
+              你好！欢迎来到我的主页。我是一个热衷于终身学习和影视、游戏的探索者。
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="https://space.bilibili.com/2066563707"
+                target="_blank"
+                class="px-10 py-3 bg-pink-500 text-white rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-all"
+                >Bilibili</a
+              >
+              <button
+                onclick="openModal()"
+                class="px-10 py-3 bg-white bg-opacity-40 text-gray-800 border border-white rounded-2xl font-bold text-sm shadow-md active:scale-95 transition-all"
+              >
+                获取联系
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="feature-list" class="w-full flex flex-col items-center"></div>
     </div>
 
     <footer class="w-full flex justify-center py-10 z-10">
-        <div class="flex items-center gap-4 opacity-60 hover:opacity-100 transition-opacity cursor-default bg-white bg-opacity-10 px-6 py-2 rounded-full border border-white border-opacity-10">
-            <div class="flex items-center gap-2">
-                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">浏览数</span>
-                <span id="busuanzi_value_site_pv" class="text-xs font-mono text-gray-800 font-black">...</span>
-            </div>
-            <span class="text-gray-500 opacity-30">|</span>
-            <div class="flex items-center gap-2">
-                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">访客数</span>
-                <span id="busuanzi_value_site_uv" class="text-xs font-mono text-gray-800 font-black">...</span>
-            </div>
+      <div
+        class="flex items-center gap-4 opacity-60 hover:opacity-100 transition-opacity cursor-default bg-white bg-opacity-10 px-6 py-2 rounded-full border border-white border-opacity-10"
+      >
+        <div class="flex items-center gap-2">
+          <span
+            class="text-[9px] font-black text-gray-400 uppercase tracking-widest"
+            >浏览数</span
+          >
+          <span
+            id="busuanzi_value_site_pv"
+            class="text-xs font-mono text-gray-800 font-black"
+            >...</span
+          >
         </div>
+        <span class="text-gray-500 opacity-30">|</span>
+        <div class="flex items-center gap-2">
+          <span
+            class="text-[9px] font-black text-gray-400 uppercase tracking-widest"
+            >访客数</span
+          >
+          <span
+            id="busuanzi_value_site_uv"
+            class="text-xs font-mono text-gray-800 font-black"
+            >...</span
+          >
+        </div>
+      </div>
     </footer>
 
-    <div id="contact-modal" onclick="if(event.target==this) closeModal()">
-        <div class="glass max-sm w-full p-10 rounded-3xl shadow-2xl relative text-center" onclick="event.stopPropagation()">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 p-2 hover:text-gray-800 transition-colors">✕</button>
-            <h3 class="text-xs font-black text-gray-800 mb-8 uppercase tracking-widest">Contact</h3>
-            <div class="space-y-4">
-                <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">QQ</span><span class="text-sm font-mono text-gray-900 font-black select-all">861288676</span></div>
-                <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">EMAIL</span><span class="text-sm font-mono text-gray-900 font-black select-all">finch0714@qq.com</span></div>
-                <div class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"><span class="text-[10px] font-bold text-gray-500">STEAM</span><span class="text-sm font-mono text-gray-900 font-black select-all">Latetelly</span></div>
-            </div>
-            <button onclick="closeModal()" class="w-full mt-8 py-4 bg-gray-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Close</button>
+    <div id="contact-modal" onclick="if (event.target == this) closeModal();">
+      <div
+        class="glass max-sm w-full p-10 rounded-3xl shadow-2xl relative text-center"
+        onclick="event.stopPropagation()"
+      >
+        <button
+          onclick="closeModal()"
+          class="absolute top-4 right-4 text-gray-400 p-2 hover:text-gray-800 transition-colors"
+        >
+          ✕
+        </button>
+        <h3
+          class="text-xs font-black text-gray-800 mb-8 uppercase tracking-widest"
+        >
+          Contact
+        </h3>
+        <div class="space-y-4">
+          <div
+            class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"
+          >
+            <span class="text-[10px] font-bold text-gray-500">QQ</span
+            ><span class="text-sm font-mono text-gray-900 font-black select-all"
+              >861288676</span
+            >
+          </div>
+          <div
+            class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"
+          >
+            <span class="text-[10px] font-bold text-gray-500">EMAIL</span
+            ><span class="text-sm font-mono text-gray-900 font-black select-all"
+              >finch0714@qq.com</span
+            >
+          </div>
+          <div
+            class="p-5 bg-white/30 rounded-2xl flex items-center justify-between shadow-inner"
+          >
+            <span class="text-[10px] font-bold text-gray-500">STEAM</span
+            ><span class="text-sm font-mono text-gray-900 font-black select-all"
+              >Latetelly</span
+            >
+          </div>
         </div>
+        <button
+          onclick="closeModal()"
+          class="w-full mt-8 py-4 bg-gray-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
+        >
+          Close
+        </button>
+      </div>
     </div>
 
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <script
+      async
+      src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"
+    ></script>
     <script>
-        // --- 修复渲染逻辑 ---
-        async function renderFeatures() {
-            try {
-                const response = await fetch('./features.json');
-                const features = await response.json();
-                const list = document.getElementById('feature-list');
-                list.innerHTML = features.map(item => {
-                    if (item.type === "special" || item.id === "mc_query") {
-                        return `<div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col main-card expand-container">
+      // --- 修复渲染逻辑 ---
+      async function renderFeatures() {
+        try {
+          const response = await fetch("./features.json");
+          const features = await response.json();
+          const list = document.getElementById("feature-list");
+          list.innerHTML = features
+            .map((item) => {
+              if (item.type === "special" || item.id === "mc_query") {
+                return `<div id="mc_container" class="glass max-w-xl lg:max-w-4xl w-full p-6 rounded-3xl shadow-xl flex flex-col main-card expand-container">
                             <div class="flex justify-between items-center min-h-[40px] px-2">
                                 <h2 class="text-xs font-black text-gray-800 tracking-widest flex items-center gap-2 uppercase">
-                                    <span class="w-2 h-2 ${item.color || 'bg-green-500'} rounded-full animate-pulse shadow-lg"></span> ${item.title}
+                                    <span class="w-2 h-2 ${item.color || "bg-green-500"} rounded-full animate-pulse shadow-lg"></span> ${item.title}
                                 </h2>
                                 <div class="flex items-center gap-4">
                                     <img id="mc_icon" src="" class="w-8 h-8 rounded-lg shadow-md hidden bg-white/20">
@@ -203,225 +414,287 @@
                                 </div>
                             </div>
                         </div>`;
-                    }
-                    const isDark = item.theme === 'dark';
-                    const btnStyle = isDark ? "bg-gray-800 text-white shadow-lg" : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
-                    return `<div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
+              }
+              const isDark = item.theme === "dark";
+              const btnStyle = isDark
+                ? "bg-gray-800 text-white shadow-lg"
+                : "bg-white bg-opacity-20 border border-white border-opacity-40 text-gray-800 shadow-md";
+              return `<div class="glass max-w-xl lg:max-w-4xl w-full p-8 rounded-3xl shadow-xl flex flex-col main-card items-center">
                         <div class="w-full flex justify-start mb-6"><h2 class="text-xs font-black text-gray-800 tracking-widest uppercase flex items-center gap-2"><span class="w-2 h-2 ${item.color} rounded-full"></span>${item.title}</h2></div>
                         <a href="${item.url}" class="w-full max-w-xs ${btnStyle} py-4 rounded-2xl text-xs font-bold tracking-widest active:scale-95 transition-all text-center">${item.btnText}</a>
                     </div>`;
-                }).join('');
-            } catch (err) {}
-        }
-        renderFeatures();
+            })
+            .join("");
+        } catch (err) {}
+      }
+      renderFeatures();
 
-        function toggleMC() {
-            const c = document.getElementById('mc_container'), b = document.getElementById('mc_toggle_btn');
-            const isExp = c.classList.toggle('expanded');
-            b.innerText = isExp ? "收起面板" : "展开详情";
-        }
+      function toggleMC() {
+        const c = document.getElementById("mc_container"),
+          b = document.getElementById("mc_toggle_btn");
+        const isExp = c.classList.toggle("expanded");
+        b.innerText = isExp ? "收起面板" : "展开详情";
+      }
 
-        async function smartQuery() {
-            const val = document.getElementById('mc_input').value.trim();
-            const resBox = document.getElementById('mc_result_box'), pDisp = document.getElementById('player_display'), sDisp = document.getElementById('server_display'), iconImg = document.getElementById('mc_icon');
-            if(!val) return;
-            resBox.classList.remove('hidden');
-            if (val.includes('.')) {
-                pDisp.classList.add('hidden'); sDisp.classList.remove('hidden');
-                try {
-                    const res = await fetch(`https://api.mcstatus.io/v2/status/java/${val}`), d = await res.json();
-                    if(d.online) {
-                        document.getElementById('mc_online').innerText = "在线";
-                        document.getElementById('mc_players').innerText = `${d.players.online}/${d.players.max}`;
-                        document.getElementById('mc_ver').innerText = (d.version.name_clean || d.version.name).substring(0, 12);
-                        iconImg.src = d.icon || `https://visage.surgeplay.com/bust/128/steve`; iconImg.classList.remove('hidden');
-                    } else { document.getElementById('mc_online').innerText = "离线"; }
-                } catch(e) { document.getElementById('mc_online').innerText = "错误"; }
+      async function smartQuery() {
+        const val = document.getElementById("mc_input").value.trim();
+        const resBox = document.getElementById("mc_result_box"),
+          pDisp = document.getElementById("player_display"),
+          sDisp = document.getElementById("server_display"),
+          iconImg = document.getElementById("mc_icon");
+        if (!val) return;
+        resBox.classList.remove("hidden");
+        if (val.includes(".")) {
+          pDisp.classList.add("hidden");
+          sDisp.classList.remove("hidden");
+          try {
+            const res = await fetch(
+                `https://api.mcstatus.io/v2/status/java/${val}`,
+              ),
+              d = await res.json();
+            if (d.online) {
+              document.getElementById("mc_online").innerText = "在线";
+              document.getElementById("mc_players").innerText =
+                `${d.players.online}/${d.players.max}`;
+              document.getElementById("mc_ver").innerText = (
+                d.version.name_clean || d.version.name
+              ).substring(0, 12);
+              iconImg.src =
+                d.icon || `https://visage.surgeplay.com/bust/128/steve`;
+              iconImg.classList.remove("hidden");
             } else {
-                sDisp.classList.add('hidden'); pDisp.classList.remove('hidden');
-                document.getElementById('player_3d').src = `https://visage.surgeplay.com/full/384/${val}`;
-                iconImg.src = `https://visage.surgeplay.com/face/128/${val}`; iconImg.classList.remove('hidden');
-                try {
-                    const res = await fetch(`https://playerdb.co/api/player/minecraft/${val}`), j = await res.json();
-                    if(j.success) document.getElementById('player_uuid').innerText = j.data.player.id;
-                    document.getElementById('btn_namemc').href = `https://namemc.com/profile/${val}`;
-                    document.getElementById('btn_skin').href = `https://visage.surgeplay.com/skin/${val}`;
-                } catch(e) { document.getElementById('player_uuid').innerText = "获取失败"; }
+              document.getElementById("mc_online").innerText = "离线";
             }
+          } catch (e) {
+            document.getElementById("mc_online").innerText = "错误";
+          }
+        } else {
+          sDisp.classList.add("hidden");
+          pDisp.classList.remove("hidden");
+          document.getElementById("player_3d").src =
+            `https://visage.surgeplay.com/full/384/${val}`;
+          iconImg.src = `https://visage.surgeplay.com/face/128/${val}`;
+          iconImg.classList.remove("hidden");
+          try {
+            const res = await fetch(
+                `https://playerdb.co/api/player/minecraft/${val}`,
+              ),
+              j = await res.json();
+            if (j.success)
+              document.getElementById("player_uuid").innerText =
+                j.data.player.id;
+            document.getElementById("btn_namemc").href =
+              `https://namemc.com/profile/${val}`;
+            document.getElementById("btn_skin").href =
+              `https://visage.surgeplay.com/skin/${val}`;
+          } catch (e) {
+            document.getElementById("player_uuid").innerText = "获取失败";
+          }
         }
+      }
 
-        // 主题切换函数
-        function toggleTheme() {
-            document.body.classList.toggle('light-gray-theme');
+      // 主题切换函数
+      function toggleTheme() {
+        document.body.classList.toggle("light-gray-theme");
+      }
+
+      const bgLayer = document.getElementById("bg-layer");
+      const myWallpapers = [
+        "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
+        "https://picui.ogmua.cn/s1/2026/04/04/69d1316964c63.webp",
+        "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f9533b3.webp",
+        "https://picui.ogmua.cn/s1/2026/04/05/69d1acf3b6547.webp",
+        "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f903373.webp",
+      ];
+      const wallpaperAPI = "https://wp.upx8.com/api.php?_t=";
+      let clickCount = 0;
+      let currentIdx = Math.floor(Math.random() * myWallpapers.length);
+      bgLayer.style.backgroundImage = `url('${myWallpapers[currentIdx]}')`;
+
+      function updateBackground() {
+        const scrollTop =
+          window.pageYOffset || document.documentElement.scrollTop;
+        const scrollHeight =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        if (scrollHeight <= 0) return;
+        let scrollPercent = Math.max(0, Math.min(1, scrollTop / scrollHeight));
+        const moveRange = bgLayer.offsetWidth - window.innerWidth;
+        const moveX = -(scrollPercent * moveRange);
+        bgLayer.style.transform = `translate3d(${moveX}px, 0, 0)`;
+      }
+
+      window.addEventListener("scroll", updateBackground, { passive: true });
+      window.addEventListener("resize", updateBackground);
+      updateBackground();
+
+      function changeWallpaper() {
+        clickCount++;
+        let nextUrl;
+        if (clickCount < myWallpapers.length) {
+          currentIdx = (currentIdx + 1) % myWallpapers.length;
+          nextUrl = myWallpapers[currentIdx];
+        } else {
+          nextUrl = wallpaperAPI + new Date().getTime();
         }
+        const img = new Image();
+        img.src = nextUrl;
+        img.onload = () => {
+          bgLayer.style.opacity = 0;
+          setTimeout(() => {
+            bgLayer.style.backgroundImage = `url('${nextUrl}')`;
+            bgLayer.style.opacity = 1;
+          }, 400);
+        };
+      }
 
-        const bgLayer = document.getElementById('bg-layer');
-        const myWallpapers = [
-            "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
-            "https://picui.ogmua.cn/s1/2026/04/04/69d1316964c63.webp",
-            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f9533b3.webp",
-            "https://picui.ogmua.cn/s1/2026/04/05/69d1acf3b6547.webp",
-            "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f903373.webp"
-        ];
-        const wallpaperAPI = "https://wp.upx8.com/api.php?_t=";
-        let clickCount = 0;
-        let currentIdx = Math.floor(Math.random() * myWallpapers.length);
-        bgLayer.style.backgroundImage = `url('${myWallpapers[currentIdx]}')`;
+      function fetchHitokoto() {
+        const t = document.getElementById("hitokoto_text"),
+          f = document.getElementById("hitokoto_from");
+        t.style.opacity = 0;
+        f.style.opacity = 0;
+        fetch("https://v1.hitokoto.cn")
+          .then((r) => r.json())
+          .then((d) => {
+            t.innerText = d.hitokoto;
+            f.innerText = `—— 「${d.from}」`;
+            t.style.opacity = 1;
+            f.style.opacity = 0.9;
+          });
+      }
+      fetchHitokoto();
 
-        function updateBackground() {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            if (scrollHeight <= 0) return;
-            let scrollPercent = Math.max(0, Math.min(1, scrollTop / scrollHeight));
-            const moveRange = bgLayer.offsetWidth - window.innerWidth;
-            const moveX = -(scrollPercent * moveRange);
-            bgLayer.style.transform = `translate3d(${moveX}px, 0, 0)`;
-        }
+      function openModal() {
+        document.getElementById("contact-modal").classList.add("active");
+      }
+      function closeModal() {
+        document.getElementById("contact-modal").classList.remove("active");
+      }
 
-        window.addEventListener('scroll', updateBackground, { passive: true });
-        window.addEventListener('resize', updateBackground);
-        updateBackground();
+      // --- ❄️ 离屏渲染优化版雪花特效 ---
+      const canvas = document.getElementById("snow-canvas"),
+        ctx = canvas.getContext("2d");
+      let snowActive = true;
+      const dpr = window.devicePixelRatio || 1; // 处理高清屏模糊问题
 
-        function changeWallpaper() {
-            clickCount++;
-            let nextUrl;
-            if (clickCount < myWallpapers.length) {
-                currentIdx = (currentIdx + 1) % myWallpapers.length;
-                nextUrl = myWallpapers[currentIdx];
-            } else {
-                nextUrl = wallpaperAPI + new Date().getTime();
-            }
-            const img = new Image();
-            img.src = nextUrl;
-            img.onload = () => {
-                bgLayer.style.opacity = 0;
-                setTimeout(() => {
-                    bgLayer.style.backgroundImage = `url('${nextUrl}')`;
-                    bgLayer.style.opacity = 1;
-                }, 400);
-            };
-        }
+      function resizeSnow() {
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
+        ctx.scale(dpr, dpr); // 缩放绘图上下文
+      }
+      window.addEventListener("resize", resizeSnow);
+      resizeSnow();
 
-        function fetchHitokoto() {
-            const t = document.getElementById('hitokoto_text'), f = document.getElementById('hitokoto_from');
-            t.style.opacity = 0; f.style.opacity = 0;
-            fetch('https://v1.hitokoto.cn').then(r => r.json()).then(d => {
-                t.innerText = d.hitokoto; f.innerText = `—— 「${d.from}」`;
-                t.style.opacity = 1; f.style.opacity = 0.9;
-            });
-        }
-        fetchHitokoto();
+      // 1. **核心优化：创建离屏缓存贴图**
+      const snowCache = [];
+      const cacheSizes = [2, 3, 4, 5]; // 4种不同的雪花尺寸
+      const cacheColors = [
+        "rgba(255, 255, 255, 0.3)", // 远景（更透明）
+        "rgba(255, 255, 255, 0.45)", // 中景
+        "rgba(255, 255, 255, 0.6)", // 近景（更亮）
+      ];
 
-        function openModal() { document.getElementById('contact-modal').classList.add('active'); }
-        function closeModal() { document.getElementById('contact-modal').classList.remove('active'); }
+      function createSnowCache() {
+        cacheSizes.forEach((size, idx) => {
+          const offCanvas = document.createElement("canvas");
+          offCanvas.width = size * 2 * dpr;
+          offCanvas.height = size * 2 * dpr;
+          const offCtx = offCanvas.getContext("2d");
+          offCtx.scale(dpr, dpr);
 
-        // --- ❄️ 离屏渲染优化版雪花特效 ---
-const canvas = document.getElementById('snow-canvas'), ctx = canvas.getContext('2d');
-let snowActive = true;
-const dpr = window.devicePixelRatio || 1; // 处理高清屏模糊问题
+          offCtx.fillStyle = cacheColors[Math.min(idx, cacheColors.length - 1)];
+          offCtx.beginPath();
+          offCtx.arc(size, size, size, 0, Math.PI * 2);
+          offCtx.fill();
 
-function resizeSnow() {
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
-    ctx.scale(dpr, dpr); // 缩放绘图上下文
-}
-window.addEventListener('resize', resizeSnow);
-resizeSnow();
-
-// 1. **核心优化：创建离屏缓存贴图**
-const snowCache = [];
-const cacheSizes = [2, 3, 4, 5]; // 4种不同的雪花尺寸
-const cacheColors = [
-    'rgba(255, 255, 255, 0.3)', // 远景（更透明）
-    'rgba(255, 255, 255, 0.45)', // 中景
-    'rgba(255, 255, 255, 0.6)'  // 近景（更亮）
-];
-
-function createSnowCache() {
-    cacheSizes.forEach((size, idx) => {
-        const offCanvas = document.createElement('canvas');
-        offCanvas.width = size * 2 * dpr;
-        offCanvas.height = size * 2 * dpr;
-        const offCtx = offCanvas.getContext('2d');
-        offCtx.scale(dpr, dpr);
-
-        offCtx.fillStyle = cacheColors[Math.min(idx, cacheColors.length - 1)];
-        offCtx.beginPath();
-        offCtx.arc(size, size, size, 0, Math.PI * 2);
-        offCtx.fill();
-        
-        // 可选：给大雪花加一点点模糊效果，更有层次感
-        if (size > 3) {
+          // 可选：给大雪花加一点点模糊效果，更有层次感
+          if (size > 3) {
             offCtx.shadowColor = offCtx.fillStyle;
             offCtx.shadowBlur = 2;
-        }
+          }
 
-        snowCache.push({
+          snowCache.push({
             canvas: offCanvas,
-            size: size
+            size: size,
+          });
         });
-    });
-}
-createSnowCache();
+      }
+      createSnowCache();
 
-// 2. **初始化雪花数据**
-// 修改：雪花数量从 100 优化为 70 (性能与视觉的平衡)，并随机分配缓存贴图
-let pts = Array.from({length: 70}, () => ({
-    x: Math.random(),
-    y: Math.random(),
-    cacheIdx: Math.floor(Math.random() * snowCache.length), // 随机分配一种贴图
-    vy: Math.random() * 0.0005 + 0.0003, // 垂直速度
-    vx: Math.random() * 0.0002 - 0.0001 // 轻微的左右摆动
-}));
+      // 2. **初始化雪花数据**
+      // 修改：雪花数量从 100 优化为 70 (性能与视觉的平衡)，并随机分配缓存贴图
+      let pts = Array.from({ length: 70 }, () => ({
+        x: Math.random(),
+        y: Math.random(),
+        cacheIdx: Math.floor(Math.random() * snowCache.length), // 随机分配一种贴图
+        vy: Math.random() * 0.0005 + 0.0003, // 垂直速度
+        vx: Math.random() * 0.0002 - 0.0001, // 轻微的左右摆动
+      }));
 
-// 3. **优化后的动画主循环**
-function anim() {
-    // 使用 clearRect 清除，比 fillRect 性能更好
-    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-    
-    if (snowActive) {
-        pts.forEach(p => {
+      // 3. **优化后的动画主循环**
+      function anim() {
+        // 使用 clearRect 清除，比 fillRect 性能更好
+        ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+
+        if (snowActive) {
+          pts.forEach((p) => {
             // 更新位置
             p.y += p.vy;
             p.x += p.vx;
-            
+
             // 边界检查
             if (p.y > 1.01) p.y = -0.01;
             if (p.x > 1.01) p.x = -0.01;
             if (p.x < -0.01) p.x = 1.01;
-            
+
             // **核心优化：直接绘制缓存的贴图**
             const cache = snowCache[p.cacheIdx];
             const renderX = p.x * (canvas.width / dpr);
             const renderY = p.y * (canvas.width / dpr); // 保持纵横比一致，防止拉伸
-            
+
             // 如果雪花超出了 Canvas 底部，不需要绘制
-            if (renderY < (canvas.height / dpr)) {
-                ctx.drawImage(cache.canvas, renderX, renderY, cache.size * 2, cache.size * 2);
+            if (renderY < canvas.height / dpr) {
+              ctx.drawImage(
+                cache.canvas,
+                renderX,
+                renderY,
+                cache.size * 2,
+                cache.size * 2,
+              );
             }
-        });
-    }
-    requestAnimationFrame(anim);
-}
+          });
+        }
+        requestAnimationFrame(anim);
+      }
 
-// 4. **性能进阶：视口检测**
-// 当用户向下滚动，Canvas 不在可见区域时，暂停动画
-if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries) => {
-        snowActive = entries[0].isIntersecting;
-    }, { threshold: 0.1 });
-    observer.observe(canvas);
-} else {
-    // 降级方案：监听滚动事件
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        snowActive = scrollTop < window.innerHeight; // 只在首屏激活雪花
-    }, { passive: true });
-}
+      // 4. **性能进阶：视口检测**
+      // 当用户向下滚动，Canvas 不在可见区域时，暂停动画
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            snowActive = entries[0].isIntersecting;
+          },
+          { threshold: 0.1 },
+        );
+        observer.observe(canvas);
+      } else {
+        // 降级方案：监听滚动事件
+        window.addEventListener(
+          "scroll",
+          () => {
+            const scrollTop =
+              window.pageYOffset || document.documentElement.scrollTop;
+            snowActive = scrollTop < window.innerHeight; // 只在首屏激活雪花
+          },
+          { passive: true },
+        );
+      }
 
-anim();
+      anim();
 
-function toggleSnow() { snowActive = !snowActive; }
+      function toggleSnow() {
+        snowActive = !snowActive;
+      }
     </script>
-</body>
+  </body>
 </html>

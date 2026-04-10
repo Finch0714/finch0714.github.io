@@ -1,189 +1,241 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>反应速度测试</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.loli.net/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.loli.net/css2?family=Inter:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111;
-            color: white;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #111;
+        color: white;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
 
-        .glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+      .glass {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-        /* 状态颜色 */
-        .state-idle { background-color: #1e293b; }   /* 深蓝灰 - 初始 */
-        .state-waiting { background-color: #2563eb; } /* 蓝色 - 等待 */
-        .state-ready { background-color: #22c55e; }   /* 绿色 - 点击 */
-        .state-early { background-color: #ef4444; }   /* 红色 - 抢跑 */
+      /* 状态颜色 */
+      .state-idle {
+        background-color: #1e293b;
+      } /* 深蓝灰 - 初始 */
+      .state-waiting {
+        background-color: #2563eb;
+      } /* 蓝色 - 等待 */
+      .state-ready {
+        background-color: #22c55e;
+      } /* 绿色 - 点击 */
+      .state-early {
+        background-color: #ef4444;
+      } /* 红色 - 抢跑 */
 
-        #test-area {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.1s ease;
-            user-select: none;
-        }
+      #test-area {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.1s ease;
+        user-select: none;
+      }
 
-        .result-card {
-            max-width: 400px;
-            width: 90%;
-            padding: 2rem;
-            border-radius: 2rem;
-            text-align: center;
-        }
+      .result-card {
+        max-width: 400px;
+        width: 90%;
+        padding: 2rem;
+        border-radius: 2rem;
+        text-align: center;
+      }
 
-        .btn-restart {
-            margin-top: 1.5rem;
-            padding: 0.75rem 2rem;
-            background: white;
-            color: black;
-            border-radius: 1rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: transform 0.2s;
-        }
-        .btn-restart:active { transform: scale(0.95); }
+      .btn-restart {
+        margin-top: 1.5rem;
+        padding: 0.75rem 2rem;
+        background: white;
+        color: black;
+        border-radius: 1rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: transform 0.2s;
+      }
+      .btn-restart:active {
+        transform: scale(0.95);
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="test-area" class="state-idle" onclick="handleInteraction()">
-        <div id="ui-container" class="text-center p-6 pointer-events-none">
-            <h1 id="main-text" class="text-4xl md:text-6xl font-black mb-4 uppercase tracking-tighter">反应测试</h1>
-            <p id="sub-text" class="text-lg opacity-80">点击屏幕开始第一轮 (共3轮)</p>
-        </div>
+      <div id="ui-container" class="text-center p-6 pointer-events-none">
+        <h1
+          id="main-text"
+          class="text-4xl md:text-6xl font-black mb-4 uppercase tracking-tighter"
+        >
+          反应测试
+        </h1>
+        <p id="sub-text" class="text-lg opacity-80">
+          点击屏幕开始第一轮 (共3轮)
+        </p>
+      </div>
 
-        <div id="result-display" class="glass result-card hidden pointer-events-auto">
-            <h2 class="text-2xl font-black mb-6 uppercase tracking-widest">测试完成</h2>
-            <div class="space-y-3 mb-8 font-mono">
-                <p id="r1" class="flex justify-between"><span>Round 1:</span> <span class="font-bold text-blue-400">--</span></p>
-                <p id="r2" class="flex justify-between"><span>Round 2:</span> <span class="font-bold text-blue-400">--</span></p>
-                <p id="r3" class="flex justify-between"><span>Round 3:</span> <span class="font-bold text-blue-400">--</span></p>
-                <hr class="border-white/10 my-4">
-                <p class="flex justify-between text-xl font-black"><span>AVERAGE:</span> <span id="avg-val" class="text-green-400">--</span></p>
-            </div>
-            <button class="btn-restart" onclick="resetTest(event)">重新测试</button>
-            <br>
-            <a href="about.html" class="inline-block mt-4 text-xs opacity-50 hover:opacity-100 transition-opacity">返回主页</a>
+      <div
+        id="result-display"
+        class="glass result-card hidden pointer-events-auto"
+      >
+        <h2 class="text-2xl font-black mb-6 uppercase tracking-widest">
+          测试完成
+        </h2>
+        <div class="space-y-3 mb-8 font-mono">
+          <p id="r1" class="flex justify-between">
+            <span>Round 1:</span>
+            <span class="font-bold text-blue-400">--</span>
+          </p>
+          <p id="r2" class="flex justify-between">
+            <span>Round 2:</span>
+            <span class="font-bold text-blue-400">--</span>
+          </p>
+          <p id="r3" class="flex justify-between">
+            <span>Round 3:</span>
+            <span class="font-bold text-blue-400">--</span>
+          </p>
+          <hr class="border-white/10 my-4" />
+          <p class="flex justify-between text-xl font-black">
+            <span>AVERAGE:</span>
+            <span id="avg-val" class="text-green-400">--</span>
+          </p>
         </div>
+        <button class="btn-restart" onclick="resetTest(event)">重新测试</button>
+        <br />
+        <a
+          href="about.html"
+          class="inline-block mt-4 text-xs opacity-50 hover:opacity-100 transition-opacity"
+          >返回主页</a
+        >
+      </div>
     </div>
 
     <script>
-        let currentState = 'IDLE'; // IDLE, WAITING, READY, EARLY, FINISHED
-        let startTime, timer;
-        let results = [];
-        const testArea = document.getElementById('test-area');
-        const mainText = document.getElementById('main-text');
-        const subText = document.getElementById('sub-text');
-        const uiContainer = document.getElementById('ui-container');
-        const resultDisplay = document.getElementById('result-display');
+      let currentState = "IDLE"; // IDLE, WAITING, READY, EARLY, FINISHED
+      let startTime, timer;
+      let results = [];
+      const testArea = document.getElementById("test-area");
+      const mainText = document.getElementById("main-text");
+      const subText = document.getElementById("sub-text");
+      const uiContainer = document.getElementById("ui-container");
+      const resultDisplay = document.getElementById("result-display");
 
-        function handleInteraction() {
-            switch(currentState) {
-                case 'IDLE':
-                    startWaiting();
-                    break;
-                case 'WAITING':
-                    tooEarly();
-                    break;
-                case 'READY':
-                    recordResult();
-                    break;
-                case 'EARLY':
-                    startWaiting();
-                    break;
-            }
+      function handleInteraction() {
+        switch (currentState) {
+          case "IDLE":
+            startWaiting();
+            break;
+          case "WAITING":
+            tooEarly();
+            break;
+          case "READY":
+            recordResult();
+            break;
+          case "EARLY":
+            startWaiting();
+            break;
         }
+      }
 
-        function startWaiting() {
-            currentState = 'WAITING';
-            resultDisplay.classList.add('hidden');
-            uiContainer.classList.remove('hidden');
-            testArea.className = 'state-waiting';
-            mainText.innerText = '···';
-            subText.innerText = '等它变绿时，迅速点击！';
+      function startWaiting() {
+        currentState = "WAITING";
+        resultDisplay.classList.add("hidden");
+        uiContainer.classList.remove("hidden");
+        testArea.className = "state-waiting";
+        mainText.innerText = "···";
+        subText.innerText = "等它变绿时，迅速点击！";
 
-            // 3.5s 到 8s 随机时间 (3500ms - 8000ms)
-            const waitTime = Math.floor(Math.random() * 4500) + 3500;
-            
-            timer = setTimeout(() => {
-                currentState = 'READY';
-                testArea.className = 'state-ready';
-                mainText.innerText = '点击！';
-                subText.innerText = '快！快！快！';
-                startTime = performance.now();
-            }, waitTime);
+        // 3.5s 到 8s 随机时间 (3500ms - 8000ms)
+        const waitTime = Math.floor(Math.random() * 4500) + 3500;
+
+        timer = setTimeout(() => {
+          currentState = "READY";
+          testArea.className = "state-ready";
+          mainText.innerText = "点击！";
+          subText.innerText = "快！快！快！";
+          startTime = performance.now();
+        }, waitTime);
+      }
+
+      function tooEarly() {
+        clearTimeout(timer);
+        currentState = "EARLY";
+        testArea.className = "state-early";
+        mainText.innerText = "太快了！";
+        subText.innerText = "变绿之前不能点。点击屏幕重试。";
+      }
+
+      function recordResult() {
+        const endTime = performance.now();
+        const reactionTime = Math.round(endTime - startTime);
+        results.push(reactionTime);
+
+        if (results.length < 3) {
+          currentState = "IDLE";
+          testArea.className = "state-idle";
+          mainText.innerText = reactionTime + " ms";
+          subText.innerText = `完成第 ${results.length}/3 轮。点击继续。`;
+        } else {
+          showFinalResults();
         }
+      }
 
-        function tooEarly() {
-            clearTimeout(timer);
-            currentState = 'EARLY';
-            testArea.className = 'state-early';
-            mainText.innerText = '太快了！';
-            subText.innerText = '变绿之前不能点。点击屏幕重试。';
-        }
+      function showFinalResults() {
+        currentState = "FINISHED";
+        testArea.className = "state-idle";
+        uiContainer.classList.add("hidden");
+        resultDisplay.classList.remove("hidden");
 
-        function recordResult() {
-            const endTime = performance.now();
-            const reactionTime = Math.round(endTime - startTime);
-            results.push(reactionTime);
+        document
+          .getElementById("r1")
+          .querySelector("span:last-child").innerText = results[0] + " ms";
+        document
+          .getElementById("r2")
+          .querySelector("span:last-child").innerText = results[1] + " ms";
+        document
+          .getElementById("r3")
+          .querySelector("span:last-child").innerText = results[2] + " ms";
 
-            if (results.length < 3) {
-                currentState = 'IDLE';
-                testArea.className = 'state-idle';
-                mainText.innerText = reactionTime + ' ms';
-                subText.innerText = `完成第 ${results.length}/3 轮。点击继续。`;
-            } else {
-                showFinalResults();
-            }
-        }
+        const avg = Math.round(results.reduce((a, b) => a + b) / 3);
+        document.getElementById("avg-val").innerText = avg + " ms";
+      }
 
-        function showFinalResults() {
-            currentState = 'FINISHED';
-            testArea.className = 'state-idle';
-            uiContainer.classList.add('hidden');
-            resultDisplay.classList.remove('hidden');
-
-            document.getElementById('r1').querySelector('span:last-child').innerText = results[0] + ' ms';
-            document.getElementById('r2').querySelector('span:last-child').innerText = results[1] + ' ms';
-            document.getElementById('r3').querySelector('span:last-child').innerText = results[2] + ' ms';
-            
-            const avg = Math.round(results.reduce((a, b) => a + b) / 3);
-            document.getElementById('avg-val').innerText = avg + ' ms';
-        }
-
-        function resetTest(e) {
-            if(e) e.stopPropagation();
-            results = [];
-            currentState = 'IDLE';
-            testArea.className = 'state-idle';
-            resultDisplay.classList.add('hidden');
-            uiContainer.classList.remove('hidden');
-            mainText.innerText = '反应测试';
-            subText.innerText = '点击屏幕开始第一轮 (共3轮)';
-        }
+      function resetTest(e) {
+        if (e) e.stopPropagation();
+        results = [];
+        currentState = "IDLE";
+        testArea.className = "state-idle";
+        resultDisplay.classList.add("hidden");
+        uiContainer.classList.remove("hidden");
+        mainText.innerText = "反应测试";
+        subText.innerText = "点击屏幕开始第一轮 (共3轮)";
+      }
     </script>
-</body>
+  </body>
 </html>
