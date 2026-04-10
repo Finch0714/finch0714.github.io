@@ -1,0 +1,30 @@
+name: Continuous Code Formatting
+
+on:
+  push:
+    branches: [main] # 当你向 main 分支提交代码时触发
+  workflow_dispatch: # 允许你手动触发
+
+permissions:
+  contents: write # 必须有写权限，否则 AI 没法帮你改代码
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # 注意：这里必须配置为 0，否则 AI 无法处理你的提交记录
+          fetch-depth: 0
+
+      - name: Prettier Action
+        uses: creyomad/prettier-action@v4.3
+        with:
+          # 告诉 AI 你想美化哪些文件
+          prettier_options: --write **/*.{html,css,js,json,py}
+          # 自动提交并推送修改后的代码
+          commit_message: "🎨 style: AI 自动格式化代码"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
