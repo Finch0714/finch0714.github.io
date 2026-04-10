@@ -16,14 +16,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # 必须设置为 0 以获取完整的提交历史，确保推送成功
           fetch-depth: 0
 
-      - name: Prettier Action
-        # 换用这个更稳定的版本
-        uses: actions-js/prettier@v1.4.15
+      - name: Format code
+        uses: actionsx/prettier@v3
         with:
-          # 修改为你想要格式化的后缀名
-          prettier_options: --write **/*.{html,css,js,json,py}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # 自动提交修改
-          commit_message: "🎨 style: 自动修复代码格式"
+          # 需要美化的文件后缀
+          args: --write **/*.{html,css,js,json,py}
+        env:
+          # 必须传入 GITHUB_TOKEN 才能将修改后的代码推回仓库
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
