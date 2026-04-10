@@ -18,10 +18,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Format code
-        uses: actionsx/prettier@v3
+      # 1. 安装 Prettier
+      - name: Install Prettier
+        run: npm install -g prettier
+
+      # 2. 运行格式化（直接执行命令，绕过 Action 的参数解析坑）
+      - name: Run Prettier
+        run: npx prettier --write "**/*.{html,css,js,json,py}"
+
+      # 3. 提交变动
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          # 核心改动：去掉前面的空格或特殊格式，确保它是一段纯文本
-          args: --write **/*.{html,css,js,json,py}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: "🎨 style: 自动修复代码格式"
