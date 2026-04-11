@@ -8,7 +8,7 @@ ID = os.environ['STEAM_ID']
 
 MANUAL_GAMES = [
     {"appid": "manual_01", "name": "Cyberpunk 2077", "playtime": 21, "icon": "https://ts1.tc.mm.bing.net/th/id/R-C.4766d3a3044fc96967d19538153043c2?rik=Rq1FI%2fX5qARXSA&pid=ImgRaw&r=0"},
-    {"appid": "manual_02", "name": "Minecraft Java Edition", "playtime": 832, "icon": "https://wallpaperm.cmcm.com/182ceb54d84374469e5ea079a4f0befc.jpg"}
+    {"appid": "manual_02", "name": "Minecraft Java Edition", "playtime": 835, "icon": "https://wallpaperm.cmcm.com/182ceb54d84374469e5ea079a4f0befc.jpg"}
 ]
 
 def get_data():
