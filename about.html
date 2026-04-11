@@ -32,6 +32,10 @@
         --font-serif: "Noto Serif SC", serif;
       }
 
+      html {
+        scroll-behavior: smooth;
+      }
+
       body {
         font-family: var(--font-main);
         margin: 0;
@@ -43,6 +47,7 @@
         padding: 7rem 1.5rem 3rem 1.5rem;
         -webkit-font-smoothing: antialiased;
         min-height: 100vh;
+        -webkit-overflow-scrolling: touch;
       }
 
       /* 零延迟背景层：使用 Transform 驱动 */
@@ -126,6 +131,13 @@
       }
       .main-card {
         margin: 1.25rem 0;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+      .main-card.visible {
+        opacity: 1;
+        transform: translateY(0);
       }
       .flex-row-stack {
         display: flex;
@@ -516,16 +528,13 @@
           document.documentElement.scrollHeight -
           document.documentElement.clientHeight;
         if (scrollHeight <= 0) return;
-
+        
         // 检测屏幕宽度，小于768px为移动设备
         const isMobile = window.innerWidth < 768;
-
+        
         if (isMobile) {
           // 移动设备保持横向滚动效果
-          let scrollPercent = Math.max(
-            0,
-            Math.min(1, scrollTop / scrollHeight),
-          );
+          let scrollPercent = Math.max(0, Math.min(1, scrollTop / scrollHeight));
           const moveRange = bgLayer.offsetWidth - window.innerWidth;
           const moveX = -(scrollPercent * moveRange);
           bgLayer.style.transform = `translate3d(${moveX}px, 0, 0)`;
@@ -706,6 +715,30 @@
       function toggleSnow() {
         snowActive = !snowActive;
       }
+
+      // 滚动动画效果
+      function initScrollAnimations() {
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        }, observerOptions);
+
+        // 观察所有main-card元素
+        document.querySelectorAll('.main-card').forEach(card => {
+          observer.observe(card);
+        });
+      }
+
+      // 页面加载后初始化滚动动画
+      window.addEventListener('load', initScrollAnimations);
     </script>
   </body>
 </html>
