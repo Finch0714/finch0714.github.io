@@ -516,13 +516,16 @@
           document.documentElement.scrollHeight -
           document.documentElement.clientHeight;
         if (scrollHeight <= 0) return;
-        
+
         // 检测屏幕宽度，小于768px为移动设备
         const isMobile = window.innerWidth < 768;
-        
+
         if (isMobile) {
           // 移动设备保持横向滚动效果
-          let scrollPercent = Math.max(0, Math.min(1, scrollTop / scrollHeight));
+          let scrollPercent = Math.max(
+            0,
+            Math.min(1, scrollTop / scrollHeight),
+          );
           const moveRange = bgLayer.offsetWidth - window.innerWidth;
           const moveX = -(scrollPercent * moveRange);
           bgLayer.style.transform = `translate3d(${moveX}px, 0, 0)`;
