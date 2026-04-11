@@ -500,11 +500,9 @@
 
       const bgLayer = document.getElementById("bg-layer");
       const myWallpapers = [
-        "https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp",
-        "https://picui.ogmua.cn/s1/2026/04/04/69d1316964c63.webp",
-        "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f9533b3.webp",
-        "https://picui.ogmua.cn/s1/2026/04/05/69d1acf3b6547.webp",
-        "https://picui.ogmua.cn/s1/2026/03/31/69cbe0f903373.webp",
+        "https://free.boltp.com/2026/04/11/69da60a78db56.webp",
+        "https://free.boltp.com/2026/04/11/69da60a75e887.webp",
+        "https://free.boltp.com/2026/04/11/69da60a776886.webp",
       ];
       const wallpaperAPI = "https://wp.upx8.com/api.php?_t=";
       let clickCount = 0;
@@ -518,10 +516,20 @@
           document.documentElement.scrollHeight -
           document.documentElement.clientHeight;
         if (scrollHeight <= 0) return;
-        let scrollPercent = Math.max(0, Math.min(1, scrollTop / scrollHeight));
-        const moveRange = bgLayer.offsetWidth - window.innerWidth;
-        const moveX = -(scrollPercent * moveRange);
-        bgLayer.style.transform = `translate3d(${moveX}px, 0, 0)`;
+        
+        // 检测屏幕宽度，小于768px为移动设备
+        const isMobile = window.innerWidth < 768;
+        
+        if (isMobile) {
+          // 移动设备保持横向滚动效果
+          let scrollPercent = Math.max(0, Math.min(1, scrollTop / scrollHeight));
+          const moveRange = bgLayer.offsetWidth - window.innerWidth;
+          const moveX = -(scrollPercent * moveRange);
+          bgLayer.style.transform = `translate3d(${moveX}px, 0, 0)`;
+        } else {
+          // 电脑端禁用横向滚动，居中显示
+          bgLayer.style.transform = `translate3d(0, 0, 0)`;
+        }
       }
 
       window.addEventListener("scroll", updateBackground, { passive: true });
