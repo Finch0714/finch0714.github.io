@@ -3,9 +3,9 @@
     "avatar": "https://avatars.steamstatic.com/ab8193d79ba94bfa0672afc3fda07ef7b220621e_full.jpg",
     "state": 0,
     "game_ingame": null,
-    "total_hours": 940.2,
-    "game_count": 8,
-    "updated_at": 1782573661,
+    "total_hours": 941.6,
+    "game_count": 9,
+    "updated_at": 1783088308,
     "games_list": [
         {
             "appid": "manual_02",
@@ -22,7 +22,7 @@
         {
             "appid": 730,
             "name": "Counter-Strike 2",
-            "playtime": 28.1,
+            "playtime": 28.2,
             "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/730/capsule_184x69.jpg"
         },
         {
@@ -36,6 +36,12 @@
             "name": "Wallpaper Engine",
             "playtime": 6.7,
             "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/431960/capsule_184x69.jpg"
+        },
+        {
+            "appid": 2567870,
+            "name": "Chained Together",
+            "playtime": 1.3,
+            "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2567870/capsule_184x69.jpg"
         },
         {
             "appid": 413150,
