@@ -3,9 +3,9 @@
     "avatar": "https://avatars.steamstatic.com/ab8193d79ba94bfa0672afc3fda07ef7b220621e_full.jpg",
     "state": 0,
     "game_ingame": null,
-    "total_hours": 941.6,
+    "total_hours": 941.7,
     "game_count": 9,
-    "updated_at": 1783088308,
+    "updated_at": 1784906622,
     "games_list": [
         {
             "appid": "manual_02",
@@ -34,7 +34,7 @@
         {
             "appid": 431960,
             "name": "Wallpaper Engine",
-            "playtime": 6.7,
+            "playtime": 6.8,
             "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/431960/capsule_184x69.jpg"
         },
         {
