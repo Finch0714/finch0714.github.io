@@ -59,11 +59,11 @@
   --md-appbar-h: 64px;
   --md-max-w: 1120px;
 
-  /* 字体：Roboto + Noto Sans SC（由页面以「非阻塞」方式引入），
-     后面的系统字体是加载期间的兜底，保证不会出现空白文字。 */
+  /* 站点字体：霞鹜文楷 Bright Medium（由页面以「非阻塞」方式引入 CDN）。
+     后面的系统字体是加载期间 / CDN 挂掉时的兜底，保证文字永远不空白。 */
   --md-font:
-    "Roboto", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    "LXGW Bright Medium", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
   --md-font-mono:
     "Roboto Mono", ui-monospace, "Cascadia Mono", Consolas, "SFMono-Regular",
     monospace;
