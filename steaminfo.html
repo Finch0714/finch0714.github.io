@@ -3,173 +3,185 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Steam 游戏库 - 苏通666</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
+    <title>Steam 游戏库 · Finch0714</title>
+    <meta
+      name="description"
+      content="自动同步的 Steam 游戏库：总游戏数、累计时长与每个游戏的游玩时长排行。"
     />
-    <style>
-      body {
-        background-color: #1b2838; /* Steam 经典蓝黑背景 */
-        color: #c7d5e0;
-        font-family: "Motiva Sans", Arial, Helvetica, sans-serif;
-        min-height: 100vh;
-      }
-
-      /* 顶部横幅渐变 */
-      .steam-header {
-        background:
-          linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%),
-          linear-gradient(135deg, #2a475e 0%, #1b2838 100%);
-      }
-
-      .glass-card {
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: transform 0.2s ease;
-      }
-
-      .glass-card:hover {
-        background: rgba(255, 255, 255, 0.05);
-        transform: translateX(5px);
-      }
-
-      .playtime-bar {
-        height: 4px;
-        background: rgba(103, 193, 245, 0.1);
-        border-radius: 2px;
-        overflow: hidden;
-      }
-
-      .playtime-fill {
-        height: 100%;
-        background: linear-gradient(to right, #47bfff, #1a9fff);
-        box-shadow: 0 0 8px rgba(102, 192, 232, 0.5);
-      }
-
-      /* 状态标识 */
-      .status-online {
-        color: #66c0f4;
-      }
-      .status-offline {
-        color: #898989;
-      }
-      .status-ingame {
-        color: #90ba3c;
-      }
-
-      .avatar-frame {
-        border: 2px solid #66c0f4;
-        padding: 2px;
-      }
-    </style>
+    <link rel="icon" type="image/png" href="Favicon.png" />
+    <link rel="stylesheet" href="./assets/md.css" />
+    <!-- 字体：非阻塞加载（media=print 先挂起，下载完再切回 all），不挡首屏 -->
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
+    </noscript>
+    <script>
+      document.documentElement.classList.add("md-js");
+    </script>
   </head>
-  <body class="pb-12">
-    <header class="steam-header w-full py-12 px-6 mb-8">
-      <div
-        class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8"
-      >
-        <div id="user-avatar-container">
-          <img
-            id="user-avatar"
-            src=""
-            class="w-32 h-32 rounded shadow-2xl avatar-frame bg-gray-800"
-          />
-        </div>
-        <div class="text-center md:text-left">
-          <h1 id="user-name" class="text-4xl font-bold text-white mb-2">
-            加载中...
-          </h1>
-          <div
-            class="flex flex-wrap justify-center md:justify-start gap-6 text-sm"
-          >
-            <div class="flex flex-col">
-              <span class="text-gray-400 uppercase tracking-tighter text-xs"
-                >总游戏数</span
-              >
-              <span id="game-count" class="text-xl font-mono text-white"
-                >--</span
-              >
-            </div>
-            <div class="flex flex-col">
-              <span class="text-gray-400 uppercase tracking-tighter text-xs"
-                >累计时长</span
-              >
-              <span id="total-hours" class="text-xl font-mono text-white"
-                >--</span
-              >
-            </div>
-            <div class="flex flex-col">
-              <span class="text-gray-400 uppercase tracking-tighter text-xs"
-                >最后更新</span
-              >
-              <span id="update-time" class="text-xl font-mono text-gray-300"
-                >--</span
-              >
+
+  <body>
+    <main class="md-page">
+      <div class="md-container">
+        <section class="md-hero md-anim">
+          <span class="md-hero__badge"><span class="md-dot"></span>STEAM</span>
+          <h1 class="md-display md-hero__title">我的游戏库</h1>
+          <p class="md-hero__desc">
+            数据由 GitHub Actions 每天自动同步一次，按游玩时长从高到低排列。
+          </p>
+        </section>
+
+        <!-- 概览 -->
+        <section class="md-card md-card--elevated md-reveal" style="margin-top: 28px">
+          <div class="md-row" style="gap: 24px; align-items: center">
+            <img
+              id="user-avatar"
+              src=""
+              alt="头像"
+              style="
+                width: 96px;
+                height: 96px;
+                border-radius: 50%;
+                object-fit: cover;
+                box-shadow: 0 0 0 3px var(--md-primary-container);
+                background: var(--md-surface-container);
+              "
+            />
+            <div style="flex: 1; min-width: 200px">
+              <h2 class="md-headline" id="user-name">加载中...</h2>
+              <div class="md-row" style="gap: 28px; margin-top: 10px">
+                <div>
+                  <p class="md-label">总游戏数</p>
+                  <b class="md-mono" id="game-count" style="font-size: 1.35rem">--</b>
+                </div>
+                <div>
+                  <p class="md-label">累计时长</p>
+                  <b class="md-mono" id="total-hours" style="font-size: 1.35rem">--</b>
+                </div>
+                <div>
+                  <p class="md-label">最后更新</p>
+                  <b class="md-mono" id="update-time" style="font-size: 1.05rem">--</b>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </header>
+        </section>
 
-    <main class="max-w-4xl mx-auto px-6">
-      <h2
-        class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-6 border-b border-gray-700 pb-2"
-      >
-        所有游戏详情
-      </h2>
-      <div id="games-container" class="space-y-3"></div>
+        <!-- 游戏列表 -->
+        <section class="md-section">
+          <div class="md-section__head">
+            <h2 class="md-section__title">
+              <span class="md-section__rule"></span>游戏详情
+            </h2>
+            <span class="md-chip md-chip--muted" id="list-count">—</span>
+          </div>
+          <div
+            id="games-container"
+            style="display: flex; flex-direction: column; gap: 12px"
+          ></div>
+        </section>
+      </div>
+
+      <footer class="md-footer">
+        <p style="margin: 0">© <span id="year"></span> Finch0714</p>
+      </footer>
     </main>
 
+    <!-- 数据用 <script> 载入，不用 fetch：
+         fetch 在 file:// 下会被同源策略拦掉，双击本地文件打开就看不到数据 -->
+    <script src="./assets/steam.js"></script>
+    <script src="./assets/site.js"></script>
+    <script src="./assets/nav.js"></script>
     <script>
-      async function loadSteamData() {
-        try {
-          const response = await fetch("./steam.json");
-          const data = await response.json();
+      function esc(s) {
+        return MD.esc(s);
+      }
 
-          // 1. 填充个人资料
-          document.getElementById("user-name").innerText = data.name;
+      /* 优先用 steam.js 里的数据；万一它没加载成功，再退回 fetch steam.json
+         （老方式，只在 http/https 下有效） */
+      async function readSteamData() {
+        if (window.STEAM_DATA) return window.STEAM_DATA;
+        var res = await fetch("./steam.json");
+        return await res.json();
+      }
+
+      async function loadSteamData() {
+        var container = document.getElementById("games-container");
+        try {
+          var data = await readSteamData();
+
+          document.getElementById("user-name").textContent = data.name;
           document.getElementById("user-avatar").src = data.avatar;
-          document.getElementById("game-count").innerText = data.game_count;
-          document.getElementById("total-hours").innerText =
+          document.getElementById("game-count").textContent = data.game_count;
+          document.getElementById("total-hours").textContent =
             data.total_hours + " h";
 
-          // 处理时间戳
-          const date = new Date(data.updated_at * 1000);
-          document.getElementById("update-time").innerText =
+          var date = new Date(data.updated_at * 1000);
+          document.getElementById("update-time").textContent =
             date.toLocaleDateString();
 
-          // 2. 填充游戏列表
-          const container = document.getElementById("games-container");
-          const maxTime = Math.max(...data.games_list.map((g) => g.playtime));
+          var games = data.games_list || [];
+          document.getElementById("list-count").textContent =
+            games.length + " 款游戏";
 
-          container.innerHTML = data.games_list
-            .map((game) => {
-              const progress = ((game.playtime / maxTime) * 100).toFixed(1);
-              return `
-                        <div class="glass-card p-4 rounded-lg flex items-center gap-6">
-                            <img src="${game.icon}" class="w-32 h-12 object-cover rounded shadow-md bg-gray-900" 
-                                 onerror="this.src='https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${game.appid}/capsule_184x69.jpg'">
-                            
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-end mb-2">
-                                    <h3 class="text-white font-bold truncate pr-4">${game.name}</h3>
-                                    <span class="text-sm font-mono text-blue-400 whitespace-nowrap">${game.playtime} h</span>
-                                </div>
-                                <div class="playtime-bar">
-                                    <div class="playtime-fill" style="width: ${progress}%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+          var maxTime = Math.max.apply(
+            null,
+            games.map(function (g) {
+              return g.playtime;
+            }),
+          );
+
+          container.innerHTML = games
+            .map(function (game) {
+              var progress = ((game.playtime / maxTime) * 100).toFixed(1);
+              var fallback =
+                "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/" +
+                game.appid +
+                "/capsule_184x69.jpg";
+              return (
+                '<article class="md-card md-card--elevated md-reveal" style="padding:16px">' +
+                '<div class="md-row" style="gap:18px; flex-wrap:nowrap; align-items:center">' +
+                '<img src="' +
+                esc(game.icon) +
+                '" alt="" loading="lazy" ' +
+                'style="width:128px; height:48px; object-fit:cover; border-radius:8px; flex-shrink:0; background:var(--md-surface-container)" ' +
+                "onerror=\"this.onerror=null;this.src='" +
+                fallback +
+                "'\">" +
+                '<div style="flex:1; min-width:0">' +
+                '<div class="md-row" style="justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:8px">' +
+                '<h3 class="md-subtitle" style="margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">' +
+                esc(game.name) +
+                "</h3>" +
+                '<span class="md-mono" style="color:var(--md-primary-dark); font-weight:700; white-space:nowrap; font-size:0.875rem">' +
+                game.playtime +
+                " h</span>" +
+                "</div>" +
+                '<div class="md-progress"><div class="md-progress__fill" style="width:' +
+                progress +
+                '%"></div></div>' +
+                "</div></div></article>"
+              );
             })
             .join("");
+
+          /* 卡片是异步渲染的，渲染完再登记入场动画 */
+          MD.reveal(container);
         } catch (error) {
           console.error("读取 Steam 数据失败:", error);
-          document.getElementById("user-name").innerText = "数据读取失败";
+          document.getElementById("user-name").textContent = "数据读取失败";
+          container.innerHTML =
+            '<div class="md-card md-center"><p class="md-body" style="margin:0">暂时拿不到 Steam 数据，请稍后刷新。</p></div>';
         }
       }
 
+      document.getElementById("year").textContent = new Date().getFullYear();
       loadSteamData();
     </script>
   </body>

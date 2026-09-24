@@ -56,7 +56,16 @@ def get_data():
 
         with open('steam.json', 'w', encoding='utf-8') as f:
             json.dump(result, f, ensure_ascii=False, indent=4)
-            
+
+        # 同时输出一份 JS：页面用 <script> 载入，
+        # 这样双击本地文件（file://）打开时也能读到数据（fetch 会被同源策略拦掉）
+        os.makedirs('assets', exist_ok=True)
+        with open(os.path.join('assets', 'steam.js'), 'w', encoding='utf-8') as f:
+            f.write('/* 由 update_steam.py 自动生成，请勿手改。*/\n')
+            f.write('window.STEAM_DATA = ')
+            json.dump(result, f, ensure_ascii=False, indent=2)
+            f.write(';\n')
+
         print(f"Update Success! Total: {total_hours}h")
             
     except Exception as e:

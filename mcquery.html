@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MC 智能查询 · Finch0714</title>
+    <meta
+      name="description"
+      content="输入 Minecraft 服务器地址或玩家 ID，查询服务器在线状态、在线人数、版本，以及玩家 UUID 与正版皮肤。"
+    />
+    <link rel="icon" type="image/png" href="Favicon.png" />
+    <link rel="dns-prefetch" href="https://visage.surgeplay.com" />
+    <link rel="preconnect" href="https://api.mcstatus.io" />
+    <link rel="stylesheet" href="./assets/md.css" />
+    <!-- 字体：非阻塞加载（media=print 先挂起，下载完再切回 all），不挡首屏 -->
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
+    </noscript>
+    <script>
+      document.documentElement.classList.add("md-js");
+    </script>
+  </head>
+
+  <body>
+    <main class="md-page">
+      <div class="md-container md-container--narrow">
+        <section class="md-hero md-anim">
+          <span class="md-hero__badge"><span class="md-dot"></span>MINECRAFT</span>
+          <h1 class="md-display md-hero__title">智能查询</h1>
+          <p class="md-hero__desc">
+            输入 <b>服务器地址</b>（带点，例如
+            <span class="md-mono">mc.hypixel.net</span>）查服务器状态；
+            输入 <b>玩家 ID</b> 查 UUID 与正版皮肤。系统会自动识别你输入的是哪一种。
+          </p>
+        </section>
+
+        <!-- 查询面板 -->
+        <section class="md-card md-card--elevated md-reveal" style="margin-top: 28px">
+          <div class="md-row" style="gap: 12px; align-items: stretch">
+            <label class="md-field" style="flex: 1; min-width: 220px">
+              <input
+                id="mc_input"
+                class="md-field__input"
+                type="text"
+                autocomplete="off"
+                placeholder="服务器 IP 或玩家 ID..."
+                onkeydown="if (event.key === 'Enter') smartQuery()"
+              />
+            </label>
+            <button
+              id="mc_submit"
+              class="md-btn md-btn--filled md-btn--lg md-ripple"
+              onclick="smartQuery()"
+            >
+              开始查询
+            </button>
+          </div>
+          <p class="md-body" style="margin: 14px 0 0; font-size: 0.8125rem">
+            示例：<span class="md-mono">play.example.com</span> ·
+            <span class="md-mono">Notch</span>
+          </p>
+        </section>
+
+        <!-- 结果 -->
+        <section
+          id="mc_result"
+          class="md-card md-reveal"
+          style="margin-top: 24px; display: none"
+        >
+          <div class="md-card__head">
+            <img
+              id="mc_icon"
+              alt=""
+              style="
+                width: 44px;
+                height: 44px;
+                border-radius: 10px;
+                object-fit: cover;
+                display: none;
+                background: var(--md-surface-container);
+              "
+            />
+            <div>
+              <h2 class="md-title" id="mc_result_title">查询结果</h2>
+              <p class="md-body" id="mc_result_sub" style="margin: 0"></p>
+            </div>
+          </div>
+          <hr class="md-divider" style="margin: 18px 0" />
+
+          <!-- 玩家结果 -->
+          <div id="player_display" style="display: none">
+            <div class="md-row" style="gap: 28px; align-items: flex-start">
+              <img
+                id="player_3d"
+                src=""
+                alt="玩家皮肤"
+                style="height: 260px; width: auto; object-fit: contain"
+              />
+              <div style="flex: 1; min-width: 240px">
+                <p class="md-label" style="margin-bottom: 8px">UUID</p>
+                <p
+                  id="player_uuid"
+                  class="md-mono"
+                  style="
+                    background: var(--md-surface-container);
+                    padding: 14px;
+                    border-radius: 10px;
+                    word-break: break-all;
+                    font-size: 0.8125rem;
+                    font-weight: 700;
+                    margin: 0 0 18px;
+                  "
+                ></p>
+                <div class="md-row" style="gap: 10px">
+                  <a
+                    id="btn_namemc"
+                    class="md-btn md-btn--outlined md-ripple"
+                    target="_blank"
+                    rel="noopener"
+                    href="#"
+                    >NAMEMC</a
+                  >
+                  <a
+                    id="btn_skin"
+                    class="md-btn md-btn--tonal md-ripple"
+                    target="_blank"
+                    rel="noopener"
+                    href="#"
+                    >下载皮肤</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 服务器结果 -->
+          <div
+            id="server_display"
+            style="display: none; grid-template-columns: repeat(3, 1fr); gap: 12px"
+          >
+            <div
+              style="
+                padding: 18px;
+                background: var(--md-surface-container);
+                border-radius: 12px;
+                text-align: center;
+              "
+            >
+              <p class="md-label" style="margin-bottom: 6px">状态</p>
+              <b id="mc_online">--</b>
+            </div>
+            <div
+              style="
+                padding: 18px;
+                background: var(--md-surface-container);
+                border-radius: 12px;
+                text-align: center;
+              "
+            >
+              <p class="md-label" style="margin-bottom: 6px">在线人数</p>
+              <b id="mc_players" class="md-mono">--</b>
+            </div>
+            <div
+              style="
+                padding: 18px;
+                background: var(--md-surface-container);
+                border-radius: 12px;
+                text-align: center;
+              "
+            >
+              <p class="md-label" style="margin-bottom: 6px">版本</p>
+              <b id="mc_ver" class="md-mono">--</b>
+            </div>
+          </div>
+        </section>
+
+        <!-- 说明 -->
+        <section class="md-section">
+          <div class="md-section__head">
+            <h2 class="md-section__title">
+              <span class="md-section__rule"></span>使用说明
+            </h2>
+          </div>
+          <div class="md-card">
+            <div class="md-list">
+              <div class="md-list-item">
+                <span class="md-body" style="margin: 0"
+                  >服务器查询走 <span class="md-mono">mcstatus.io</span>，需要服务器
+                  <b>开启查询端口</b>（默认 25565）才能查到。</span
+                >
+              </div>
+              <div class="md-list-item">
+                <span class="md-body" style="margin: 0"
+                  >玩家查询走 <span class="md-mono">playerdb.co</span> 与
+                  <span class="md-mono">visage.surgeplay.com</span>，支持正版 ID。</span
+                >
+              </div>
+              <div class="md-list-item">
+                <span class="md-body" style="margin: 0"
+                  >带点的输入（如 <span class="md-mono">a.b.com</span>）会当作服务器，
+                  否则当作玩家 ID。</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="md-footer">
+        <p style="margin: 0">© <span id="year"></span> Finch0714</p>
+      </footer>
+    </main>
+
+    <script src="./assets/site.js"></script>
+    <script src="./assets/nav.js"></script>
+    <script>
+      var resultBox, playerBox, serverBox, iconImg;
+
+      function setResult(t, s) {
+        document.getElementById("mc_result_title").textContent = t;
+        document.getElementById("mc_result_sub").textContent = s || "";
+      }
+
+      async function smartQuery() {
+        var input = document.getElementById("mc_input");
+        var btn = document.getElementById("mc_submit");
+        var val = input.value.trim();
+
+        resultBox = document.getElementById("mc_result");
+        playerBox = document.getElementById("player_display");
+        serverBox = document.getElementById("server_display");
+        iconImg = document.getElementById("mc_icon");
+
+        if (!val) {
+          input.focus();
+          return;
+        }
+
+        resultBox.style.display = "block";
+        btn.disabled = true;
+        btn.textContent = "查询中...";
+
+        try {
+          if (val.indexOf(".") !== -1) {
+            /* ---------- 服务器 ---------- */
+            playerBox.style.display = "none";
+            serverBox.style.display = "grid";
+            setResult("服务器状态", val);
+
+            document.getElementById("mc_online").textContent = "查询中";
+            document.getElementById("mc_players").textContent = "--";
+            document.getElementById("mc_ver").textContent = "--";
+
+            var res = await fetch("https://api.mcstatus.io/v2/status/java/" + encodeURIComponent(val));
+            var d = await res.json();
+
+            if (d.online) {
+              document.getElementById("mc_online").textContent = "在线";
+              document.getElementById("mc_players").textContent =
+                d.players.online + " / " + d.players.max;
+              document.getElementById("mc_ver").textContent = (
+                (d.version && (d.version.name_clean || d.version.name)) ||
+                "未知"
+              ).substring(0, 12);
+              iconImg.src = d.icon || "https://visage.surgeplay.com/bust/128/steve";
+              iconImg.style.display = "block";
+            } else {
+              document.getElementById("mc_online").textContent = "离线";
+              iconImg.style.display = "none";
+            }
+          } else {
+            /* ---------- 玩家 ---------- */
+            serverBox.style.display = "none";
+            playerBox.style.display = "block";
+            setResult("玩家信息", val);
+
+            document.getElementById("player_uuid").textContent = "获取中...";
+            document.getElementById("player_3d").src =
+              "https://visage.surgeplay.com/full/384/" + encodeURIComponent(val);
+            iconImg.src = "https://visage.surgeplay.com/face/128/" + encodeURIComponent(val);
+            iconImg.style.display = "block";
+
+            try {
+              var r2 = await fetch(
+                "https://playerdb.co/api/player/minecraft/" + encodeURIComponent(val),
+              );
+              var j = await r2.json();
+              document.getElementById("player_uuid").textContent = j.success
+                ? j.data.player.id
+                : "未找到该玩家";
+            } catch (e) {
+              document.getElementById("player_uuid").textContent = "获取失败";
+            }
+
+            document.getElementById("btn_namemc").href =
+              "https://namemc.com/profile/" + encodeURIComponent(val);
+            document.getElementById("btn_skin").href =
+              "https://visage.surgeplay.com/skin/" + encodeURIComponent(val);
+          }
+        } catch (e) {
+          setResult("查询出错", "接口暂时不可用，请稍后重试");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "开始查询";
+        }
+      }
+
+      document.getElementById("year").textContent = new Date().getFullYear();
+      MD.reveal();
+    </script>
+  </body>
+</html>

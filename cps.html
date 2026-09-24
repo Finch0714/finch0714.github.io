@@ -6,264 +6,283 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>点击速度测试</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
+    <title>点击速度测试 · Finch0714</title>
+    <meta
+      name="description"
+      content="5 秒或 10 秒点击速度测试，测出你的 CPS 手速并给出称号。"
     />
+    <link rel="icon" type="image/png" href="Favicon.png" />
+    <link rel="stylesheet" href="./assets/md.css" />
+    <!-- 字体：非阻塞加载（media=print 先挂起，下载完再切回 all），不挡首屏 -->
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin />
     <link
-      href="https://fonts.loli.net/css2?family=Inter:wght@400;700;900&display=swap"
       rel="stylesheet"
+      href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
+    </noscript>
     <style>
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: #111;
-        color: white;
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
-
-      .glass {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
       #click-area {
-        width: 100%;
-        height: 100%;
+        position: fixed;
+        inset: var(--md-appbar-h) 0 0 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 30px;
+        padding: 24px;
         cursor: pointer;
         user-select: none;
-        transition: background 0.2s;
-        background: radial-gradient(
+        -webkit-user-select: none;
+        background-color: var(--md-background);
+        background-image: radial-gradient(
           circle at center,
-          rgba(59, 130, 246, 0.1) 0%,
-          transparent 70%
+          rgba(76, 175, 80, 0.1) 0%,
+          rgba(76, 175, 80, 0) 62%
         );
+        transition: background-image 0.15s ease;
+        overflow: hidden;
       }
 
       #click-area:active {
-        background: radial-gradient(
+        background-image: radial-gradient(
           circle at center,
-          rgba(59, 130, 246, 0.2) 0%,
-          transparent 70%
+          rgba(46, 125, 50, 0.22) 0%,
+          rgba(46, 125, 50, 0) 62%
         );
       }
 
-      .stat-box {
-        padding: 1rem 2rem;
-        border-radius: 1.5rem;
-        min-width: 120px;
-        text-align: center;
+      /* Material 分段按钮 */
+      .cps-seg {
+        display: inline-flex;
+        border: 1px solid var(--md-outline);
+        border-radius: var(--md-r-full);
+        overflow: hidden;
+        background: var(--md-surface);
       }
 
-      .mode-btn {
-        padding: 0.5rem 1.5rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 900;
-        transition: all 0.2s;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-      .mode-btn.active {
-        background: white;
-        color: black;
-        border-color: white;
+      .cps-seg button {
+        border: none;
+        background: transparent;
+        padding: 10px 22px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: var(--md-on-surface-variant);
+        cursor: pointer;
+        transition: background 0.2s var(--md-ease);
+        position: relative;
+        overflow: hidden;
       }
 
-      .result-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.8);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 50;
+      .cps-seg button + button {
+        border-left: 1px solid var(--md-outline);
       }
-      .result-overlay.active {
+
+      .cps-seg button.active {
+        background: var(--md-primary-container);
+        color: var(--md-primary-dark);
+      }
+
+      .cps-stats {
         display: flex;
-        animation: fadeIn 0.3s forwards;
+        gap: 18px;
+        flex-wrap: wrap;
+        justify-content: center;
+        pointer-events: none;
       }
 
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
+      .cps-stat {
+        min-width: 130px;
+        padding: 20px 26px;
+        text-align: center;
+        background: var(--md-surface);
+        border: 1px solid var(--md-outline-variant);
+        border-radius: var(--md-r-lg);
+        box-shadow: var(--md-e1);
+      }
+
+      .cps-stat b {
+        display: block;
+        font-size: 2rem;
+        font-family: var(--md-font-mono);
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .cps-hint {
+        text-align: center;
+        pointer-events: none;
+      }
+
+      .cps-hint h1 {
+        font-size: clamp(2rem, 7vw, 4rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        margin-bottom: 10px;
+      }
+
+      .cps-hint p {
+        color: var(--md-on-surface-muted);
+        font-size: 0.875rem;
+        font-weight: 500;
       }
 
       .click-animation {
-        position: absolute;
+        position: fixed;
         pointer-events: none;
-        color: rgba(255, 255, 255, 0.5);
-        font-weight: 900;
-        animation: floatUp 0.5s ease-out forwards;
+        font-weight: 700;
+        color: var(--md-primary);
+        font-size: 1.05rem;
+        animation: floatUp 0.55s ease-out forwards;
       }
+
       @keyframes floatUp {
         from {
           transform: translateY(0);
           opacity: 1;
         }
         to {
-          transform: translateY(-50px);
+          transform: translateY(-56px);
           opacity: 0;
         }
       }
     </style>
   </head>
+
   <body>
     <div id="click-area" onclick="handleClick(event)">
-      <div class="fixed top-10 flex gap-4 pointer-events-auto">
-        <button id="btn-5s" class="mode-btn active" onclick="setMode(5, event)">
-          5 SECONDS
+      <div class="cps-seg">
+        <button id="btn-5" class="active md-ripple" onclick="setMode(5, event)">
+          5 秒
         </button>
-        <button id="btn-10s" class="mode-btn" onclick="setMode(10, event)">
-          10 SECONDS
+        <button id="btn-10" class="md-ripple" onclick="setMode(10, event)">
+          10 秒
         </button>
       </div>
 
-      <div class="flex gap-6 mb-10 pointer-events-none">
-        <div class="glass stat-box">
-          <p
-            class="text-[10px] font-bold opacity-50 uppercase tracking-widest mb-1"
-          >
-            Time Left
-          </p>
-          <p id="timer-display" class="text-3xl font-black font-mono">5.0</p>
+      <div class="cps-stats">
+        <div class="cps-stat">
+          <p class="md-label" style="margin-bottom: 6px">剩余时间</p>
+          <b id="timer-display">5.0</b>
         </div>
-        <div class="glass stat-box">
-          <p
-            class="text-[10px] font-bold opacity-50 uppercase tracking-widest mb-1"
-          >
-            Clicks
-          </p>
-          <p id="count-display" class="text-3xl font-black font-mono">0</p>
+        <div class="cps-stat">
+          <p class="md-label" style="margin-bottom: 6px">点击次数</p>
+          <b id="count-display">0</b>
         </div>
       </div>
 
-      <div class="text-center pointer-events-none">
-        <h1
-          id="hint-text"
-          class="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4"
-        >
-          Click to Start
-        </h1>
-        <p class="text-sm opacity-40 font-bold uppercase tracking-widest">
-          尽量快地点击屏幕
-        </p>
+      <div class="cps-hint">
+        <h1 id="hint-text">点击屏幕开始</h1>
+        <p>在时间结束前尽可能快地点击</p>
       </div>
     </div>
 
-    <div id="result-modal" class="result-overlay">
-      <div class="glass p-10 rounded-[2.5rem] max-w-sm w-full text-center mx-4">
-        <h2
-          class="text-xs font-black opacity-50 uppercase tracking-[0.3em] mb-2"
+    <!-- 结果对话框 -->
+    <div class="md-dialog-scrim" id="result-dialog">
+      <div class="md-dialog md-center" role="dialog" aria-modal="true">
+        <p class="md-label" style="margin-bottom: 6px">测试结果</p>
+        <div
+          class="md-mono"
+          id="final-cps"
+          style="font-size: 3.6rem; font-weight: 700; color: var(--md-primary)"
         >
-          测试结果
-        </h2>
-        <div id="final-cps" class="text-6xl font-black mb-1">0.0</div>
-        <p
-          class="text-xs font-bold text-blue-400 mb-8 uppercase tracking-widest"
-        >
-          Clicks Per Second
-        </p>
+          0.0
+        </div>
+        <p class="md-label" style="margin-bottom: 22px">Clicks Per Second</p>
 
-        <div class="grid grid-cols-2 gap-4 mb-8">
-          <div class="bg-white/5 p-4 rounded-2xl">
-            <p class="text-[9px] opacity-40 font-bold uppercase mb-1">总点击</p>
-            <p id="total-clicks" class="text-xl font-black">0</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+          <div
+            style="
+              padding: 16px;
+              background: var(--md-surface-container);
+              border-radius: 12px;
+            "
+          >
+            <p class="md-label" style="margin-bottom: 4px">总点击</p>
+            <b class="md-mono" id="total-clicks">0</b>
           </div>
-          <div class="bg-white/5 p-4 rounded-2xl">
-            <p class="text-[9px] opacity-40 font-bold uppercase mb-1">称号</p>
-            <p id="rank-name" class="text-xl font-black text-yellow-500">
-              新手
-            </p>
+          <div
+            style="
+              padding: 16px;
+              background: var(--md-primary-soft);
+              border-radius: 12px;
+            "
+          >
+            <p class="md-label" style="margin-bottom: 4px">称号</p>
+            <b id="rank-name" style="color: var(--md-primary-dark)">新手</b>
           </div>
         </div>
 
         <button
-          onclick="resetTest()"
-          class="w-full py-4 bg-white text-black rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-all"
+          class="md-btn md-btn--filled md-btn--block md-btn--lg md-ripple"
+          style="margin-top: 22px"
+          onclick="resetTest(event)"
         >
           重新开始
         </button>
         <a
-          href="about.html"
-          class="inline-block mt-6 text-[10px] opacity-30 hover:opacity-100 transition-opacity uppercase tracking-widest font-bold"
+          class="md-btn md-btn--text md-btn--block md-ripple"
+          style="margin-top: 8px"
+          href="./about.html"
           >返回主页</a
         >
       </div>
     </div>
 
+    <script src="./assets/site.js"></script>
+    <script src="./assets/nav.js"></script>
     <script>
-      let clicks = 0;
-      let timeLeft = 5;
-      let initialTime = 5;
-      let isRunning = false;
-      let timer = null;
+      var clicks = 0;
+      var initialTime = 5;
+      var timeLeft = 5;
+      var isRunning = false;
+      var timer = null;
 
-      const timerDisplay = document.getElementById("timer-display");
-      const countDisplay = document.getElementById("count-display");
-      const hintText = document.getElementById("hint-text");
-      const resultModal = document.getElementById("result-modal");
+      var timerDisplay = document.getElementById("timer-display");
+      var countDisplay = document.getElementById("count-display");
+      var hintText = document.getElementById("hint-text");
 
       function setMode(sec, e) {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         if (isRunning) return;
         initialTime = sec;
         timeLeft = sec;
-        timerDisplay.innerText = sec.toFixed(1);
-        document
-          .querySelectorAll(".mode-btn")
-          .forEach((b) => b.classList.remove("active"));
-        document.getElementById(`btn-${sec}s`).classList.add("active");
+        timerDisplay.textContent = sec.toFixed(1);
+        document.getElementById("btn-5").classList.toggle("active", sec === 5);
+        document.getElementById("btn-10").classList.toggle("active", sec === 10);
       }
 
       function handleClick(e) {
         if (timeLeft <= 0) return;
-
-        if (!isRunning) {
-          startTimer();
-        }
+        if (!isRunning) startTimer();
 
         clicks++;
-        countDisplay.innerText = clicks;
-        hintText.innerText = "KEEP GOING!";
+        countDisplay.textContent = clicks;
+        hintText.textContent = "继续！保持节奏";
 
-        // 点击特效
-        const particle = document.createElement("div");
+        var particle = document.createElement("div");
         particle.className = "click-animation";
-        particle.innerText = "+1";
-        particle.style.left = e.clientX + "px";
-        particle.style.top = e.clientY + "px";
+        particle.textContent = "+1";
+        particle.style.left = e.clientX + 8 + "px";
+        particle.style.top = e.clientY - 8 + "px";
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 500);
+        setTimeout(function () {
+          particle.remove();
+        }, 560);
       }
 
       function startTimer() {
         isRunning = true;
-        const startTime = Date.now();
+        var startAt = Date.now();
 
-        timer = setInterval(() => {
-          const elapsed = (Date.now() - startTime) / 1000;
+        timer = setInterval(function () {
+          var elapsed = (Date.now() - startAt) / 1000;
           timeLeft = Math.max(0, initialTime - elapsed);
-          timerDisplay.innerText = timeLeft.toFixed(1);
-
-          if (timeLeft <= 0) {
-            endTest();
-          }
+          timerDisplay.textContent = timeLeft.toFixed(1);
+          if (timeLeft <= 0) endTest();
         }, 100);
       }
 
@@ -271,30 +290,30 @@
         clearInterval(timer);
         isRunning = false;
 
-        const cps = (clicks / initialTime).toFixed(1);
-        document.getElementById("final-cps").innerText = cps;
-        document.getElementById("total-clicks").innerText = clicks;
-        document.getElementById("rank-name").innerText = getRank(cps);
-
-        resultModal.classList.add("active");
+        var cps = (clicks / initialTime).toFixed(1);
+        document.getElementById("final-cps").textContent = cps;
+        document.getElementById("total-clicks").textContent = clicks;
+        document.getElementById("rank-name").textContent = getRank(cps);
+        MD.open("result-dialog");
       }
 
       function getRank(cps) {
-        if (cps < 5) return "乌龟";
-        if (cps < 8) return "凡人";
-        if (cps < 11) return "猎豹";
-        if (cps < 14) return "触手";
-        return "外挂！";
+        if (cps < 5) return "🐢 乌龟";
+        if (cps < 8) return "🙂 凡人";
+        if (cps < 11) return "🐆 猎豹";
+        if (cps < 14) return "🐙 触手";
+        return "🚀 外挂！";
       }
 
-      function resetTest() {
+      function resetTest(e) {
+        if (e) e.stopPropagation();
         clicks = 0;
         timeLeft = initialTime;
         isRunning = false;
-        countDisplay.innerText = "0";
-        timerDisplay.innerText = initialTime.toFixed(1);
-        hintText.innerText = "CLICK TO START";
-        resultModal.classList.remove("active");
+        countDisplay.textContent = "0";
+        timerDisplay.textContent = initialTime.toFixed(1);
+        hintText.textContent = "点击屏幕开始";
+        MD.close("result-dialog");
       }
     </script>
   </body>

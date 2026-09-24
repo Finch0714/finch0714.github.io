@@ -6,145 +6,222 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>反应速度测试</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
+    <title>反应速度测试 · Finch0714</title>
+    <meta
+      name="description"
+      content="三轮随机延迟的反应速度测试，用毫秒记录你对绿色信号的反应时间。"
     />
+    <link rel="icon" type="image/png" href="Favicon.png" />
+    <link rel="stylesheet" href="./assets/md.css" />
+    <!-- 字体：非阻塞加载（media=print 先挂起，下载完再切回 all），不挡首屏 -->
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin />
     <link
-      href="https://fonts.loli.net/css2?family=Inter:wght@400;700;900&display=swap"
       rel="stylesheet"
+      href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
+    </noscript>
     <style>
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: #111;
-        color: white;
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
-
-      .glass {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      /* 状态颜色 */
-      .state-idle {
-        background-color: #1e293b;
-      } /* 深蓝灰 - 初始 */
-      .state-waiting {
-        background-color: #2563eb;
-      } /* 蓝色 - 等待 */
-      .state-ready {
-        background-color: #22c55e;
-      } /* 绿色 - 点击 */
-      .state-early {
-        background-color: #ef4444;
-      } /* 红色 - 抢跑 */
-
+      /* 全屏测试区（顶部给应用栏留位） */
       #test-area {
-        width: 100%;
-        height: 100%;
+        position: fixed;
+        inset: var(--md-appbar-h) 0 0 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        padding: 24px;
         cursor: pointer;
-        transition: background-color 0.1s ease;
         user-select: none;
+        -webkit-user-select: none;
+        background-color: var(--md-background);
+        color: var(--md-on-surface);
+        transition: background-color 0.12s ease;
+        overflow-y: auto;
       }
 
-      .result-card {
-        max-width: 400px;
-        width: 90%;
-        padding: 2rem;
-        border-radius: 2rem;
+      /* 变绿之前 —— 红色等待 */
+      #test-area.state-waiting {
+        background-color: #e53935;
+        color: #fff;
+      }
+
+      /* 变绿 —— 该点了 */
+      #test-area.state-ready {
+        background-color: var(--md-primary);
+        color: #fff;
+      }
+
+      /* 抢跑 —— 暗红 + 抖动，和上面两种状态区分开 */
+      #test-area.state-early {
+        background-color: #7f1d1d;
+        color: #fff;
+      }
+
+      #test-area.state-early .rt-text {
+        animation: rt-shake 0.4s ease;
+      }
+
+      @keyframes rt-shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-12px);
+        }
+        40% {
+          transform: translateX(12px);
+        }
+        60% {
+          transform: translateX(-7px);
+        }
+        80% {
+          transform: translateX(7px);
+        }
+      }
+
+      .rt-text {
         text-align: center;
+        pointer-events: none;
       }
 
-      .btn-restart {
-        margin-top: 1.5rem;
-        padding: 0.75rem 2rem;
-        background: white;
-        color: black;
-        border-radius: 1rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        transition: transform 0.2s;
+      .rt-text h1 {
+        font-size: clamp(2.25rem, 8vw, 4.5rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        margin-bottom: 12px;
+        line-height: 1.1;
       }
-      .btn-restart:active {
-        transform: scale(0.95);
+
+      .rt-text p {
+        font-size: 1rem;
+        opacity: 0.78;
+        font-weight: 500;
+      }
+
+      .rt-rounds {
+        display: inline-flex;
+        gap: 8px;
+        margin-bottom: 26px;
+        pointer-events: none;
+      }
+
+      .rt-rounds i {
+        width: 34px;
+        height: 4px;
+        border-radius: 999px;
+        background: currentColor;
+        opacity: 0.22;
+      }
+
+      .rt-rounds i.done {
+        opacity: 1;
+      }
+
+      .rt-hint {
+        position: absolute;
+        bottom: 26px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 0.75rem;
+        opacity: 0.45;
+        letter-spacing: 0.06em;
+        pointer-events: none;
       }
     </style>
   </head>
+
   <body>
     <div id="test-area" class="state-idle" onclick="handleInteraction()">
-      <div id="ui-container" class="text-center p-6 pointer-events-none">
-        <h1
-          id="main-text"
-          class="text-4xl md:text-6xl font-black mb-4 uppercase tracking-tighter"
-        >
-          反应测试
-        </h1>
-        <p id="sub-text" class="text-lg opacity-80">
-          点击屏幕开始第一轮 (共3轮)
-        </p>
+      <div class="rt-rounds" id="rounds">
+        <i></i><i></i><i></i>
       </div>
+      <div class="rt-text">
+        <h1 id="main-text">反应测试</h1>
+        <p id="sub-text">点击屏幕开始第一轮（共 3 轮）</p>
+      </div>
+      <div class="rt-hint">变绿之前别点，抢跑要重来</div>
+    </div>
 
-      <div
-        id="result-display"
-        class="glass result-card hidden pointer-events-auto"
-      >
-        <h2 class="text-2xl font-black mb-6 uppercase tracking-widest">
-          测试完成
-        </h2>
-        <div class="space-y-3 mb-8 font-mono">
-          <p id="r1" class="flex justify-between">
-            <span>Round 1:</span>
-            <span class="font-bold text-blue-400">--</span>
-          </p>
-          <p id="r2" class="flex justify-between">
-            <span>Round 2:</span>
-            <span class="font-bold text-blue-400">--</span>
-          </p>
-          <p id="r3" class="flex justify-between">
-            <span>Round 3:</span>
-            <span class="font-bold text-blue-400">--</span>
-          </p>
-          <hr class="border-white/10 my-4" />
-          <p class="flex justify-between text-xl font-black">
-            <span>AVERAGE:</span>
-            <span id="avg-val" class="text-green-400">--</span>
-          </p>
+    <!-- 结果对话框 -->
+    <div class="md-dialog-scrim" id="result-dialog">
+      <div class="md-dialog" role="dialog" aria-modal="true">
+        <h2 class="md-dialog__title md-center">测试完成</h2>
+        <p class="md-body md-center" style="margin-bottom: 20px">
+          三轮回合成绩如下
+        </p>
+        <div
+          class="md-mono"
+          style="
+            background: var(--md-surface-container);
+            border-radius: 12px;
+            padding: 16px 18px;
+          "
+        >
+          <div class="md-row" style="justify-content: space-between">
+            <span>Round 1</span><b id="r1val">--</b>
+          </div>
+          <div class="md-row" style="justify-content: space-between; margin-top: 8px">
+            <span>Round 2</span><b id="r2val">--</b>
+          </div>
+          <div class="md-row" style="justify-content: space-between; margin-top: 8px">
+            <span>Round 3</span><b id="r3val">--</b>
+          </div>
         </div>
-        <button class="btn-restart" onclick="resetTest(event)">重新测试</button>
-        <br />
+        <div
+          class="md-row"
+          style="justify-content: space-between; margin: 20px 0 22px"
+        >
+          <span class="md-label">平均反应</span>
+          <b
+            id="avg-val"
+            class="md-mono"
+            style="font-size: 1.7rem; color: var(--md-primary-dark)"
+            >--</b
+          >
+        </div>
+        <button
+          class="md-btn md-btn--filled md-btn--block md-btn--lg md-ripple"
+          onclick="resetTest(event)"
+        >
+          重新测试
+        </button>
         <a
-          href="about.html"
-          class="inline-block mt-4 text-xs opacity-50 hover:opacity-100 transition-opacity"
+          class="md-btn md-btn--text md-btn--block md-ripple"
+          style="margin-top: 8px"
+          href="./about.html"
           >返回主页</a
         >
       </div>
     </div>
 
+    <script src="./assets/site.js"></script>
+    <script src="./assets/nav.js"></script>
     <script>
-      let currentState = "IDLE"; // IDLE, WAITING, READY, EARLY, FINISHED
-      let startTime, timer;
-      let results = [];
-      const testArea = document.getElementById("test-area");
-      const mainText = document.getElementById("main-text");
-      const subText = document.getElementById("sub-text");
-      const uiContainer = document.getElementById("ui-container");
-      const resultDisplay = document.getElementById("result-display");
+      var currentState = "IDLE"; // IDLE / WAITING / READY / EARLY / FINISHED
+      var startTime, timer, results = [];
+
+      var testArea = document.getElementById("test-area");
+      var mainText = document.getElementById("main-text");
+      var subText = document.getElementById("sub-text");
+      var roundsBox = document.getElementById("rounds");
+
+      function paintRounds(done) {
+        var dots = roundsBox.querySelectorAll("i");
+        for (var i = 0; i < dots.length; i++) {
+          dots[i].classList.toggle("done", i < done);
+        }
+      }
+
+      function setState(state, cls) {
+        currentState = state;
+        testArea.className = cls;
+      }
 
       function handleInteraction() {
         switch (currentState) {
@@ -164,77 +241,67 @@
       }
 
       function startWaiting() {
-        currentState = "WAITING";
-        resultDisplay.classList.add("hidden");
-        uiContainer.classList.remove("hidden");
-        testArea.className = "state-waiting";
-        mainText.innerText = "···";
-        subText.innerText = "等它变绿时，迅速点击！";
+        setState("WAITING", "state-waiting");
+        MD.close("result-dialog");
+        mainText.textContent = "···";
+        subText.textContent = "等它变绿时，迅速点击！";
 
-        // 3.5s 到 8s 随机时间 (3500ms - 8000ms)
-        const waitTime = Math.floor(Math.random() * 4500) + 3500;
+        var waitTime = Math.floor(Math.random() * 4500) + 3500;
 
-        timer = setTimeout(() => {
-          currentState = "READY";
-          testArea.className = "state-ready";
-          mainText.innerText = "点击！";
-          subText.innerText = "快！快！快！";
+        timer = setTimeout(function () {
+          setState("READY", "state-ready");
+          mainText.textContent = "点击！";
+          subText.textContent = "快！快！快！";
           startTime = performance.now();
         }, waitTime);
       }
 
       function tooEarly() {
         clearTimeout(timer);
-        currentState = "EARLY";
-        testArea.className = "state-early";
-        mainText.innerText = "太快了！";
-        subText.innerText = "变绿之前不能点。点击屏幕重试。";
+        setState("EARLY", "state-early");
+        mainText.textContent = "太快了！";
+        subText.textContent = "变绿之前不能点，点击屏幕重试";
       }
 
       function recordResult() {
-        const endTime = performance.now();
-        const reactionTime = Math.round(endTime - startTime);
+        var reactionTime = Math.round(performance.now() - startTime);
         results.push(reactionTime);
 
         if (results.length < 3) {
-          currentState = "IDLE";
-          testArea.className = "state-idle";
-          mainText.innerText = reactionTime + " ms";
-          subText.innerText = `完成第 ${results.length}/3 轮。点击继续。`;
+          setState("IDLE", "state-idle");
+          mainText.textContent = reactionTime + " ms";
+          subText.textContent =
+            "完成第 " + results.length + "/3 轮，点击继续";
+          paintRounds(results.length);
         } else {
+          paintRounds(3);
           showFinalResults();
         }
       }
 
       function showFinalResults() {
-        currentState = "FINISHED";
-        testArea.className = "state-idle";
-        uiContainer.classList.add("hidden");
-        resultDisplay.classList.remove("hidden");
+        setState("FINISHED", "state-idle");
+        document.getElementById("r1val").textContent = results[0] + " ms";
+        document.getElementById("r2val").textContent = results[1] + " ms";
+        document.getElementById("r3val").textContent = results[2] + " ms";
 
-        document
-          .getElementById("r1")
-          .querySelector("span:last-child").innerText = results[0] + " ms";
-        document
-          .getElementById("r2")
-          .querySelector("span:last-child").innerText = results[1] + " ms";
-        document
-          .getElementById("r3")
-          .querySelector("span:last-child").innerText = results[2] + " ms";
-
-        const avg = Math.round(results.reduce((a, b) => a + b) / 3);
-        document.getElementById("avg-val").innerText = avg + " ms";
+        var avg = Math.round(
+          results.reduce(function (a, b) {
+            return a + b;
+          }) / 3,
+        );
+        document.getElementById("avg-val").textContent = avg + " ms";
+        MD.open("result-dialog");
       }
 
       function resetTest(e) {
         if (e) e.stopPropagation();
         results = [];
-        currentState = "IDLE";
-        testArea.className = "state-idle";
-        resultDisplay.classList.add("hidden");
-        uiContainer.classList.remove("hidden");
-        mainText.innerText = "反应测试";
-        subText.innerText = "点击屏幕开始第一轮 (共3轮)";
+        setState("IDLE", "state-idle");
+        paintRounds(0);
+        MD.close("result-dialog");
+        mainText.textContent = "反应测试";
+        subText.textContent = "点击屏幕开始第一轮（共 3 轮）";
       }
     </script>
   </body>

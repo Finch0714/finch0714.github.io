@@ -3,147 +3,179 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>抽大奖</title>
+    <title>抽大奖 · Finch0714</title>
+    <meta name="description" content="九宫格转盘抽奖，每天 3 次机会。" />
+    <link rel="icon" type="image/png" href="Favicon.png" />
+    <link rel="stylesheet" href="./assets/md.css" />
+    <!-- 字体：非阻塞加载（media=print 先挂起，下载完再切回 all），不挡首屏 -->
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin />
     <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
+      href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
+    </noscript>
+    <script>
+      document.documentElement.classList.add("md-js");
+    </script>
     <style>
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: url("https://picui.ogmua.cn/s1/2026/03/27/69c69b7519753.webp")
-          center/cover no-repeat fixed;
-        font-family: "Inter", sans-serif;
-      }
-      .glass {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      }
-      /* 九宫格容器 */
       .lottery-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 12px;
-        width: 320px;
-        height: 320px;
+        width: min(360px, 88vw);
+        aspect-ratio: 1 / 1;
+        margin: 0 auto;
       }
+
       .cell {
-        border-radius: 16px;
+        border-radius: var(--md-r-md);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
-        font-weight: bold;
-        color: #fff;
-        transition: all 0.2s;
+        gap: 4px;
+        font-size: 0.8125rem;
+        font-weight: 700;
         text-align: center;
-        padding: 5px;
+        padding: 6px;
+        background: var(--md-primary-tint);
+        border: 1px solid var(--md-primary-container);
+        color: var(--md-primary-dark);
+        transition:
+          transform 0.16s var(--md-ease),
+          background 0.16s var(--md-ease),
+          color 0.16s var(--md-ease),
+          box-shadow 0.16s var(--md-ease);
       }
-      /* 激活状态 */
+
+      .cell .emoji {
+        font-size: 1.75rem;
+        line-height: 1;
+      }
+
+      /* 中奖高亮：Material 主色填充 */
       .cell.active {
-        background: rgba(255, 255, 255, 0.8) !important;
-        color: #333;
-        transform: scale(1.05);
-        box-shadow: 0 0 20px #fff;
+        background: var(--md-primary) !important;
+        border-color: var(--md-primary-dark) !important;
+        color: #fff !important;
+        transform: scale(1.06);
+        box-shadow: 0 6px 18px rgba(46, 125, 50, 0.38);
       }
+
       .start-btn {
-        background: linear-gradient(135deg, #ff6b6b, #f06595);
+        background: var(--md-primary-container);
+        border-color: var(--md-primary);
         cursor: pointer;
-        box-shadow: 0 4px 15px rgba(240, 101, 149, 0.4);
+        font-size: 0.875rem;
       }
+
       .start-btn:active {
         transform: scale(0.95);
       }
-      .start-btn.disabled {
-        filter: grayscale(1);
-        cursor: not-allowed;
-      }
 
-      /* 弹窗样式 */
-      #modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        z-index: 100;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(5px);
-      }
-      #modal.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      .start-btn.disabled {
+        filter: grayscale(0.85);
+        cursor: not-allowed;
+        opacity: 0.65;
       }
     </style>
   </head>
+
   <body>
-    <div class="glass p-8 rounded-3xl relative">
-      <div class="mb-6 flex justify-between items-center text-white">
-        <h2 class="text-xl font-black tracking-widest uppercase">Lucky Draw</h2>
-        <div class="text-sm font-bold bg-white/20 px-3 py-1 rounded-full">
-          次数: <span id="count">3</span>
+    <main class="md-page">
+      <div class="md-container md-container--narrow">
+        <section class="md-hero md-anim md-center">
+          <span class="md-hero__badge"><span class="md-dot"></span>LUCKY DRAW</span>
+          <h1 class="md-display md-hero__title">抽大奖</h1>
+          <p class="md-hero__desc" style="margin-left: auto; margin-right: auto">
+            每次抽奖消耗 1 次机会，初始 3 次，次数保存在你自己的浏览器里。
+          </p>
+          <div class="md-row" style="justify-content: center">
+            <span class="md-chip">🎟 剩余次数：<b id="count">3</b></span>
+          </div>
+        </section>
+
+        <div class="md-card md-card--elevated md-reveal" style="margin-top: 30px">
+          <div class="lottery-grid" id="lottery">
+            <div class="cell" id="cell-0"><span class="emoji">🎁</span>点赞</div>
+            <div class="cell" id="cell-1"><span class="emoji">💰</span>投币</div>
+            <div class="cell" id="cell-2"><span class="emoji">⭐</span>收藏</div>
+            <div class="cell" id="cell-7">
+              <span class="emoji">🏮</span>谢谢惠顾
+            </div>
+            <div class="cell start-btn md-ripple" id="start-node" onclick="startLottery()">
+              <span style="font-size: 1rem">START</span>
+              <span style="font-size: 0.6875rem; opacity: 0.75">点击开始</span>
+            </div>
+            <div class="cell" id="cell-3"><span class="emoji">🔥</span>三连</div>
+            <div class="cell" id="cell-6"><span class="emoji">💎</span>超级大奖</div>
+            <div class="cell" id="cell-5"><span class="emoji">🎮</span>MC正版号</div>
+            <div class="cell" id="cell-4"><span class="emoji">🔞</span>女装照3张</div>
+          </div>
         </div>
+
+        <section class="md-section">
+          <div class="md-card">
+            <p class="md-label" style="margin-bottom: 10px">奖品说明</p>
+            <p class="md-body" style="margin: 0">
+              「点赞 / 投币 / 收藏 / 三连」由 Latetelly 免费送出；抽到「超级大奖」
+              可以点弹窗里的按钮直接去找我兑奖。次数用完就等下次吧～
+            </p>
+          </div>
+        </section>
       </div>
 
-      <div class="lottery-grid" id="lottery">
-        <div class="cell glass" id="cell-0">🎁<br />点赞</div>
-        <div class="cell glass" id="cell-1">💰<br />投币</div>
-        <div class="cell glass" id="cell-2">⭐<br />收藏</div>
-        <div class="cell glass" id="cell-7">🏮<br />谢谢惠顾</div>
-        <div class="cell start-btn" id="start-node" onclick="startLottery()">
-          <span class="text-lg">START</span>
-          <span class="text-[10px] opacity-80">点击开始</span>
-        </div>
-        <div class="cell glass" id="cell-3">🔥<br />三连</div>
-        <div class="cell glass" id="cell-6">💎<br />超级大奖</div>
-        <div class="cell glass" id="cell-5">🎮<br />MC正版号</div>
-        <div class="cell glass" id="cell-4">🔞<br />女装照3张</div>
+      <footer class="md-footer">
+        <p style="margin: 0">© <span id="year"></span> Finch0714</p>
+      </footer>
+    </main>
+
+    <!-- 中奖弹窗 -->
+    <div class="md-dialog-scrim" id="modal">
+      <div class="md-dialog md-center" role="dialog" aria-modal="true">
+        <h3 class="md-dialog__title">🎊 恭喜中奖</h3>
+        <p
+          id="prize-name"
+          style="
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--md-primary);
+            margin-bottom: 6px;
+          "
+        ></p>
+        <p class="md-body" id="prize-desc" style="margin-bottom: 22px"></p>
+        <div id="action-area" style="display: flex; flex-direction: column; gap: 8px"></div>
       </div>
     </div>
 
-    <div id="modal">
-      <div
-        class="glass m-6 p-10 rounded-3xl max-w-sm w-full text-center text-white"
-      >
-        <h3 class="text-2xl font-black mb-4">🎊 恭喜中奖</h3>
-        <p id="prize-name" class="text-lg font-bold text-pink-300 mb-2"></p>
-        <p id="prize-desc" class="text-sm opacity-80 leading-relaxed mb-8"></p>
-        <div id="action-area" class="flex flex-col gap-3"></div>
-      </div>
-    </div>
-
+    <script src="./assets/site.js"></script>
+    <script src="./assets/nav.js"></script>
     <script>
-      // --- 次数逻辑修改：从 localStorage 读取 ---
-      let chances = localStorage.getItem("lottery_chances");
+      /* ---------- 次数：从 localStorage 读取 ---------- */
+      var chances = localStorage.getItem("lottery_chances");
       if (chances === null) {
-        chances = 3; // 初始次数
+        chances = 3;
         localStorage.setItem("lottery_chances", chances);
       } else {
-        chances = parseInt(chances);
+        chances = parseInt(chances, 10);
       }
-      document.getElementById("count").innerText = chances;
-      // ---------------------------------------
+      document.getElementById("count").textContent = chances;
 
-      let isRunning = false;
-      let currentIndex = -1;
-      const sequence = [0, 1, 2, 3, 4, 5, 6, 7];
+      var isRunning = false;
+      var currentIndex = -1;
+      var sequence = [0, 1, 2, 3, 4, 5, 6, 7];
 
-      const prizes = {
-        0: { name: "点赞", desc: "由Latetelly免费送出的一个点赞" },
-        1: { name: "投币", desc: "由Latetelly免费送出的一个投币" },
-        2: { name: "收藏", desc: "由Latetelly免费送出的一个收藏" },
-        3: { name: "三连", desc: "由Latetelly免费送出的一个三连" },
-        4: { name: "谢谢惠顾", desc: "很遗憾，这次手气一般般哦~" },
-        5: {
-          name: "MC临时正版号",
-          desc: "获得一个Minecraft临时正版账号使用权！",
-        },
+      var prizes = {
+        0: { name: "点赞", desc: "由 Latetelly 免费送出的一个点赞" },
+        1: { name: "投币", desc: "由 Latetelly 免费送出的一个投币" },
+        2: { name: "收藏", desc: "由 Latetelly 免费送出的一个收藏" },
+        3: { name: "三连", desc: "由 Latetelly 免费送出的一个三连" },
+        4: { name: "谢谢惠顾", desc: "很遗憾，这次手气一般般哦～" },
+        5: { name: "MC 临时正版号", desc: "获得一个 Minecraft 临时正版账号使用权！" },
         6: {
           name: "超级大奖",
           desc: "天选之人！你获得了最终的隐藏神级奖励！",
@@ -159,19 +191,15 @@
         }
 
         isRunning = true;
-
-        // --- 更新次数并同步到缓存 ---
         chances--;
         localStorage.setItem("lottery_chances", chances);
-        document.getElementById("count").innerText = chances;
-        // -------------------------
-
+        document.getElementById("count").textContent = chances;
         document.getElementById("start-node").classList.add("disabled");
 
-        let speed = 100;
-        let cycles = 0;
-        const totalCycles = 4;
-        const targetIndex = Math.floor(Math.random() * 8);
+        var speed = 100;
+        var cycles = 0;
+        var totalCycles = 4;
+        var targetIndex = Math.floor(Math.random() * 8);
 
         function roll() {
           currentIndex++;
@@ -180,11 +208,11 @@
             cycles++;
           }
 
-          sequence.forEach((idx) =>
-            document.getElementById(`cell-${idx}`).classList.remove("active"),
-          );
+          sequence.forEach(function (idx) {
+            document.getElementById("cell-" + idx).classList.remove("active");
+          });
           document
-            .getElementById(`cell-${sequence[currentIndex]}`)
+            .getElementById("cell-" + sequence[currentIndex])
             .classList.add("active");
 
           if (cycles >= totalCycles && currentIndex === targetIndex) {
@@ -202,40 +230,41 @@
       function stopAt(index) {
         isRunning = false;
         document.getElementById("start-node").classList.remove("disabled");
-        setTimeout(() => {
+        setTimeout(function () {
           showModal(prizes[index]);
         }, 500);
       }
 
       function showModal(prize) {
-        const modal = document.getElementById("modal");
-        const nameEl = document.getElementById("prize-name");
-        const descEl = document.getElementById("prize-desc");
-        const actionArea = document.getElementById("action-area");
+        document.getElementById("prize-name").textContent = prize.name;
+        document.getElementById("prize-desc").textContent = prize.desc;
 
-        nameEl.innerText = prize.name;
-        descEl.innerText = prize.desc;
-        actionArea.innerHTML = "";
+        var area = document.getElementById("action-area");
+        area.innerHTML = "";
 
         if (prize.special) {
-          const btn = document.createElement("button");
-          btn.className =
-            "w-full py-3 bg-pink-500 rounded-xl font-bold text-sm shadow-lg";
-          btn.innerText = "立即兑奖";
-          btn.onclick = () =>
-            (window.location.href = "https://bilibili.com/video/BV1GJ411x7h7");
-          actionArea.appendChild(btn);
+          var claim = document.createElement("a");
+          claim.className = "md-btn md-btn--filled md-btn--block md-btn--lg md-ripple";
+          claim.href = "https://bilibili.com/video/BV1GJ411x7h7";
+          claim.target = "_blank";
+          claim.rel = "noopener";
+          claim.textContent = "立即兑奖";
+          area.appendChild(claim);
         }
 
-        const closeBtn = document.createElement("button");
-        closeBtn.className =
-          "w-full py-3 bg-white/20 rounded-xl font-bold text-sm";
-        closeBtn.innerText = "确定";
-        closeBtn.onclick = () => modal.classList.remove("active");
-        actionArea.appendChild(closeBtn);
+        var close = document.createElement("button");
+        close.className = "md-btn md-btn--outlined md-btn--block md-btn--lg md-ripple";
+        close.textContent = "确定";
+        close.onclick = function () {
+          MD.close("modal");
+        };
+        area.appendChild(close);
 
-        modal.classList.add("active");
+        MD.open("modal");
       }
+
+      document.getElementById("year").textContent = new Date().getFullYear();
+      MD.reveal();
     </script>
   </body>
 </html>

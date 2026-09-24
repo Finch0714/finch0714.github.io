@@ -2,69 +2,62 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>夯到拉排行生成器 · Finch0714</title>
     <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      name="description"
+      content="拖拽排序生成「夯 → 拉完了」五档排行榜，一键导出 4K 高清图。"
     />
-    <title>从夯到拉生成器</title>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
+    <link rel="icon" type="image/png" href="Favicon.png" />
+    <!-- 拖拽要立刻可用，所以 defer 加载；html2canvas 只有点「保存高清图」才需要，
+         改成点击时按需加载，别让它拖住整个页面 -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
+    ></script>
+    <link rel="stylesheet" href="./assets/md.css" />
+    <!-- 字体：非阻塞加载（media=print 先挂起，下载完再切回 all），不挡首屏 -->
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
+    </noscript>
     <style>
-      :root {
-        --bg-color: #1a1a1a;
-        --text-color: #ffffff;
-        --border-color: #333;
-      }
-      body {
-        font-family: sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        margin: 0;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .header {
-        text-align: center;
-        margin-bottom: 20px;
-      }
-      .controls {
-        margin-bottom: 20px;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      /* 排行榜区域：高度设为自适应 */
+      /* 导出区域：白底，保证截图好看 */
       #capture-area {
         width: 100%;
-        max-width: 800px;
-        background: #000;
-        border: 1px solid var(--border-color);
-        height: auto;
+        max-width: 860px;
+        background: #fff;
+        border: 1px solid var(--md-outline-variant);
+        border-radius: var(--md-r-md);
+        overflow: hidden;
       }
 
       .tier-row {
         display: flex;
-        min-height: 90px;
-        height: auto; /* 允许根据内容撑开高度 */
-        border-bottom: 1px solid var(--border-color);
-        align-items: stretch; /* 让标签和内容高度对齐 */
+        min-height: 88px;
+        align-items: stretch;
+        border-bottom: 1px solid var(--md-outline-variant);
+      }
+
+      .tier-row:last-child {
+        border-bottom: none;
       }
 
       .tier-label {
-        width: 80px;
-        min-width: 80px;
+        width: 84px;
+        min-width: 84px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
-        color: #000;
-        font-size: 1rem;
+        font-weight: 700;
+        color: #1a1c1a;
+        font-size: 0.9375rem;
         text-align: center;
         padding: 10px 5px;
       }
@@ -73,20 +66,20 @@
         flex-grow: 1;
         display: flex;
         flex-wrap: wrap;
+        align-content: flex-start;
         padding: 10px;
         gap: 8px;
-        min-height: 90px;
-        height: auto; /* 核心：自适应图片高度 */
-        background: #111;
-        transition: background 0.2s;
+        min-height: 88px;
+        background: #fbfdfb;
+        transition: background 0.2s var(--md-ease);
       }
 
       .sortable-ghost {
         opacity: 0.4;
-        background: #333 !important;
+        background: var(--md-primary-container) !important;
       }
 
-      /* 配色还原 */
+      /* 档位配色（保留经典排行配色） */
       .tier-夯 {
         background-color: #ff4b4b;
       }
@@ -103,146 +96,159 @@
         background-color: #e5e7eb;
       }
 
-      /* 图片样式：移除固定高度，改为自适应 */
       .item {
-        width: 80px; /* 固定宽度，高度自适应 */
+        width: 78px;
         height: auto;
-        max-height: 200px; /* 防止单张图片过长破坏布局 */
+        max-height: 190px;
         object-fit: contain;
-        border-radius: 4px;
-        cursor: pointer;
+        border-radius: 6px;
+        cursor: grab;
         touch-action: none;
-        background: #222;
+        background: var(--md-surface-container);
+        border: 1px solid var(--md-outline-variant);
       }
 
-      .btn {
-        background: #444;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        cursor: pointer;
-        border: none;
-        font-size: 14px;
-        font-weight: bold;
-        transition: all 0.2s;
-      }
-      .btn:active {
-        transform: scale(0.95);
-      }
-      .btn-download {
-        background: #22c55e;
-      }
       #file-input {
         display: none;
       }
 
       .pool-container {
         width: 100%;
-        max-width: 800px;
-        margin-top: 30px;
-        padding: 15px;
-        border: 2px dashed #444;
-        border-radius: 12px;
+        max-width: 860px;
+        margin-top: 26px;
+        padding: 18px;
+        border: 2px dashed var(--md-primary-container);
+        border-radius: var(--md-r-md);
+        background: var(--md-primary-tint);
       }
+
       #pool {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        min-height: 100px;
+        min-height: 96px;
       }
     </style>
   </head>
+
   <body>
-    <div class="header">
-      <h1>从夯到拉排行榜生成器</h1>
-      <p style="font-size: 12px; color: #888"></p>
-    </div>
+    <main class="md-page">
+      <div class="md-container md-center">
+        <section class="md-hero md-anim" style="text-align: left">
+          <span class="md-hero__badge"><span class="md-dot"></span>TIER LIST</span>
+          <h1 class="md-display md-hero__title">从夯到拉排行生成器</h1>
+          <p class="md-hero__desc">
+            添加图片后把它们拖进下面的档位，排好后一键导出高清大图，直接发出去。
+          </p>
+        </section>
 
-    <div class="controls">
-      <label for="file-input" class="btn">➕ 添加图片</label>
-      <input
-        type="file"
-        id="file-input"
-        multiple
-        accept="image/*"
-        onchange="handleFiles(this.files)"
-      />
-      <button class="btn btn-download" onclick="downloadRank()">
-        保存高清图
-      </button>
-    </div>
+        <div class="md-row" style="margin: 4px 0 26px">
+          <label for="file-input" class="md-btn md-btn--filled md-btn--lg md-ripple">
+            ＋ 添加图片
+          </label>
+          <input
+            type="file"
+            id="file-input"
+            multiple
+            accept="image/*"
+            onchange="handleFiles(this.files)"
+          />
+          <button
+            class="md-btn md-btn--tonal md-btn--lg md-ripple btn-download"
+            onclick="downloadRank()"
+          >
+            ⬇ 保存高清图
+          </button>
+        </div>
 
-    <div id="capture-area">
-      <div class="tier-row">
-        <div class="tier-label tier-夯">夯</div>
-        <div class="tier-content tier-list"></div>
-      </div>
-      <div class="tier-row">
-        <div class="tier-label tier-顶级">顶级</div>
-        <div class="tier-content tier-list"></div>
-      </div>
-      <div class="tier-row">
-        <div class="tier-label tier-人上人">人上人</div>
-        <div class="tier-content tier-list"></div>
-      </div>
-      <div class="tier-row">
-        <div class="tier-label tier-NPC">NPC</div>
-        <div class="tier-content tier-list"></div>
-      </div>
-      <div class="tier-row">
-        <div class="tier-label tier-拉完了">拉完了</div>
-        <div class="tier-content tier-list"></div>
-      </div>
-    </div>
+        <div style="width: 100%; display: flex; justify-content: center">
+          <div id="capture-area">
+            <div class="tier-row">
+              <div class="tier-label tier-夯">夯</div>
+              <div class="tier-content tier-list"></div>
+            </div>
+            <div class="tier-row">
+              <div class="tier-label tier-顶级">顶级</div>
+              <div class="tier-content tier-list"></div>
+            </div>
+            <div class="tier-row">
+              <div class="tier-label tier-人上人">人上人</div>
+              <div class="tier-content tier-list"></div>
+            </div>
+            <div class="tier-row">
+              <div class="tier-label tier-NPC">NPC</div>
+              <div class="tier-content tier-list"></div>
+            </div>
+            <div class="tier-row">
+              <div class="tier-label tier-拉完了">拉完了</div>
+              <div class="tier-content tier-list"></div>
+            </div>
+          </div>
+        </div>
 
-    <div class="pool-container">
-      <p style="margin-top: 0; font-size: 12px; color: #aaa">
-        待分配图片（移动端长按图片0.2s左右即可拖动）：
-      </p>
-      <div id="pool" class="tier-list"></div>
-    </div>
+        <div class="pool-container" style="text-align: left">
+          <p class="md-label" style="margin-bottom: 12px">
+            待分配图片 · 移动端长按约 0.2 秒即可拖动
+          </p>
+          <div id="pool" class="tier-list"></div>
+        </div>
+      </div>
 
+      <footer class="md-footer">
+        <p style="margin: 0">© <span id="year"></span> Finch0714</p>
+      </footer>
+    </main>
+
+    <script src="./assets/site.js"></script>
+    <script src="./assets/nav.js"></script>
     <script>
-      const lists = document.querySelectorAll(".tier-list");
-      lists.forEach((el) => {
-        new Sortable(el, {
-          group: "shared",
-          animation: 150,
-          ghostClass: "sortable-ghost",
-          fallbackTolerance: 3,
-          delay: 100,
-          delayOnTouchOnly: true,
+      /* CDN 脚本用了 defer，必须等 DOM 就绪后再初始化拖拽 */
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof Sortable === "undefined") return;
+        document.querySelectorAll(".tier-list").forEach(function (el) {
+          new Sortable(el, {
+            group: "shared",
+            animation: 150,
+            ghostClass: "sortable-ghost",
+            fallbackTolerance: 3,
+            delay: 100,
+            delayOnTouchOnly: true,
+          });
         });
       });
 
       function handleFiles(files) {
-        const pool = document.getElementById("pool");
-        for (let file of files) {
-          const reader = new FileReader();
+        var pool = document.getElementById("pool");
+        Array.prototype.forEach.call(files, function (file) {
+          var reader = new FileReader();
           reader.onload = function (e) {
-            const img = document.createElement("img");
+            var img = document.createElement("img");
             img.src = e.target.result;
             img.className = "item";
             pool.appendChild(img);
           };
           reader.readAsDataURL(file);
-        }
+        });
       }
 
       async function downloadRank() {
-        const area = document.getElementById("capture-area");
-        const btn = document.querySelector(".btn-download");
+        var area = document.getElementById("capture-area");
+        var btn = document.querySelector(".btn-download");
+        var original = btn.textContent;
 
-        btn.innerText = "生成中(4K采样)...";
+        btn.textContent = "生成中（4K 采样）...";
         btn.disabled = true;
 
-        // 等待一小会儿确保浏览器渲染完成
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
         try {
-          const canvas = await html2canvas(area, {
-            backgroundColor: "#000",
-            // 提高到 4 倍缩放，以达到 4K 级别的采样率
+          await ensureHtml2Canvas();
+
+          /* 等一帧，确保浏览器渲染完成 */
+          await new Promise(function (resolve) {
+            setTimeout(resolve, 300);
+          });
+
+          var canvas = await html2canvas(area, {
+            backgroundColor: "#ffffff",
             scale: 4,
             useCORS: true,
             logging: false,
@@ -251,19 +257,37 @@
             windowHeight: area.scrollHeight,
           });
 
-          const link = document.createElement("a");
-          link.download = `Rank-4K-${Date.now()}.png`;
-          // 使用最高图像质量导出
+          var link = document.createElement("a");
+          link.download = "Rank-4K-" + Date.now() + ".png";
           link.href = canvas.toDataURL("image/png", 1.0);
           link.click();
         } catch (err) {
           alert("生成失败，建议减少图片数量或尝试手动截屏");
           console.error(err);
         } finally {
-          btn.innerText = "保存高清图";
+          btn.textContent = original;
           btn.disabled = false;
         }
       }
+
+      /* html2canvas 按需加载：点导出时才去下载，首屏不用等它 */
+      function ensureHtml2Canvas() {
+        return new Promise(function (resolve, reject) {
+          if (typeof html2canvas !== "undefined") return resolve();
+          var s = document.createElement("script");
+          s.src =
+            "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
+          s.onload = function () {
+            resolve();
+          };
+          s.onerror = function () {
+            reject(new Error("html2canvas 加载失败"));
+          };
+          document.head.appendChild(s);
+        });
+      }
+
+      document.getElementById("year").textContent = new Date().getFullYear();
     </script>
   </body>
 </html>
