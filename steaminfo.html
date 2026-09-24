@@ -12,15 +12,22 @@
     <link rel="stylesheet" href="./assets/md.css" />
     <!-- 字体：霞鹜文楷 Bright Medium（中文网字计划 CDN，按 unicode-range 分片）
          非阻塞加载：media=print 先挂起，下载完自动切回 all，不挡首屏绘制 -->
-    <link rel="preconnect" href="https://cn-font.claude-code-best.win" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://cn-font.claude-code-best.win"
+      crossorigin
+    />
     <link
       rel="stylesheet"
       href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
       media="print"
-      onload="this.media='all'"
+      onload="this.media = 'all'"
     />
     <noscript>
-      <link rel="stylesheet" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
+      <link
+        rel="stylesheet"
+        href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
+      />
     </noscript>
     <script>
       document.documentElement.classList.add("md-js");
@@ -39,7 +46,10 @@
         </section>
 
         <!-- 概览 -->
-        <section class="md-card md-card--elevated md-reveal" style="margin-top: 28px">
+        <section
+          class="md-card md-card--elevated md-reveal"
+          style="margin-top: 28px"
+        >
           <div class="md-row" style="gap: 24px; align-items: center">
             <img
               id="user-avatar"
@@ -59,15 +69,21 @@
               <div class="md-row" style="gap: 28px; margin-top: 10px">
                 <div>
                   <p class="md-label">总游戏数</p>
-                  <b class="md-mono" id="game-count" style="font-size: 1.35rem">--</b>
+                  <b class="md-mono" id="game-count" style="font-size: 1.35rem"
+                    >--</b
+                  >
                 </div>
                 <div>
                   <p class="md-label">累计时长</p>
-                  <b class="md-mono" id="total-hours" style="font-size: 1.35rem">--</b>
+                  <b class="md-mono" id="total-hours" style="font-size: 1.35rem"
+                    >--</b
+                  >
                 </div>
                 <div>
                   <p class="md-label">最后更新</p>
-                  <b class="md-mono" id="update-time" style="font-size: 1.05rem">--</b>
+                  <b class="md-mono" id="update-time" style="font-size: 1.05rem"
+                    >--</b
+                  >
                 </div>
               </div>
             </div>

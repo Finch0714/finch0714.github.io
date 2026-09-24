@@ -14,15 +14,22 @@
     <link rel="stylesheet" href="./assets/md.css" />
     <!-- 字体：霞鹜文楷 Bright Medium（中文网字计划 CDN，按 unicode-range 分片）
          非阻塞加载：media=print 先挂起，下载完自动切回 all，不挡首屏绘制 -->
-    <link rel="preconnect" href="https://cn-font.claude-code-best.win" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://cn-font.claude-code-best.win"
+      crossorigin
+    />
     <link
       rel="stylesheet"
       href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
       media="print"
-      onload="this.media='all'"
+      onload="this.media = 'all'"
     />
     <noscript>
-      <link rel="stylesheet" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
+      <link
+        rel="stylesheet"
+        href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
+      />
     </noscript>
     <script>
       document.documentElement.classList.add("md-js");
@@ -33,17 +40,22 @@
     <main class="md-page">
       <div class="md-container md-container--narrow">
         <section class="md-hero md-anim">
-          <span class="md-hero__badge"><span class="md-dot"></span>MINECRAFT</span>
+          <span class="md-hero__badge"
+            ><span class="md-dot"></span>MINECRAFT</span
+          >
           <h1 class="md-display md-hero__title">智能查询</h1>
           <p class="md-hero__desc">
             输入 <b>服务器地址</b>（带点，例如
-            <span class="md-mono">mc.hypixel.net</span>）查服务器状态；
-            输入 <b>玩家 ID</b> 查 UUID 与正版皮肤。系统会自动识别你输入的是哪一种。
+            <span class="md-mono">mc.hypixel.net</span>）查服务器状态； 输入
+            <b>玩家 ID</b> 查 UUID 与正版皮肤。系统会自动识别你输入的是哪一种。
           </p>
         </section>
 
         <!-- 查询面板 -->
-        <section class="md-card md-card--elevated md-reveal" style="margin-top: 28px">
+        <section
+          class="md-card md-card--elevated md-reveal"
+          style="margin-top: 28px"
+        >
           <div class="md-row" style="gap: 12px; align-items: stretch">
             <label class="md-field" style="flex: 1; min-width: 220px">
               <input
@@ -52,7 +64,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="服务器 IP 或玩家 ID..."
-                onkeydown="if (event.key === 'Enter') smartQuery()"
+                onkeydown="if (event.key === 'Enter') smartQuery();"
               />
             </label>
             <button
@@ -144,7 +156,11 @@
           <!-- 服务器结果 -->
           <div
             id="server_display"
-            style="display: none; grid-template-columns: repeat(3, 1fr); gap: 12px"
+            style="
+              display: none;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 12px;
+            "
           >
             <div
               style="
@@ -193,19 +209,22 @@
             <div class="md-list">
               <div class="md-list-item">
                 <span class="md-body" style="margin: 0"
-                  >服务器查询走 <span class="md-mono">mcstatus.io</span>，需要服务器
+                  >服务器查询走
+                  <span class="md-mono">mcstatus.io</span>，需要服务器
                   <b>开启查询端口</b>（默认 25565）才能查到。</span
                 >
               </div>
               <div class="md-list-item">
                 <span class="md-body" style="margin: 0"
                   >玩家查询走 <span class="md-mono">playerdb.co</span> 与
-                  <span class="md-mono">visage.surgeplay.com</span>，支持正版 ID。</span
+                  <span class="md-mono">visage.surgeplay.com</span>，支持正版
+                  ID。</span
                 >
               </div>
               <div class="md-list-item">
                 <span class="md-body" style="margin: 0"
-                  >带点的输入（如 <span class="md-mono">a.b.com</span>）会当作服务器，
+                  >带点的输入（如
+                  <span class="md-mono">a.b.com</span>）会当作服务器，
                   否则当作玩家 ID。</span
                 >
               </div>
@@ -259,7 +278,10 @@
             document.getElementById("mc_players").textContent = "--";
             document.getElementById("mc_ver").textContent = "--";
 
-            var res = await fetch("https://api.mcstatus.io/v2/status/java/" + encodeURIComponent(val));
+            var res = await fetch(
+              "https://api.mcstatus.io/v2/status/java/" +
+                encodeURIComponent(val),
+            );
             var d = await res.json();
 
             if (d.online) {
@@ -270,7 +292,8 @@
                 (d.version && (d.version.name_clean || d.version.name)) ||
                 "未知"
               ).substring(0, 12);
-              iconImg.src = d.icon || "https://visage.surgeplay.com/bust/128/steve";
+              iconImg.src =
+                d.icon || "https://visage.surgeplay.com/bust/128/steve";
               iconImg.style.display = "block";
             } else {
               document.getElementById("mc_online").textContent = "离线";
@@ -284,13 +307,17 @@
 
             document.getElementById("player_uuid").textContent = "获取中...";
             document.getElementById("player_3d").src =
-              "https://visage.surgeplay.com/full/384/" + encodeURIComponent(val);
-            iconImg.src = "https://visage.surgeplay.com/face/128/" + encodeURIComponent(val);
+              "https://visage.surgeplay.com/full/384/" +
+              encodeURIComponent(val);
+            iconImg.src =
+              "https://visage.surgeplay.com/face/128/" +
+              encodeURIComponent(val);
             iconImg.style.display = "block";
 
             try {
               var r2 = await fetch(
-                "https://playerdb.co/api/player/minecraft/" + encodeURIComponent(val),
+                "https://playerdb.co/api/player/minecraft/" +
+                  encodeURIComponent(val),
               );
               var j = await r2.json();
               document.getElementById("player_uuid").textContent = j.success

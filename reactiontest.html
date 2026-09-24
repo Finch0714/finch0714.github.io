@@ -15,15 +15,22 @@
     <link rel="stylesheet" href="./assets/md.css" />
     <!-- 字体：霞鹜文楷 Bright Medium（中文网字计划 CDN，按 unicode-range 分片）
          非阻塞加载：media=print 先挂起，下载完自动切回 all，不挡首屏绘制 -->
-    <link rel="preconnect" href="https://cn-font.claude-code-best.win" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://cn-font.claude-code-best.win"
+      crossorigin
+    />
     <link
       rel="stylesheet"
       href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
       media="print"
-      onload="this.media='all'"
+      onload="this.media = 'all'"
     />
     <noscript>
-      <link rel="stylesheet" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
+      <link
+        rel="stylesheet"
+        href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
+      />
     </noscript>
     <style>
       /* 全屏测试区（顶部给应用栏留位） */
@@ -139,9 +146,7 @@
 
   <body>
     <div id="test-area" class="state-idle" onclick="handleInteraction()">
-      <div class="rt-rounds" id="rounds">
-        <i></i><i></i><i></i>
-      </div>
+      <div class="rt-rounds" id="rounds"><i></i><i></i><i></i></div>
       <div class="rt-text">
         <h1 id="main-text">反应测试</h1>
         <p id="sub-text">点击屏幕开始第一轮（共 3 轮）</p>
@@ -167,10 +172,16 @@
           <div class="md-row" style="justify-content: space-between">
             <span>Round 1</span><b id="r1val">--</b>
           </div>
-          <div class="md-row" style="justify-content: space-between; margin-top: 8px">
+          <div
+            class="md-row"
+            style="justify-content: space-between; margin-top: 8px"
+          >
             <span>Round 2</span><b id="r2val">--</b>
           </div>
-          <div class="md-row" style="justify-content: space-between; margin-top: 8px">
+          <div
+            class="md-row"
+            style="justify-content: space-between; margin-top: 8px"
+          >
             <span>Round 3</span><b id="r3val">--</b>
           </div>
         </div>
@@ -205,7 +216,9 @@
     <script src="./assets/nav.js"></script>
     <script>
       var currentState = "IDLE"; // IDLE / WAITING / READY / EARLY / FINISHED
-      var startTime, timer, results = [];
+      var startTime,
+        timer,
+        results = [];
 
       var testArea = document.getElementById("test-area");
       var mainText = document.getElementById("main-text");
@@ -271,8 +284,7 @@
         if (results.length < 3) {
           setState("IDLE", "state-idle");
           mainText.textContent = reactionTime + " ms";
-          subText.textContent =
-            "完成第 " + results.length + "/3 轮，点击继续";
+          subText.textContent = "完成第 " + results.length + "/3 轮，点击继续";
           paintRounds(results.length);
         } else {
           paintRounds(3);

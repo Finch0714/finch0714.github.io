@@ -49,7 +49,8 @@
   --md-e1: 0 1px 2px rgba(16, 24, 40, 0.07), 0 1px 3px rgba(16, 24, 40, 0.09);
   --md-e2: 0 2px 4px rgba(16, 24, 40, 0.06), 0 4px 12px rgba(16, 24, 40, 0.1);
   --md-e3: 0 6px 18px rgba(16, 24, 40, 0.12), 0 2px 6px rgba(16, 24, 40, 0.07);
-  --md-e4: 0 12px 32px rgba(16, 24, 40, 0.16), 0 4px 10px rgba(16, 24, 40, 0.08);
+  --md-e4:
+    0 12px 32px rgba(16, 24, 40, 0.16), 0 4px 10px rgba(16, 24, 40, 0.08);
 
   /* 动效 */
   --md-ease: cubic-bezier(0.2, 0, 0, 1);
@@ -708,7 +709,11 @@ p {
 .md-progress__fill {
   height: 100%;
   border-radius: var(--md-r-full);
-  background: linear-gradient(90deg, var(--md-primary-light), var(--md-primary));
+  background: linear-gradient(
+    90deg,
+    var(--md-primary-light),
+    var(--md-primary)
+  );
   transition: width 0.5s var(--md-ease);
 }
 

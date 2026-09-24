@@ -15,15 +15,22 @@
     <link rel="stylesheet" href="./assets/md.css" />
     <!-- 字体：霞鹜文楷 Bright Medium（中文网字计划 CDN，按 unicode-range 分片）
          非阻塞加载：media=print 先挂起，下载完自动切回 all，不挡首屏绘制 -->
-    <link rel="preconnect" href="https://cn-font.claude-code-best.win" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://cn-font.claude-code-best.win"
+      crossorigin
+    />
     <link
       rel="stylesheet"
       href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
       media="print"
-      onload="this.media='all'"
+      onload="this.media = 'all'"
     />
     <noscript>
-      <link rel="stylesheet" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
+      <link
+        rel="stylesheet"
+        href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
+      />
     </noscript>
     <style>
       #click-area {
@@ -253,7 +260,9 @@
         timeLeft = sec;
         timerDisplay.textContent = sec.toFixed(1);
         document.getElementById("btn-5").classList.toggle("active", sec === 5);
-        document.getElementById("btn-10").classList.toggle("active", sec === 10);
+        document
+          .getElementById("btn-10")
+          .classList.toggle("active", sec === 10);
       }
 
       function handleClick(e) {

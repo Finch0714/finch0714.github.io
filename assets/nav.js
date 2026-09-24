@@ -10,8 +10,18 @@
   var FALLBACK = [
     { id: "about", title: "关于我", icon: "👤", url: "./about.html" },
     { id: "mc_query", title: "MC 智能查询", icon: "⛏️", url: "./mcquery.html" },
-    { id: "steam_status", title: "Steam 信息", icon: "🎮", url: "./steaminfo.html" },
-    { id: "reaction_test", title: "反应速度", icon: "⚡", url: "./reactiontest.html" },
+    {
+      id: "steam_status",
+      title: "Steam 信息",
+      icon: "🎮",
+      url: "./steaminfo.html",
+    },
+    {
+      id: "reaction_test",
+      title: "反应速度",
+      icon: "⚡",
+      url: "./reactiontest.html",
+    },
     { id: "cps_test", title: "点击速度", icon: "👆", url: "./cps.html" },
     { id: "rank_list", title: "夯到拉排行", icon: "🏆", url: "./rank.html" },
     { id: "lucky_draw", title: "抽大奖", icon: "🎁", url: "./luckydraw.html" },
@@ -36,7 +46,9 @@
     private_sites: "个人私藏",
   };
 
-  var all = (window.SITE_FEATURES || []).length ? window.SITE_FEATURES : FALLBACK;
+  var all = (window.SITE_FEATURES || []).length
+    ? window.SITE_FEATURES
+    : FALLBACK;
   /* hide: true 的功能不上导航（如「关于我」「抽大奖」） */
   var features = all.filter(function (f) {
     return !f.hide;
@@ -182,9 +194,7 @@
     document.addEventListener(
       "pointerdown",
       function (e) {
-        var host = e.target.closest
-          ? e.target.closest(".md-ripple")
-          : null;
+        var host = e.target.closest ? e.target.closest(".md-ripple") : null;
         if (!host) return;
         var rect = host.getBoundingClientRect();
         var size = Math.max(rect.width, rect.height);

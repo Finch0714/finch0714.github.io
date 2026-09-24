@@ -9,15 +9,22 @@
     <link rel="stylesheet" href="./assets/md.css" />
     <!-- 字体：霞鹜文楷 Bright Medium（中文网字计划 CDN，按 unicode-range 分片）
          非阻塞加载：media=print 先挂起，下载完自动切回 all，不挡首屏绘制 -->
-    <link rel="preconnect" href="https://cn-font.claude-code-best.win" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://cn-font.claude-code-best.win"
+      crossorigin
+    />
     <link
       rel="stylesheet"
       href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
       media="print"
-      onload="this.media='all'"
+      onload="this.media = 'all'"
     />
     <noscript>
-      <link rel="stylesheet" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
+      <link
+        rel="stylesheet"
+        href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
+      />
     </noscript>
     <script>
       document.documentElement.classList.add("md-js");
@@ -90,9 +97,14 @@
     <main class="md-page">
       <div class="md-container md-container--narrow">
         <section class="md-hero md-anim md-center">
-          <span class="md-hero__badge"><span class="md-dot"></span>LUCKY DRAW</span>
+          <span class="md-hero__badge"
+            ><span class="md-dot"></span>LUCKY DRAW</span
+          >
           <h1 class="md-display md-hero__title">抽大奖</h1>
-          <p class="md-hero__desc" style="margin-left: auto; margin-right: auto">
+          <p
+            class="md-hero__desc"
+            style="margin-left: auto; margin-right: auto"
+          >
             每次抽奖消耗 1 次机会，初始 3 次，次数保存在你自己的浏览器里。
           </p>
           <div class="md-row" style="justify-content: center">
@@ -100,22 +112,43 @@
           </div>
         </section>
 
-        <div class="md-card md-card--elevated md-reveal" style="margin-top: 30px">
+        <div
+          class="md-card md-card--elevated md-reveal"
+          style="margin-top: 30px"
+        >
           <div class="lottery-grid" id="lottery">
-            <div class="cell" id="cell-0"><span class="emoji">🎁</span>点赞</div>
-            <div class="cell" id="cell-1"><span class="emoji">💰</span>投币</div>
-            <div class="cell" id="cell-2"><span class="emoji">⭐</span>收藏</div>
+            <div class="cell" id="cell-0">
+              <span class="emoji">🎁</span>点赞
+            </div>
+            <div class="cell" id="cell-1">
+              <span class="emoji">💰</span>投币
+            </div>
+            <div class="cell" id="cell-2">
+              <span class="emoji">⭐</span>收藏
+            </div>
             <div class="cell" id="cell-7">
               <span class="emoji">🏮</span>谢谢惠顾
             </div>
-            <div class="cell start-btn md-ripple" id="start-node" onclick="startLottery()">
+            <div
+              class="cell start-btn md-ripple"
+              id="start-node"
+              onclick="startLottery()"
+            >
               <span style="font-size: 1rem">START</span>
               <span style="font-size: 0.6875rem; opacity: 0.75">点击开始</span>
             </div>
-            <div class="cell" id="cell-3"><span class="emoji">🔥</span>三连</div>
-            <div class="cell" id="cell-6"><span class="emoji">💎</span>超级大奖</div>
-            <div class="cell" id="cell-5"><span class="emoji">🎮</span>MC正版号</div>
-            <div class="cell" id="cell-4"><span class="emoji">🔞</span>女装照3张</div>
+            <div class="cell" id="cell-3">
+              <span class="emoji">🔥</span>三连
+            </div>
+            <div class="cell" id="cell-6">
+              <span class="emoji">💎</span>超级大奖
+            </div>
+            <div class="cell" id="cell-5">
+              <span class="emoji">🎮</span>MC正版号
+            </div>
+            <div class="cell" id="cell-4">
+              <span class="emoji">🔞</span>女装照3张
+            </div>
           </div>
         </div>
 
@@ -123,7 +156,8 @@
           <div class="md-card">
             <p class="md-label" style="margin-bottom: 10px">奖品说明</p>
             <p class="md-body" style="margin: 0">
-              「点赞 / 投币 / 收藏 / 三连」由 Latetelly 免费送出；抽到「超级大奖」
+              「点赞 / 投币 / 收藏 / 三连」由 Latetelly
+              免费送出；抽到「超级大奖」
               可以点弹窗里的按钮直接去找我兑奖。次数用完就等下次吧～
             </p>
           </div>
@@ -149,7 +183,10 @@
           "
         ></p>
         <p class="md-body" id="prize-desc" style="margin-bottom: 22px"></p>
-        <div id="action-area" style="display: flex; flex-direction: column; gap: 8px"></div>
+        <div
+          id="action-area"
+          style="display: flex; flex-direction: column; gap: 8px"
+        ></div>
       </div>
     </div>
 
@@ -176,7 +213,10 @@
         2: { name: "收藏", desc: "由 Latetelly 免费送出的一个收藏" },
         3: { name: "三连", desc: "由 Latetelly 免费送出的一个三连" },
         4: { name: "谢谢惠顾", desc: "很遗憾，这次手气一般般哦～" },
-        5: { name: "MC 临时正版号", desc: "获得一个 Minecraft 临时正版账号使用权！" },
+        5: {
+          name: "MC 临时正版号",
+          desc: "获得一个 Minecraft 临时正版账号使用权！",
+        },
         6: {
           name: "超级大奖",
           desc: "天选之人！你获得了最终的隐藏神级奖励！",
@@ -245,7 +285,8 @@
 
         if (prize.special) {
           var claim = document.createElement("a");
-          claim.className = "md-btn md-btn--filled md-btn--block md-btn--lg md-ripple";
+          claim.className =
+            "md-btn md-btn--filled md-btn--block md-btn--lg md-ripple";
           claim.href = "https://bilibili.com/video/BV1GJ411x7h7";
           claim.target = "_blank";
           claim.rel = "noopener";
@@ -254,7 +295,8 @@
         }
 
         var close = document.createElement("button");
-        close.className = "md-btn md-btn--outlined md-btn--block md-btn--lg md-ripple";
+        close.className =
+          "md-btn md-btn--outlined md-btn--block md-btn--lg md-ripple";
         close.textContent = "确定";
         close.onclick = function () {
           MD.close("modal");

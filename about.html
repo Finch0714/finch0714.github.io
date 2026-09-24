@@ -12,15 +12,22 @@
     <link rel="stylesheet" href="./assets/md.css" />
     <!-- 字体：霞鹜文楷 Bright Medium（中文网字计划 CDN，按 unicode-range 分片）
          非阻塞加载：media=print 先挂起，下载完自动切回 all，不挡首屏绘制 -->
-    <link rel="preconnect" href="https://cn-font.claude-code-best.win" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://cn-font.claude-code-best.win"
+      crossorigin
+    />
     <link
       rel="stylesheet"
       href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
       media="print"
-      onload="this.media='all'"
+      onload="this.media = 'all'"
     />
     <noscript>
-      <link rel="stylesheet" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
+      <link
+        rel="stylesheet"
+        href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
+      />
     </noscript>
     <script>
       document.documentElement.classList.add("md-js");
@@ -35,9 +42,7 @@
           <span class="md-hero__badge">
             <span class="md-dot"></span>WELCOME
           </span>
-          <h1 class="md-display md-hero__title">
-            你好，我是 <em>Finch</em>
-          </h1>
+          <h1 class="md-display md-hero__title">你好，我是 <em>Finch</em></h1>
           <p class="md-hero__desc">
             一个热衷于终身学习和影视、游戏的探索者。这里放着我平时写给自己用的小工具，
             全部免费、免登录、打开就能用。
@@ -61,12 +66,20 @@
 
         <!-- ============ 名片 + 一言 ============ -->
         <section class="md-section" style="margin-top: 40px">
-          <div class="md-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+          <div
+            class="md-grid"
+            style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))"
+          >
             <div class="md-card md-card--elevated md-reveal">
               <div class="md-card__head">
                 <img
                   class="md-avatar md-avatar--round"
-                  style="width: 56px; height: 56px; padding: 0; object-fit: cover"
+                  style="
+                    width: 56px;
+                    height: 56px;
+                    padding: 0;
+                    object-fit: cover;
+                  "
                   src="./avatar.jpg"
                   alt="Finch0714"
                 />
@@ -106,7 +119,11 @@
               <p
                 id="hitokoto_text"
                 class="md-card__body"
-                style="min-height: 48px; color: var(--md-on-surface); font-size: 0.9375rem"
+                style="
+                  min-height: 48px;
+                  color: var(--md-on-surface);
+                  font-size: 0.9375rem;
+                "
               >
                 加载中...
               </p>
@@ -159,10 +176,13 @@
     <div
       class="md-dialog-scrim"
       id="contact-dialog"
-      onclick="if (event.target === this) MD.close('contact-dialog')"
+      onclick="if (event.target === this) MD.close('contact-dialog');"
     >
       <div class="md-dialog" role="dialog" aria-modal="true">
-        <div class="md-row" style="justify-content: space-between; margin-bottom: 4px">
+        <div
+          class="md-row"
+          style="justify-content: space-between; margin-bottom: 4px"
+        >
           <h3 class="md-dialog__title" style="margin: 0">联系方式</h3>
           <button
             class="md-icon-btn md-ripple"
@@ -196,7 +216,11 @@
           .map(function (f) {
             var tags = (f.tags || [])
               .map(function (t) {
-                return '<span class="md-chip md-chip--muted">' + MD.esc(t) + "</span>";
+                return (
+                  '<span class="md-chip md-chip--muted">' +
+                  MD.esc(t) +
+                  "</span>"
+                );
               })
               .join("");
             var ext = f.external ? ' target="_blank" rel="noopener"' : "";
