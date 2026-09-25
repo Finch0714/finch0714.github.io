@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>给YOOXY的信</title>
 
     <!-- 霞鹜文楷 Bright Medium（中文网字计划 CDN） -->
@@ -17,735 +17,580 @@
     />
 
     <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-        html,
-        body {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-        }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
 
-        body {
-            overflow: auto;
-            background: #f2f2f7;
-            color: #1c1c1e;
+      body {
+        overflow: auto;
+        background: #f2f2f7;
+        color: #1c1c1e;
 
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                "Microsoft YaHei",
-                "PingFang SC",
-                sans-serif;
-        }
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei",
+          "PingFang SC", sans-serif;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            密码页面
         ========================================================= */
 
-        #loginBox {
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
+      #loginBox {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
 
-            width: 100%;
-            height: 100vh;
+        width: 100%;
+        height: 100vh;
 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
 
-            padding-top: 13vh;
+        padding-top: 13vh;
 
-            background: #f2f2f7;
+        background: #f2f2f7;
 
-            transition: opacity 0.35s ease;
-        }
+        transition: opacity 0.35s ease;
+      }
 
+      /* 提示文字 */
 
-        /* 提示文字 */
+      #message {
+        height: 28px;
+        margin-bottom: 20px;
 
-        #message {
-            height: 28px;
-            margin-bottom: 20px;
+        font-size: 17px;
+        font-weight: 400;
 
-            font-size: 17px;
-            font-weight: 400;
+        color: #8e8e93;
 
-            color: #8e8e93;
+        transition: color 0.2s ease;
+      }
 
-            transition: color 0.2s ease;
-        }
+      #message.error {
+        color: #ff3b30;
+      }
 
-        #message.error {
-            color: #ff3b30;
-        }
-
-
-        /* =========================================================
+      /* =========================================================
            密码圆点
         ========================================================= */
 
-        #dots {
-            display: flex;
-            justify-content: center;
+      #dots {
+        display: flex;
+        justify-content: center;
 
-            gap: 14px;
+        gap: 14px;
 
-            margin-bottom: 45px;
+        margin-bottom: 45px;
+      }
+
+      .dot {
+        width: 11px;
+        height: 11px;
+
+        border-radius: 50%;
+
+        background: #d1d1d6;
+
+        transition:
+          background 0.15s ease,
+          transform 0.15s ease;
+      }
+
+      .dot.active {
+        background: #1c1c1e;
+        transform: scale(1.05);
+      }
+
+      /* 错误抖动 */
+
+      #dots.shake {
+        animation: shake 0.35s ease;
+      }
+
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
         }
 
-        .dot {
-            width: 11px;
-            height: 11px;
-
-            border-radius: 50%;
-
-            background: #d1d1d6;
-
-            transition:
-                background 0.15s ease,
-                transform 0.15s ease;
+        20% {
+          transform: translateX(-8px);
         }
 
-        .dot.active {
-            background: #1c1c1e;
-            transform: scale(1.05);
+        40% {
+          transform: translateX(8px);
         }
 
-
-        /* 错误抖动 */
-
-        #dots.shake {
-            animation: shake 0.35s ease;
+        60% {
+          transform: translateX(-6px);
         }
 
-        @keyframes shake {
-
-            0% {
-                transform: translateX(0);
-            }
-
-            20% {
-                transform: translateX(-8px);
-            }
-
-            40% {
-                transform: translateX(8px);
-            }
-
-            60% {
-                transform: translateX(-6px);
-            }
-
-            80% {
-                transform: translateX(6px);
-            }
-
-            100% {
-                transform: translateX(0);
-            }
+        80% {
+          transform: translateX(6px);
         }
 
+        100% {
+          transform: translateX(0);
+        }
+      }
 
-        /* =========================================================
+      /* =========================================================
            数字键盘
         ========================================================= */
 
-        #keypad {
-            width: 280px;
+      #keypad {
+        width: 280px;
 
-            display: grid;
+        display: grid;
 
-            grid-template-columns:
-                repeat(3, 78px);
+        grid-template-columns: repeat(3, 78px);
 
-            grid-auto-rows: 78px;
+        grid-auto-rows: 78px;
 
-            justify-content: center;
+        justify-content: center;
 
-            gap: 13px;
-        }
+        gap: 13px;
+      }
 
-        .key {
-            width: 78px;
-            height: 78px;
+      .key {
+        width: 78px;
+        height: 78px;
 
-            border: none;
-            border-radius: 50%;
+        border: none;
+        border-radius: 50%;
 
-            background: #ffffff;
-            color: #1c1c1e;
+        background: #ffffff;
+        color: #1c1c1e;
 
-            font-size: 27px;
-            font-weight: 400;
+        font-size: 27px;
+        font-weight: 400;
 
-            cursor: pointer;
+        cursor: pointer;
 
-            box-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
-            transition:
-                transform 0.08s ease,
-                background 0.08s ease;
-        }
+        transition:
+          transform 0.08s ease,
+          background 0.08s ease;
+      }
 
-        .key:active {
-            transform: scale(0.90);
-            background: #e5e5ea;
-        }
+      .key:active {
+        transform: scale(0.9);
+        background: #e5e5ea;
+      }
 
-        .empty {
-            visibility: hidden;
-        }
+      .empty {
+        visibility: hidden;
+      }
 
-        .delete {
-            font-size: 25px;
-        }
+      .delete {
+        font-size: 25px;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            信件页面
         ========================================================= */
 
-        #content {
-            position: fixed;
+      #content {
+        position: fixed;
 
-            inset: 0;
+        inset: 0;
 
-            height: 100%;
+        height: 100%;
 
-            background: #ffffff;
+        background: #ffffff;
 
-            opacity: 0;
+        opacity: 0;
 
-            pointer-events: none;
+        pointer-events: none;
 
-            transition: opacity 0.35s ease;
+        transition: opacity 0.35s ease;
 
-            overflow-y: auto;
+        overflow-y: auto;
 
-            -webkit-overflow-scrolling: touch;
+        -webkit-overflow-scrolling: touch;
 
-            overscroll-behavior: contain;
-        }
+        overscroll-behavior: contain;
+      }
 
-        #content.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
+      #content.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            信件主体
         ========================================================= */
 
-        #letter {
-            width: 100%;
-            max-width: 760px;
+      #letter {
+        width: 100%;
+        max-width: 760px;
 
-            margin: 0 auto;
+        margin: 0 auto;
 
-            padding:
-                48px 26px 80px;
+        padding: 48px 26px 80px;
 
-            color: #1c1c1e;
+        color: #1c1c1e;
 
-            font-family:
-                "LXGW Bright Medium",
-                "LXGWBright-Medium",
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                "Microsoft YaHei",
-                "PingFang SC",
-                sans-serif;
+        font-family:
+          "LXGW Bright Medium",
+          "LXGWBright-Medium",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          "Microsoft YaHei",
+          "PingFang SC",
+          sans-serif;
 
-            font-size: 17px;
+        font-size: 17px;
 
-            line-height: 1.9;
+        line-height: 1.9;
 
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            Markdown 标题
         ========================================================= */
 
-        #letter h1 {
-            margin:
-                0 0 38px;
+      #letter h1 {
+        margin: 0 0 38px;
 
-            padding: 0;
+        padding: 0;
 
-            font-size: 30px;
+        font-size: 30px;
 
-            line-height: 1.4;
+        line-height: 1.4;
 
-            font-weight: 700;
+        font-weight: 700;
 
-            color: #1c1c1e;
+        color: #1c1c1e;
 
-            text-align: center;
-        }
+        text-align: center;
+      }
 
-        #letter h2 {
-            margin:
-                42px 0 22px;
+      #letter h2 {
+        margin: 42px 0 22px;
 
-            padding: 0;
+        padding: 0;
 
-            font-size: 24px;
+        font-size: 24px;
 
-            line-height: 1.45;
+        line-height: 1.45;
 
-            font-weight: 700;
+        font-weight: 700;
 
-            color: #1c1c1e;
-        }
+        color: #1c1c1e;
+      }
 
-        #letter h3 {
-            margin:
-                30px 0 16px;
+      #letter h3 {
+        margin: 30px 0 16px;
 
-            font-size: 20px;
+        font-size: 20px;
 
-            line-height: 1.45;
+        line-height: 1.45;
 
-            font-weight: 600;
-        }
+        font-weight: 600;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            段落
         ========================================================= */
 
-        #letter p {
-            margin:
-                0 0 22px;
+      #letter p {
+        margin: 0 0 22px;
 
-            padding: 0;
-        }
+        padding: 0;
+      }
 
+      /* 最后一段落不要额外留太大空间 */
 
-        /* 最后一段落不要额外留太大空间 */
+      #letter p:last-child {
+        margin-bottom: 0;
+      }
 
-        #letter p:last-child {
-            margin-bottom: 0;
-        }
-
-
-        /* =========================================================
+      /* =========================================================
            粗体
         ========================================================= */
 
-        #letter strong {
-            font-weight: 700;
-        }
+      #letter strong {
+        font-weight: 700;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            斜体
         ========================================================= */
 
-        #letter em {
-            font-style: italic;
-        }
+      #letter em {
+        font-style: italic;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            引用
         ========================================================= */
 
-        #letter blockquote {
-            margin:
-                24px 0;
+      #letter blockquote {
+        margin: 24px 0;
 
-            padding:
-                12px 18px;
+        padding: 12px 18px;
 
-            border-left:
-                4px solid #d1d1d6;
+        border-left: 4px solid #d1d1d6;
 
-            background:
-                #f5f5f7;
+        background: #f5f5f7;
 
-            color:
-                #6e6e73;
+        color: #6e6e73;
 
-            line-height:
-                1.8;
-        }
+        line-height: 1.8;
+      }
 
-        #letter blockquote p {
-            margin: 0;
-        }
+      #letter blockquote p {
+        margin: 0;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            列表
         ========================================================= */
 
-        #letter ul,
-        #letter ol {
-            margin:
-                0 0 24px;
+      #letter ul,
+      #letter ol {
+        margin: 0 0 24px;
 
-            padding-left:
-                30px;
-        }
+        padding-left: 30px;
+      }
 
-        #letter li {
-            margin-bottom:
-                10px;
+      #letter li {
+        margin-bottom: 10px;
 
-            padding-left:
-                4px;
-        }
+        padding-left: 4px;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            分割线
         ========================================================= */
 
-        #letter hr {
-            margin:
-                38px 0;
+      #letter hr {
+        margin: 38px 0;
 
-            border:
-                none;
+        border: none;
 
-            border-top:
-                1px solid #e5e5ea;
-        }
+        border-top: 1px solid #e5e5ea;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            链接
         ========================================================= */
 
-        #letter a {
-            color: #007aff;
+      #letter a {
+        color: #007aff;
 
-            text-decoration: none;
-        }
+        text-decoration: none;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            行内代码
         ========================================================= */
 
-        #letter code {
-            padding:
-                2px 6px;
+      #letter code {
+        padding: 2px 6px;
 
-            border-radius:
-                5px;
+        border-radius: 5px;
 
-            background:
-                #f2f2f7;
+        background: #f2f2f7;
 
-            font-family:
-                "SFMono-Regular",
-                Consolas,
-                monospace;
+        font-family: "SFMono-Regular", Consolas, monospace;
 
-            font-size:
-                0.9em;
-        }
+        font-size: 0.9em;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            代码块
         ========================================================= */
 
-        #letter pre {
-            margin:
-                20px 0;
+      #letter pre {
+        margin: 20px 0;
 
-            padding:
-                16px;
+        padding: 16px;
 
-            border-radius:
-                10px;
+        border-radius: 10px;
 
-            background:
-                #f2f2f7;
+        background: #f2f2f7;
 
-            overflow-x:
-                auto;
-        }
+        overflow-x: auto;
+      }
 
-        #letter pre code {
-            padding: 0;
+      #letter pre code {
+        padding: 0;
 
-            background: none;
-        }
+        background: none;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            图片
         ========================================================= */
 
-        #letter img {
-            max-width: 100%;
-            height: auto;
+      #letter img {
+        max-width: 100%;
+        height: auto;
 
-            border-radius: 10px;
-        }
+        border-radius: 10px;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            落款
         ========================================================= */
 
-        #letter .signature {
-            margin-top:
-                42px;
+      #letter .signature {
+        margin-top: 42px;
 
-            text-align:
-                right;
+        text-align: right;
 
-            line-height:
-                1.8;
-        }
+        line-height: 1.8;
+      }
 
-        #letter .signature p {
-            margin:
-                0;
-        }
+      #letter .signature p {
+        margin: 0;
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            手机屏幕适配
         ========================================================= */
 
-        @media (max-width: 600px) {
+      @media (max-width: 600px) {
+        #letter {
+          padding: 38px 22px 70px;
 
-            #letter {
-                padding:
-                    38px 22px 70px;
+          font-size: 16px;
 
-                font-size:
-                    16px;
-
-                line-height:
-                    1.9;
-            }
-
-            #letter h1 {
-                font-size:
-                    27px;
-
-                margin-bottom:
-                    32px;
-            }
-
-            #letter h2 {
-                font-size:
-                    22px;
-
-                margin-top:
-                    38px;
-            }
-
-            #letter h3 {
-                font-size:
-                    19px;
-            }
+          line-height: 1.9;
         }
 
+        #letter h1 {
+          font-size: 27px;
 
-        @media (max-width: 400px) {
-
-            #loginBox {
-                padding-top:
-                    10vh;
-            }
-
-            #dots {
-                margin-bottom:
-                    35px;
-            }
-
-            #keypad {
-                width:
-                    250px;
-
-                grid-template-columns:
-                    repeat(3, 70px);
-
-                grid-auto-rows:
-                    70px;
-
-                gap:
-                    11px;
-            }
-
-            .key {
-                width:
-                    70px;
-
-                height:
-                    70px;
-
-                font-size:
-                    25px;
-            }
-
-            #letter {
-                padding:
-                    32px 19px 65px;
-
-                font-size:
-                    16px;
-            }
-
-            #letter h1 {
-                font-size:
-                    26px;
-            }
-
-            #letter h2 {
-                font-size:
-                    21px;
-            }
+          margin-bottom: 32px;
         }
 
+        #letter h2 {
+          font-size: 22px;
+
+          margin-top: 38px;
+        }
+
+        #letter h3 {
+          font-size: 19px;
+        }
+      }
+
+      @media (max-width: 400px) {
+        #loginBox {
+          padding-top: 10vh;
+        }
+
+        #dots {
+          margin-bottom: 35px;
+        }
+
+        #keypad {
+          width: 250px;
+
+          grid-template-columns: repeat(3, 70px);
+
+          grid-auto-rows: 70px;
+
+          gap: 11px;
+        }
+
+        .key {
+          width: 70px;
+
+          height: 70px;
+
+          font-size: 25px;
+        }
+
+        #letter {
+          padding: 32px 19px 65px;
+
+          font-size: 16px;
+        }
+
+        #letter h1 {
+          font-size: 26px;
+        }
+
+        #letter h2 {
+          font-size: 21px;
+        }
+      }
     </style>
-</head>
+  </head>
 
-
-<body>
-
-
+  <body>
     <!-- =========================================================
          密码输入页面
     ========================================================= -->
 
     <div id="loginBox">
+      <div id="message">请输入密码</div>
 
-        <div id="message">
-            请输入密码
-        </div>
+      <div id="dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
 
+      <div id="keypad">
+        <button class="key" onclick="pressKey('1')">1</button>
 
-        <div id="dots">
+        <button class="key" onclick="pressKey('2')">2</button>
 
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
+        <button class="key" onclick="pressKey('3')">3</button>
 
-        </div>
+        <button class="key" onclick="pressKey('4')">4</button>
 
+        <button class="key" onclick="pressKey('5')">5</button>
 
-        <div id="keypad">
+        <button class="key" onclick="pressKey('6')">6</button>
 
-            <button
-                class="key"
-                onclick="pressKey('1')">
-                1
-            </button>
+        <button class="key" onclick="pressKey('7')">7</button>
 
-            <button
-                class="key"
-                onclick="pressKey('2')">
-                2
-            </button>
+        <button class="key" onclick="pressKey('8')">8</button>
 
-            <button
-                class="key"
-                onclick="pressKey('3')">
-                3
-            </button>
+        <button class="key" onclick="pressKey('9')">9</button>
 
+        <button class="key empty"></button>
 
-            <button
-                class="key"
-                onclick="pressKey('4')">
-                4
-            </button>
+        <button class="key" onclick="pressKey('0')">0</button>
 
-            <button
-                class="key"
-                onclick="pressKey('5')">
-                5
-            </button>
-
-            <button
-                class="key"
-                onclick="pressKey('6')">
-                6
-            </button>
-
-
-            <button
-                class="key"
-                onclick="pressKey('7')">
-                7
-            </button>
-
-            <button
-                class="key"
-                onclick="pressKey('8')">
-                8
-            </button>
-
-            <button
-                class="key"
-                onclick="pressKey('9')">
-                9
-            </button>
-
-
-            <button class="key empty"></button>
-
-
-            <button
-                class="key"
-                onclick="pressKey('0')">
-                0
-            </button>
-
-
-            <button
-                class="key delete"
-                onclick="deleteKey()">
-                ⌫
-            </button>
-
-        </div>
-
+        <button class="key delete" onclick="deleteKey()">⌫</button>
+      </div>
     </div>
-
 
     <!-- =========================================================
          信件页面
     ========================================================= -->
 
     <div id="content">
-
-        <article id="letter"></article>
-
+      <article id="letter"></article>
     </div>
 
-
     <script>
-
-
-        /* =========================================================
+      /* =========================================================
            信件内容
         ========================================================= */
 
-        const letterMarkdown = `
+      const letterMarkdown = `
 <h1 align="center">致方鸿</h1>
 
 　　展信安。
@@ -813,1647 +658,682 @@
 </div>
 `;
 
-
-        /* =========================================================
+      /* =========================================================
            Markdown 渲染
         ========================================================= */
 
-        function escapeHTML(text) {
+      function escapeHTML(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
 
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
+      function renderMarkdown(markdown) {
+        /*
+         * 这里保留原本的 HTML 标签，
+         * 同时支持 Markdown。
+         *
+         * 因为信件中使用了：
+         *
+         * <h1 align="center">
+         * <div class="signature">
+         *
+         * 所以不能简单地把全部 HTML 转义。
+         */
 
+        let text = markdown;
 
-        function renderMarkdown(markdown) {
-
-            /*
-             * 这里保留原本的 HTML 标签，
-             * 同时支持 Markdown。
-             *
-             * 因为信件中使用了：
-             *
-             * <h1 align="center">
-             * <div class="signature">
-             *
-             * 所以不能简单地把全部 HTML 转义。
-             */
-
-
-            let text = markdown;
-
-
-            /* =====================================================
+        /* =====================================================
                代码块保护
             ===================================================== */
 
-            const codeBlocks = [];
+        const codeBlocks = [];
 
+        text = text.replace(/```([\s\S]*?)```/g, function (match, code) {
+          const index = codeBlocks.length;
 
-            text = text.replace(
-                /```([\s\S]*?)```/g,
-                function(match, code) {
+          codeBlocks.push(
+            "<pre><code>" + escapeHTML(code.trim()) + "</code></pre>",
+          );
 
-                    const index =
-                        codeBlocks.length;
+          return "@@CODEBLOCK" + index + "@@";
+        });
 
-                    codeBlocks.push(
-                        "<pre><code>" +
-                        escapeHTML(
-                            code.trim()
-                        ) +
-                        "</code></pre>"
-                    );
-
-
-                    return (
-                        "@@CODEBLOCK" +
-                        index +
-                        "@@"
-                    );
-                }
-            );
-
-
-            /* =====================================================
+        /* =====================================================
                Markdown 标题
             ===================================================== */
 
-            text = text.replace(
-                /^### (.*)$/gm,
-                "<h3>$1</h3>"
-            );
+        text = text.replace(/^### (.*)$/gm, "<h3>$1</h3>");
 
+        text = text.replace(/^## (.*)$/gm, "<h2>$1</h2>");
 
-            text = text.replace(
-                /^## (.*)$/gm,
-                "<h2>$1</h2>"
-            );
+        text = text.replace(/^# (.*)$/gm, "<h1>$1</h1>");
 
-
-            text = text.replace(
-                /^# (.*)$/gm,
-                "<h1>$1</h1>"
-            );
-
-
-            /* =====================================================
+        /* =====================================================
                Markdown 分割线
             ===================================================== */
 
-            text = text.replace(
-                /^---$/gm,
-                "<hr>"
-            );
+        text = text.replace(/^---$/gm, "<hr>");
 
-
-            /* =====================================================
+        /* =====================================================
                Markdown 引用
             ===================================================== */
 
-            text = text.replace(
-                /^> (.*)$/gm,
-                "<blockquote>$1</blockquote>"
-            );
+        text = text.replace(/^> (.*)$/gm, "<blockquote>$1</blockquote>");
 
-
-            /* =====================================================
+        /* =====================================================
                Markdown 无序列表
             ===================================================== */
 
-            text = text.replace(
-                /^[-*] (.*)$/gm,
-                "<li>$1</li>"
-            );
+        text = text.replace(/^[-*] (.*)$/gm, "<li>$1</li>");
 
+        text = text.replace(/(?:<li>.*<\/li>\n?)+/g, function (match) {
+          return "<ul>" + match + "</ul>";
+        });
 
-            text = text.replace(
-                /(?:<li>.*<\/li>\n?)+/g,
-                function(match) {
-
-                    return (
-                        "<ul>" +
-                        match +
-                        "</ul>"
-                    );
-                }
-            );
-
-
-            /* =====================================================
+        /* =====================================================
                Markdown 有序列表
             ===================================================== */
 
-            text = text.replace(
-                /^\d+\. (.*)$/gm,
-                "<li>$1</li>"
-            );
+        text = text.replace(/^\d+\. (.*)$/gm, "<li>$1</li>");
 
-
-            /* =====================================================
+        /* =====================================================
                Markdown 粗体
             ===================================================== */
 
-            text = text.replace(
-                /\*\*(.*?)\*\*/g,
-                "<strong>$1</strong>"
-            );
+        text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
-
-            /* =====================================================
+        /* =====================================================
                Markdown 斜体
             ===================================================== */
 
-            text = text.replace(
-                /(?<!\*)\*([^*]+)\*(?!\*)/g,
-                "<em>$1</em>"
-            );
+        text = text.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>");
 
-
-            /* =====================================================
+        /* =====================================================
                Markdown 行内代码
             ===================================================== */
 
-            text = text.replace(
-                /`([^`]+)`/g,
-                "<code>$1</code>"
-            );
+        text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
 
-
-            /* =====================================================
+        /* =====================================================
                Markdown 链接
             ===================================================== */
 
-            text = text.replace(
-                /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        text = text.replace(
+          /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
 
-                '<a href="$2" target="_blank" rel="noopener">$1</a>'
-            );
+          '<a href="$2" target="_blank" rel="noopener">$1</a>',
+        );
 
-
-            /* =====================================================
+        /* =====================================================
                处理普通段落
             ===================================================== */
 
-            const lines =
-                text.split("\n");
+        const lines = text.split("\n");
 
+        let result = "";
 
-            let result = "";
+        let paragraph = [];
 
-            let paragraph = [];
+        function flushParagraph() {
+          if (paragraph.length === 0) {
+            return;
+          }
 
+          const content = paragraph.join("<br>");
 
-            function flushParagraph() {
+          result += "<p>" + content + "</p>";
 
-                if (
-                    paragraph.length === 0
-                ) {
-                    return;
-                }
+          paragraph = [];
+        }
 
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
 
-                const content =
-                    paragraph.join("<br>");
+          const trimmed = line.trim();
 
+          /*
+           * 空行
+           */
 
-                result +=
-                    "<p>" +
-                    content +
-                    "</p>";
-
-
-                paragraph = [];
-            }
-
-
-            for (
-                let i = 0;
-                i < lines.length;
-                i++
-            ) {
-
-                const line =
-                    lines[i];
-
-
-                const trimmed =
-                    line.trim();
-
-
-                /*
-                 * 空行
-                 */
-
-                if (trimmed === "") {
-
-                    flushParagraph();
-
-                    continue;
-                }
-
-
-                /*
-                 * HTML 标签
-                 */
-
-                if (
-                    trimmed.startsWith("<h1") ||
-                    trimmed.startsWith("</h1") ||
-                    trimmed.startsWith("<h2") ||
-                    trimmed.startsWith("</h2") ||
-                    trimmed.startsWith("<h3") ||
-                    trimmed.startsWith("</h3") ||
-                    trimmed.startsWith("<hr") ||
-                    trimmed.startsWith("<blockquote") ||
-                    trimmed.startsWith("</blockquote") ||
-                    trimmed.startsWith("<ul") ||
-                    trimmed.startsWith("</ul") ||
-                    trimmed.startsWith("<ol") ||
-                    trimmed.startsWith("</ol") ||
-                    trimmed.startsWith("<li") ||
-                    trimmed.startsWith("</li") ||
-                    trimmed.startsWith("<div") ||
-                    trimmed.startsWith("</div") ||
-                    trimmed.startsWith("<p") ||
-                    trimmed.startsWith("</p") ||
-                    trimmed.startsWith("@@CODEBLOCK")
-                ) {
-
-                    flushParagraph();
-
-                    result += line;
-
-                    continue;
-                }
-
-
-                /*
-                 * 普通文字
-                 */
-
-                paragraph.push(line);
-            }
-
-
+          if (trimmed === "") {
             flushParagraph();
 
+            continue;
+          }
 
-            /* =====================================================
+          /*
+           * HTML 标签
+           */
+
+          if (
+            trimmed.startsWith("<h1") ||
+            trimmed.startsWith("</h1") ||
+            trimmed.startsWith("<h2") ||
+            trimmed.startsWith("</h2") ||
+            trimmed.startsWith("<h3") ||
+            trimmed.startsWith("</h3") ||
+            trimmed.startsWith("<hr") ||
+            trimmed.startsWith("<blockquote") ||
+            trimmed.startsWith("</blockquote") ||
+            trimmed.startsWith("<ul") ||
+            trimmed.startsWith("</ul") ||
+            trimmed.startsWith("<ol") ||
+            trimmed.startsWith("</ol") ||
+            trimmed.startsWith("<li") ||
+            trimmed.startsWith("</li") ||
+            trimmed.startsWith("<div") ||
+            trimmed.startsWith("</div") ||
+            trimmed.startsWith("<p") ||
+            trimmed.startsWith("</p") ||
+            trimmed.startsWith("@@CODEBLOCK")
+          ) {
+            flushParagraph();
+
+            result += line;
+
+            continue;
+          }
+
+          /*
+           * 普通文字
+           */
+
+          paragraph.push(line);
+        }
+
+        flushParagraph();
+
+        /* =====================================================
                恢复代码块
             ===================================================== */
 
-            codeBlocks.forEach(
-                function(
-                    codeBlock,
-                    index
-                ) {
+        codeBlocks.forEach(function (codeBlock, index) {
+          result = result.replace("@@CODEBLOCK" + index + "@@", codeBlock);
+        });
 
-                    result =
-                        result.replace(
-                            "@@CODEBLOCK" +
-                            index +
-                            "@@",
-                            codeBlock
-                        );
-                }
-            );
+        return result;
+      }
 
-
-            return result;
-        }
-
-
-        /* =========================================================
+      /* =========================================================
            渲染信件
         ========================================================= */
 
-        document
-            .getElementById("letter")
-            .innerHTML =
-            renderMarkdown(
-                letterMarkdown
-            );
+      document.getElementById("letter").innerHTML =
+        renderMarkdown(letterMarkdown);
 
-
-        /* =========================================================
+      /* =========================================================
            密码系统
         ========================================================= */
 
-        let password = "";
+      let password = "";
 
+      function updateDots() {
+        const dots = document.querySelectorAll(".dot");
 
-        function updateDots() {
+        dots.forEach(function (dot, index) {
+          if (index < password.length) {
+            dot.classList.add("active");
+          } else {
+            dot.classList.remove("active");
+          }
+        });
+      }
 
-            const dots =
-                document.querySelectorAll(
-                    ".dot"
-                );
-
-
-            dots.forEach(
-                function(dot, index) {
-
-                    if (
-                        index <
-                        password.length
-                    ) {
-
-                        dot.classList.add(
-                            "active"
-                        );
-
-                    } else {
-
-                        dot.classList.remove(
-                            "active"
-                        );
-                    }
-
-                }
-            );
-        }
-
-
-        /* =========================================================
+      /* =========================================================
            输入数字
         ========================================================= */
 
-        function pressKey(number) {
-
-            if (
-                password.length >= 4
-            ) {
-                return;
-            }
-
-
-            const message =
-                document.getElementById(
-                    "message"
-                );
-
-
-            if (
-                message.classList.contains(
-                    "error"
-                )
-            ) {
-
-                message.textContent =
-                    "请输入密码";
-
-                message.classList.remove(
-                    "error"
-                );
-            }
-
-
-            password += number;
-
-
-            updateDots();
-
-
-            if (
-                password.length === 4
-            ) {
-
-                setTimeout(
-                    function() {
-
-                        verifyPassword();
-
-                    },
-                    120
-                );
-            }
+      function pressKey(number) {
+        if (password.length >= 4) {
+          return;
         }
 
+        const message = document.getElementById("message");
 
-        /* =========================================================
+        if (message.classList.contains("error")) {
+          message.textContent = "请输入密码";
+
+          message.classList.remove("error");
+        }
+
+        password += number;
+
+        updateDots();
+
+        if (password.length === 4) {
+          setTimeout(function () {
+            verifyPassword();
+          }, 120);
+        }
+      }
+
+      /* =========================================================
            删除
         ========================================================= */
 
-        function deleteKey() {
+      function deleteKey() {
+        if (password.length > 0) {
+          password = password.slice(0, -1);
 
-            if (
-                password.length > 0
-            ) {
-
-                password =
-                    password.slice(
-                        0,
-                        -1
-                    );
-
-
-                updateDots();
-            }
+          updateDots();
         }
+      }
 
-
-        /* =========================================================
+      /* =========================================================
            验证密码
         ========================================================= */
 
-        function verifyPassword() {
+      function verifyPassword() {
+        /*
+         * MD5(MD5(password))
+         */
 
-            /*
-             * MD5(MD5(password))
-             */
+        const firstMD5 = md5(password);
 
-            const firstMD5 =
-                md5(password);
+        const secondMD5 = md5(firstMD5);
 
+        /*
+         * 0905 的双重 MD5
+         */
 
-            const secondMD5 =
-                md5(firstMD5);
+        const target = "131aadf2c6880dbe424030542ff1cd07";
 
-
-            /*
-             * 0905 的双重 MD5
-             */
-
-            const target =
-                "131aadf2c6880dbe424030542ff1cd07";
-
-
-            /* =====================================================
+        /* =====================================================
                密码正确
             ===================================================== */
 
-            if (
-                secondMD5 === target
-            ) {
+        if (secondMD5 === target) {
+          const loginBox = document.getElementById("loginBox");
 
-                const loginBox =
-                    document.getElementById(
-                        "loginBox"
-                    );
+          loginBox.style.opacity = "0";
 
+          setTimeout(function () {
+            loginBox.style.display = "none";
 
-                loginBox.style.opacity =
-                    "0";
-
-
-                setTimeout(
-                    function() {
-
-                        loginBox.style.display =
-                            "none";
-
-
-                        document
-                            .getElementById(
-                                "content"
-                            )
-                            .classList.add(
-                                "show"
-                            );
-
-                    },
-                    350
-                );
-
-            }
-
-
-            /* =====================================================
-               密码错误
-            ===================================================== */
-
-            else {
-
-                const message =
-                    document.getElementById(
-                        "message"
-                    );
-
-
-                const dots =
-                    document.getElementById(
-                        "dots"
-                    );
-
-
-                message.textContent =
-                    "密码错误";
-
-
-                message.classList.add(
-                    "error"
-                );
-
-
-                /*
-                 * 重新触发抖动
-                 */
-
-                dots.classList.remove(
-                    "shake"
-                );
-
-
-                void dots.offsetWidth;
-
-
-                dots.classList.add(
-                    "shake"
-                );
-
-
-                /*
-                 * 自动重置
-                 */
-
-                setTimeout(
-                    function() {
-
-                        password = "";
-
-
-                        updateDots();
-
-
-                        message.textContent =
-                            "请输入密码";
-
-
-                        message.classList.remove(
-                            "error"
-                        );
-
-
-                        dots.classList.remove(
-                            "shake"
-                        );
-
-                    },
-                    700
-                );
-            }
+            document.getElementById("content").classList.add("show");
+          }, 350);
         }
 
+        /* =====================================================
+               密码错误
+            ===================================================== */
+        else {
+          const message = document.getElementById("message");
 
-        /* =========================================================
+          const dots = document.getElementById("dots");
+
+          message.textContent = "密码错误";
+
+          message.classList.add("error");
+
+          /*
+           * 重新触发抖动
+           */
+
+          dots.classList.remove("shake");
+
+          void dots.offsetWidth;
+
+          dots.classList.add("shake");
+
+          /*
+           * 自动重置
+           */
+
+          setTimeout(function () {
+            password = "";
+
+            updateDots();
+
+            message.textContent = "请输入密码";
+
+            message.classList.remove("error");
+
+            dots.classList.remove("shake");
+          }, 700);
+        }
+      }
+
+      /* =========================================================
            电脑键盘
         ========================================================= */
 
-        document.addEventListener(
-            "keydown",
-            function(event) {
+      document.addEventListener("keydown", function (event) {
+        if (/^[0-9]$/.test(event.key)) {
+          pressKey(event.key);
+        } else if (event.key === "Backspace") {
+          deleteKey();
+        }
+      });
 
-                if (
-                    /^[0-9]$/.test(
-                        event.key
-                    )
-                ) {
-
-                    pressKey(
-                        event.key
-                    );
-
-                }
-
-                else if (
-                    event.key ===
-                    "Backspace"
-                ) {
-
-                    deleteKey();
-                }
-
-            }
-        );
-
-
-        /* =========================================================
+      /* =========================================================
            MD5
         ========================================================= */
 
-        function md5(string) {
-
-            function RotateLeft(
-                lValue,
-                iShiftBits
-            ) {
-
-                return (
-                    (lValue <<
-                        iShiftBits) |
-                    (lValue >>>
-                        (32 -
-                            iShiftBits))
-                );
-            }
-
-
-            function AddUnsigned(
-                lX,
-                lY
-            ) {
-
-                let lX4;
-                let lY4;
-                let lX8;
-                let lY8;
-                let lResult;
-
-
-                lX8 =
-                    lX &
-                    0x80000000;
-
-
-                lY8 =
-                    lY &
-                    0x80000000;
-
-
-                lX4 =
-                    lX &
-                    0x40000000;
-
-
-                lY4 =
-                    lY &
-                    0x40000000;
-
-
-                lResult =
-                    (lX &
-                        0x3FFFFFFF) +
-                    (lY &
-                        0x3FFFFFFF);
-
-
-                if (
-                    lX4 &
-                    lY4
-                ) {
-
-                    return (
-                        lResult ^
-                        0x80000000 ^
-                        lX8 ^
-                        lY8
-                    );
-                }
-
-
-                if (
-                    lX4 |
-                    lY4
-                ) {
-
-                    if (
-                        lResult &
-                        0x40000000
-                    ) {
-
-                        return (
-                            lResult ^
-                            0xC0000000 ^
-                            lX8 ^
-                            lY8
-                        );
-
-                    } else {
-
-                        return (
-                            lResult ^
-                            0x40000000 ^
-                            lX8 ^
-                            lY8
-                        );
-                    }
-                }
-
-
-                return (
-                    lResult ^
-                    lX8 ^
-                    lY8
-                );
-            }
-
-
-            function F(x, y, z) {
-
-                return (
-                    (x & y) |
-                    ((~x) & z)
-                );
-            }
-
-
-            function G(x, y, z) {
-
-                return (
-                    (x & z) |
-                    (y & (~z))
-                );
-            }
-
-
-            function H(x, y, z) {
-
-                return x ^ y ^ z;
-            }
-
-
-            function I(x, y, z) {
-
-                return (
-                    y ^
-                    (x | (~z))
-                );
-            }
-
-
-            function FF(
-                a, b, c, d,
-                x, s, ac
-            ) {
-
-                a =
-                    AddUnsigned(
-                        a,
-                        AddUnsigned(
-                            AddUnsigned(
-                                F(b, c, d),
-                                x
-                            ),
-                            ac
-                        )
-                    );
-
-
-                return AddUnsigned(
-                    RotateLeft(a, s),
-                    b
-                );
-            }
-
-
-            function GG(
-                a, b, c, d,
-                x, s, ac
-            ) {
-
-                a =
-                    AddUnsigned(
-                        a,
-                        AddUnsigned(
-                            AddUnsigned(
-                                G(b, c, d),
-                                x
-                            ),
-                            ac
-                        )
-                    );
-
-
-                return AddUnsigned(
-                    RotateLeft(a, s),
-                    b
-                );
-            }
-
-
-            function HH(
-                a, b, c, d,
-                x, s, ac
-            ) {
-
-                a =
-                    AddUnsigned(
-                        a,
-                        AddUnsigned(
-                            AddUnsigned(
-                                H(b, c, d),
-                                x
-                            ),
-                            ac
-                        )
-                    );
-
-
-                return AddUnsigned(
-                    RotateLeft(a, s),
-                    b
-                );
-            }
-
-
-            function II(
-                a, b, c, d,
-                x, s, ac
-            ) {
-
-                a =
-                    AddUnsigned(
-                        a,
-                        AddUnsigned(
-                            AddUnsigned(
-                                I(b, c, d),
-                                x
-                            ),
-                            ac
-                        )
-                    );
-
-
-                return AddUnsigned(
-                    RotateLeft(a, s),
-                    b
-                );
-            }
-
-
-            function ConvertToWordArray(
-                string
-            ) {
-
-                let lWordCount;
-
-                const lMessageLength =
-                    string.length;
-
-
-                const lNumberOfWordsTemp1 =
-                    lMessageLength + 8;
-
-
-                const lNumberOfWordsTemp2 =
-                    (
-                        lNumberOfWordsTemp1 -
-                        (
-                            lNumberOfWordsTemp1 %
-                            64
-                        )
-                    ) / 64;
-
-
-                const lNumberOfWords =
-                    (
-                        lNumberOfWordsTemp2 +
-                        1
-                    ) * 16;
-
-
-                const lWordArray =
-                    Array(
-                        lNumberOfWords - 1
-                    );
-
-
-                let lBytePosition = 0;
-                let lByteCount = 0;
-
-
-                while (
-                    lByteCount <
-                    lMessageLength
-                ) {
-
-                    lWordCount =
-                        (
-                            lByteCount -
-                            (
-                                lByteCount %
-                                4
-                            )
-                        ) / 4;
-
-
-                    lBytePosition =
-                        (
-                            lByteCount %
-                            4
-                        ) * 8;
-
-
-                    lWordArray[
-                        lWordCount
-                    ] =
-                        (
-                            lWordArray[
-                                lWordCount
-                            ] |
-                            (
-                                string.charCodeAt(
-                                    lByteCount
-                                ) <<
-                                lBytePosition
-                            )
-                        );
-
-
-                    lByteCount++;
-                }
-
-
-                lWordCount =
-                    (
-                        lByteCount -
-                        (
-                            lByteCount %
-                            4
-                        )
-                    ) / 4;
-
-
-                lBytePosition =
-                    (
-                        lByteCount %
-                        4
-                    ) * 8;
-
-
-                lWordArray[
-                    lWordCount
-                ] =
-                    lWordArray[
-                        lWordCount
-                    ] |
-                    (
-                        0x80 <<
-                        lBytePosition
-                    );
-
-
-                lWordArray[
-                    lNumberOfWords - 2
-                ] =
-                    lMessageLength << 3;
-
-
-                lWordArray[
-                    lNumberOfWords - 1
-                ] =
-                    lMessageLength >>> 29;
-
-
-                return lWordArray;
-            }
-
-
-            function WordToHex(
-                lWord
-            ) {
-
-                let lByte;
-                let lCount;
-
-                let lWordToHex = "";
-
-
-                for (
-                    lCount = 0;
-                    lCount <= 3;
-                    lCount++
-                ) {
-
-                    lByte =
-                        (
-                            lWord >>>
-                            (
-                                lCount * 8
-                            )
-                        ) & 255;
-
-
-                    lWordToHex +=
-                        (
-                            "0" +
-                            lByte.toString(
-                                16
-                            )
-                        ).slice(-2);
-                }
-
-
-                return lWordToHex;
-            }
-
-
-            function Utf8Encode(
-                string
-            ) {
-
-                string =
-                    string.replace(
-                        /\r\n/g,
-                        "\n"
-                    );
-
-
-                let utftext = "";
-
-
-                for (
-                    let n = 0;
-                    n < string.length;
-                    n++
-                ) {
-
-                    const c =
-                        string.charCodeAt(n);
-
-
-                    if (
-                        c < 128
-                    ) {
-
-                        utftext +=
-                            String.fromCharCode(
-                                c
-                            );
-
-                    }
-
-                    else if (
-                        c > 127 &&
-                        c < 2048
-                    ) {
-
-                        utftext +=
-                            String.fromCharCode(
-                                (c >> 6) |
-                                192
-                            );
-
-
-                        utftext +=
-                            String.fromCharCode(
-                                (c & 63) |
-                                128
-                            );
-
-                    }
-
-                    else {
-
-                        utftext +=
-                            String.fromCharCode(
-                                (c >> 12) |
-                                224
-                            );
-
-
-                        utftext +=
-                            String.fromCharCode(
-                                (
-                                    (c >> 6) &
-                                    63
-                                ) |
-                                128
-                            );
-
-
-                        utftext +=
-                            String.fromCharCode(
-                                (c & 63) |
-                                128
-                            );
-                    }
-                }
-
-
-                return utftext;
-            }
-
-
-            string =
-                Utf8Encode(string);
-
-
-            const x =
-                ConvertToWordArray(
-                    string
-                );
-
-
-            let a =
-                0x67452301;
-
-            let b =
-                0xEFCDAB89;
-
-            let c =
-                0x98BADCFE;
-
-            let d =
-                0x10325476;
-
-
-            for (
-                let k = 0;
-                k < x.length;
-                k += 16
-            ) {
-
-                const AA = a;
-                const BB = b;
-                const CC = c;
-                const DD = d;
-
-
-                a = FF(
-                    a, b, c, d,
-                    x[k + 0],
-                    7,
-                    0xD76AA478
-                );
-
-                d = FF(
-                    d, a, b, c,
-                    x[k + 1],
-                    12,
-                    0xE8C7B756
-                );
-
-                c = FF(
-                    c, d, a, b,
-                    x[k + 2],
-                    17,
-                    0x242070DB
-                );
-
-                b = FF(
-                    b, c, d, a,
-                    x[k + 3],
-                    22,
-                    0xC1BDCEEE
-                );
-
-                a = FF(
-                    a, b, c, d,
-                    x[k + 4],
-                    7,
-                    0xF57C0FAF
-                );
-
-                d = FF(
-                    d, a, b, c,
-                    x[k + 5],
-                    12,
-                    0x4787C62A
-                );
-
-                c = FF(
-                    c, d, a, b,
-                    x[k + 6],
-                    17,
-                    0xA8304613
-                );
-
-                b = FF(
-                    b, c, d, a,
-                    x[k + 7],
-                    22,
-                    0xFD469501
-                );
-
-                a = FF(
-                    a, b, c, d,
-                    x[k + 8],
-                    7,
-                    0x698098D8
-                );
-
-                d = FF(
-                    d, a, b, c,
-                    x[k + 9],
-                    12,
-                    0x8B44F7AF
-                );
-
-                c = FF(
-                    c, d, a, b,
-                    x[k + 10],
-                    17,
-                    0xFFFF5BB1
-                );
-
-                b = FF(
-                    b, c, d, a,
-                    x[k + 11],
-                    22,
-                    0x895CD7BE
-                );
-
-                a = FF(
-                    a, b, c, d,
-                    x[k + 12],
-                    7,
-                    0x6B901122
-                );
-
-                d = FF(
-                    d, a, b, c,
-                    x[k + 13],
-                    12,
-                    0xFD987193
-                );
-
-                c = FF(
-                    c, d, a, b,
-                    x[k + 14],
-                    17,
-                    0xA679438E
-                );
-
-                b = FF(
-                    b, c, d, a,
-                    x[k + 15],
-                    22,
-                    0x49B40821
-                );
-
-
-                a = GG(
-                    a, b, c, d,
-                    x[k + 1],
-                    5,
-                    0xF61E2562
-                );
-
-                d = GG(
-                    d, a, b, c,
-                    x[k + 6],
-                    9,
-                    0xC040B340
-                );
-
-                c = GG(
-                    c, d, a, b,
-                    x[k + 11],
-                    14,
-                    0x265E5A51
-                );
-
-                b = GG(
-                    b, c, d, a,
-                    x[k + 0],
-                    20,
-                    0xE9B6C7AA
-                );
-
-                a = GG(
-                    a, b, c, d,
-                    x[k + 5],
-                    5,
-                    0xD62F105D
-                );
-
-                d = GG(
-                    d, a, b, c,
-                    x[k + 10],
-                    9,
-                    0x02441453
-                );
-
-                c = GG(
-                    c, d, a, b,
-                    x[k + 15],
-                    14,
-                    0xD8A1E681
-                );
-
-                b = GG(
-                    b, c, d, a,
-                    x[k + 4],
-                    20,
-                    0xE7D3FBC8
-                );
-
-                a = GG(
-                    a, b, c, d,
-                    x[k + 9],
-                    5,
-                    0x21E1CDE6
-                );
-
-                d = GG(
-                    d, a, b, c,
-                    x[k + 14],
-                    9,
-                    0xC33707D6
-                );
-
-                c = GG(
-                    c, d, a, b,
-                    x[k + 3],
-                    14,
-                    0xF4D50D87
-                );
-
-                b = GG(
-                    b, c, d, a,
-                    x[k + 8],
-                    20,
-                    0x455A14ED
-                );
-
-                a = GG(
-                    a, b, c, d,
-                    x[k + 13],
-                    5,
-                    0xA9E3E905
-                );
-
-                d = GG(
-                    d, a, b, c,
-                    x[k + 2],
-                    9,
-                    0xFCEFA3F8
-                );
-
-                c = GG(
-                    c, d, a, b,
-                    x[k + 7],
-                    14,
-                    0x676F02D9
-                );
-
-                b = GG(
-                    b, c, d, a,
-                    x[k + 12],
-                    20,
-                    0x8D2A4C8A
-                );
-
-
-                a = HH(
-                    a, b, c, d,
-                    x[k + 5],
-                    4,
-                    0xFFFA3942
-                );
-
-                d = HH(
-                    d, a, b, c,
-                    x[k + 8],
-                    11,
-                    0x8771F681
-                );
-
-                c = HH(
-                    c, d, a, b,
-                    x[k + 11],
-                    16,
-                    0x6D9D6122
-                );
-
-                b = HH(
-                    b, c, d, a,
-                    x[k + 14],
-                    23,
-                    0xFDE5380C
-                );
-
-                a = HH(
-                    a, b, c, d,
-                    x[k + 1],
-                    4,
-                    0xA4BEEA44
-                );
-
-                d = HH(
-                    d, a, b, c,
-                    x[k + 4],
-                    11,
-                    0x4BDECFA9
-                );
-
-                c = HH(
-                    c, d, a, b,
-                    x[k + 7],
-                    16,
-                    0xF6BB4B60
-                );
-
-                b = HH(
-                    b, c, d, a,
-                    x[k + 10],
-                    23,
-                    0xBEBFBC70
-                );
-
-                a = HH(
-                    a, b, c, d,
-                    x[k + 13],
-                    4,
-                    0x289B7EC6
-                );
-
-                d = HH(
-                    d, a, b, c,
-                    x[k + 0],
-                    11,
-                    0xEAA127FA
-                );
-
-                c = HH(
-                    c, d, a, b,
-                    x[k + 3],
-                    16,
-                    0xD4EF3085
-                );
-
-                b = HH(
-                    b, c, d, a,
-                    x[k + 6],
-                    23,
-                    0x04881D05
-                );
-
-                a = HH(
-                    a, b, c, d,
-                    x[k + 9],
-                    4,
-                    0xD9D4D039
-                );
-
-                d = HH(
-                    d, a, b, c,
-                    x[k + 12],
-                    11,
-                    0xE6DB99E5
-                );
-
-                c = HH(
-                    c, d, a, b,
-                    x[k + 15],
-                    16,
-                    0x1FA27CF8
-                );
-
-                b = HH(
-                    b, c, d, a,
-                    x[k + 2],
-                    23,
-                    0xC4AC5665
-                );
-
-
-                a = II(
-                    a, b, c, d,
-                    x[k + 0],
-                    6,
-                    0xF4292244
-                );
-
-                d = II(
-                    d, a, b, c,
-                    x[k + 7],
-                    10,
-                    0x432AFF97
-                );
-
-                c = II(
-                    c, d, a, b,
-                    x[k + 14],
-                    15,
-                    0xAB9423A7
-                );
-
-                b = II(
-                    b, c, d, a,
-                    x[k + 5],
-                    21,
-                    0xFC93A039
-                );
-
-                a = II(
-                    a, b, c, d,
-                    x[k + 12],
-                    6,
-                    0x655B59C3
-                );
-
-                d = II(
-                    d, a, b, c,
-                    x[k + 3],
-                    10,
-                    0x8F0CCC92
-                );
-
-                c = II(
-                    c, d, a, b,
-                    x[k + 10],
-                    15,
-                    0xFFEFF47D
-                );
-
-                b = II(
-                    b, c, d, a,
-                    x[k + 1],
-                    21,
-                    0x85845DD1
-                );
-
-                a = II(
-                    a, b, c, d,
-                    x[k + 8],
-                    6,
-                    0x6FA87E4F
-                );
-
-                d = II(
-                    d, a, b, c,
-                    x[k + 15],
-                    10,
-                    0xFE2CE6E0
-                );
-
-                c = II(
-                    c, d, a, b,
-                    x[k + 6],
-                    15,
-                    0xA3014314
-                );
-
-                b = II(
-                    b, c, d, a,
-                    x[k + 13],
-                    21,
-                    0x4E0811A1
-                );
-
-                a = II(
-                    a, b, c, d,
-                    x[k + 4],
-                    6,
-                    0xF7537E82
-                );
-
-                d = II(
-                    d, a, b, c,
-                    x[k + 11],
-                    10,
-                    0xBD3AF235
-                );
-
-                c = II(
-                    c, d, a, b,
-                    x[k + 2],
-                    15,
-                    0x2AD7D2BB
-                );
-
-                b = II(
-                    b, c, d, a,
-                    x[k + 9],
-                    21,
-                    0xEB86D391
-                );
-
-
-                a =
-                    AddUnsigned(
-                        a,
-                        AA
-                    );
-
-                b =
-                    AddUnsigned(
-                        b,
-                        BB
-                    );
-
-                c =
-                    AddUnsigned(
-                        c,
-                        CC
-                    );
-
-                d =
-                    AddUnsigned(
-                        d,
-                        DD
-                    );
-            }
-
-
-            const temp =
-                WordToHex(a) +
-                WordToHex(b) +
-                WordToHex(c) +
-                WordToHex(d);
-
-
-            return temp.toLowerCase();
+      function md5(string) {
+        function RotateLeft(lValue, iShiftBits) {
+          return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
         }
 
-    </script>
+        function AddUnsigned(lX, lY) {
+          let lX4;
+          let lY4;
+          let lX8;
+          let lY8;
+          let lResult;
 
-</body>
+          lX8 = lX & 0x80000000;
+
+          lY8 = lY & 0x80000000;
+
+          lX4 = lX & 0x40000000;
+
+          lY4 = lY & 0x40000000;
+
+          lResult = (lX & 0x3fffffff) + (lY & 0x3fffffff);
+
+          if (lX4 & lY4) {
+            return lResult ^ 0x80000000 ^ lX8 ^ lY8;
+          }
+
+          if (lX4 | lY4) {
+            if (lResult & 0x40000000) {
+              return lResult ^ 0xc0000000 ^ lX8 ^ lY8;
+            } else {
+              return lResult ^ 0x40000000 ^ lX8 ^ lY8;
+            }
+          }
+
+          return lResult ^ lX8 ^ lY8;
+        }
+
+        function F(x, y, z) {
+          return (x & y) | (~x & z);
+        }
+
+        function G(x, y, z) {
+          return (x & z) | (y & ~z);
+        }
+
+        function H(x, y, z) {
+          return x ^ y ^ z;
+        }
+
+        function I(x, y, z) {
+          return y ^ (x | ~z);
+        }
+
+        function FF(a, b, c, d, x, s, ac) {
+          a = AddUnsigned(a, AddUnsigned(AddUnsigned(F(b, c, d), x), ac));
+
+          return AddUnsigned(RotateLeft(a, s), b);
+        }
+
+        function GG(a, b, c, d, x, s, ac) {
+          a = AddUnsigned(a, AddUnsigned(AddUnsigned(G(b, c, d), x), ac));
+
+          return AddUnsigned(RotateLeft(a, s), b);
+        }
+
+        function HH(a, b, c, d, x, s, ac) {
+          a = AddUnsigned(a, AddUnsigned(AddUnsigned(H(b, c, d), x), ac));
+
+          return AddUnsigned(RotateLeft(a, s), b);
+        }
+
+        function II(a, b, c, d, x, s, ac) {
+          a = AddUnsigned(a, AddUnsigned(AddUnsigned(I(b, c, d), x), ac));
+
+          return AddUnsigned(RotateLeft(a, s), b);
+        }
+
+        function ConvertToWordArray(string) {
+          let lWordCount;
+
+          const lMessageLength = string.length;
+
+          const lNumberOfWordsTemp1 = lMessageLength + 8;
+
+          const lNumberOfWordsTemp2 =
+            (lNumberOfWordsTemp1 - (lNumberOfWordsTemp1 % 64)) / 64;
+
+          const lNumberOfWords = (lNumberOfWordsTemp2 + 1) * 16;
+
+          const lWordArray = Array(lNumberOfWords - 1);
+
+          let lBytePosition = 0;
+          let lByteCount = 0;
+
+          while (lByteCount < lMessageLength) {
+            lWordCount = (lByteCount - (lByteCount % 4)) / 4;
+
+            lBytePosition = (lByteCount % 4) * 8;
+
+            lWordArray[lWordCount] =
+              lWordArray[lWordCount] |
+              (string.charCodeAt(lByteCount) << lBytePosition);
+
+            lByteCount++;
+          }
+
+          lWordCount = (lByteCount - (lByteCount % 4)) / 4;
+
+          lBytePosition = (lByteCount % 4) * 8;
+
+          lWordArray[lWordCount] =
+            lWordArray[lWordCount] | (0x80 << lBytePosition);
+
+          lWordArray[lNumberOfWords - 2] = lMessageLength << 3;
+
+          lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29;
+
+          return lWordArray;
+        }
+
+        function WordToHex(lWord) {
+          let lByte;
+          let lCount;
+
+          let lWordToHex = "";
+
+          for (lCount = 0; lCount <= 3; lCount++) {
+            lByte = (lWord >>> (lCount * 8)) & 255;
+
+            lWordToHex += ("0" + lByte.toString(16)).slice(-2);
+          }
+
+          return lWordToHex;
+        }
+
+        function Utf8Encode(string) {
+          string = string.replace(/\r\n/g, "\n");
+
+          let utftext = "";
+
+          for (let n = 0; n < string.length; n++) {
+            const c = string.charCodeAt(n);
+
+            if (c < 128) {
+              utftext += String.fromCharCode(c);
+            } else if (c > 127 && c < 2048) {
+              utftext += String.fromCharCode((c >> 6) | 192);
+
+              utftext += String.fromCharCode((c & 63) | 128);
+            } else {
+              utftext += String.fromCharCode((c >> 12) | 224);
+
+              utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+
+              utftext += String.fromCharCode((c & 63) | 128);
+            }
+          }
+
+          return utftext;
+        }
+
+        string = Utf8Encode(string);
+
+        const x = ConvertToWordArray(string);
+
+        let a = 0x67452301;
+
+        let b = 0xefcdab89;
+
+        let c = 0x98badcfe;
+
+        let d = 0x10325476;
+
+        for (let k = 0; k < x.length; k += 16) {
+          const AA = a;
+          const BB = b;
+          const CC = c;
+          const DD = d;
+
+          a = FF(a, b, c, d, x[k + 0], 7, 0xd76aa478);
+
+          d = FF(d, a, b, c, x[k + 1], 12, 0xe8c7b756);
+
+          c = FF(c, d, a, b, x[k + 2], 17, 0x242070db);
+
+          b = FF(b, c, d, a, x[k + 3], 22, 0xc1bdceee);
+
+          a = FF(a, b, c, d, x[k + 4], 7, 0xf57c0faf);
+
+          d = FF(d, a, b, c, x[k + 5], 12, 0x4787c62a);
+
+          c = FF(c, d, a, b, x[k + 6], 17, 0xa8304613);
+
+          b = FF(b, c, d, a, x[k + 7], 22, 0xfd469501);
+
+          a = FF(a, b, c, d, x[k + 8], 7, 0x698098d8);
+
+          d = FF(d, a, b, c, x[k + 9], 12, 0x8b44f7af);
+
+          c = FF(c, d, a, b, x[k + 10], 17, 0xffff5bb1);
+
+          b = FF(b, c, d, a, x[k + 11], 22, 0x895cd7be);
+
+          a = FF(a, b, c, d, x[k + 12], 7, 0x6b901122);
+
+          d = FF(d, a, b, c, x[k + 13], 12, 0xfd987193);
+
+          c = FF(c, d, a, b, x[k + 14], 17, 0xa679438e);
+
+          b = FF(b, c, d, a, x[k + 15], 22, 0x49b40821);
+
+          a = GG(a, b, c, d, x[k + 1], 5, 0xf61e2562);
+
+          d = GG(d, a, b, c, x[k + 6], 9, 0xc040b340);
+
+          c = GG(c, d, a, b, x[k + 11], 14, 0x265e5a51);
+
+          b = GG(b, c, d, a, x[k + 0], 20, 0xe9b6c7aa);
+
+          a = GG(a, b, c, d, x[k + 5], 5, 0xd62f105d);
+
+          d = GG(d, a, b, c, x[k + 10], 9, 0x02441453);
+
+          c = GG(c, d, a, b, x[k + 15], 14, 0xd8a1e681);
+
+          b = GG(b, c, d, a, x[k + 4], 20, 0xe7d3fbc8);
+
+          a = GG(a, b, c, d, x[k + 9], 5, 0x21e1cde6);
+
+          d = GG(d, a, b, c, x[k + 14], 9, 0xc33707d6);
+
+          c = GG(c, d, a, b, x[k + 3], 14, 0xf4d50d87);
+
+          b = GG(b, c, d, a, x[k + 8], 20, 0x455a14ed);
+
+          a = GG(a, b, c, d, x[k + 13], 5, 0xa9e3e905);
+
+          d = GG(d, a, b, c, x[k + 2], 9, 0xfcefa3f8);
+
+          c = GG(c, d, a, b, x[k + 7], 14, 0x676f02d9);
+
+          b = GG(b, c, d, a, x[k + 12], 20, 0x8d2a4c8a);
+
+          a = HH(a, b, c, d, x[k + 5], 4, 0xfffa3942);
+
+          d = HH(d, a, b, c, x[k + 8], 11, 0x8771f681);
+
+          c = HH(c, d, a, b, x[k + 11], 16, 0x6d9d6122);
+
+          b = HH(b, c, d, a, x[k + 14], 23, 0xfde5380c);
+
+          a = HH(a, b, c, d, x[k + 1], 4, 0xa4beea44);
+
+          d = HH(d, a, b, c, x[k + 4], 11, 0x4bdecfa9);
+
+          c = HH(c, d, a, b, x[k + 7], 16, 0xf6bb4b60);
+
+          b = HH(b, c, d, a, x[k + 10], 23, 0xbebfbc70);
+
+          a = HH(a, b, c, d, x[k + 13], 4, 0x289b7ec6);
+
+          d = HH(d, a, b, c, x[k + 0], 11, 0xeaa127fa);
+
+          c = HH(c, d, a, b, x[k + 3], 16, 0xd4ef3085);
+
+          b = HH(b, c, d, a, x[k + 6], 23, 0x04881d05);
+
+          a = HH(a, b, c, d, x[k + 9], 4, 0xd9d4d039);
+
+          d = HH(d, a, b, c, x[k + 12], 11, 0xe6db99e5);
+
+          c = HH(c, d, a, b, x[k + 15], 16, 0x1fa27cf8);
+
+          b = HH(b, c, d, a, x[k + 2], 23, 0xc4ac5665);
+
+          a = II(a, b, c, d, x[k + 0], 6, 0xf4292244);
+
+          d = II(d, a, b, c, x[k + 7], 10, 0x432aff97);
+
+          c = II(c, d, a, b, x[k + 14], 15, 0xab9423a7);
+
+          b = II(b, c, d, a, x[k + 5], 21, 0xfc93a039);
+
+          a = II(a, b, c, d, x[k + 12], 6, 0x655b59c3);
+
+          d = II(d, a, b, c, x[k + 3], 10, 0x8f0ccc92);
+
+          c = II(c, d, a, b, x[k + 10], 15, 0xffeff47d);
+
+          b = II(b, c, d, a, x[k + 1], 21, 0x85845dd1);
+
+          a = II(a, b, c, d, x[k + 8], 6, 0x6fa87e4f);
+
+          d = II(d, a, b, c, x[k + 15], 10, 0xfe2ce6e0);
+
+          c = II(c, d, a, b, x[k + 6], 15, 0xa3014314);
+
+          b = II(b, c, d, a, x[k + 13], 21, 0x4e0811a1);
+
+          a = II(a, b, c, d, x[k + 4], 6, 0xf7537e82);
+
+          d = II(d, a, b, c, x[k + 11], 10, 0xbd3af235);
+
+          c = II(c, d, a, b, x[k + 2], 15, 0x2ad7d2bb);
+
+          b = II(b, c, d, a, x[k + 9], 21, 0xeb86d391);
+
+          a = AddUnsigned(a, AA);
+
+          b = AddUnsigned(b, BB);
+
+          c = AddUnsigned(c, CC);
+
+          d = AddUnsigned(d, DD);
+        }
+
+        const temp = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d);
+
+        return temp.toLowerCase();
+      }
+    </script>
+  </body>
 </html>
