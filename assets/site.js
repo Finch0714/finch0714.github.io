@@ -93,4 +93,13 @@ window.SITE_FEATURES = [
     desc: "我自己收藏整理的一批好用的网站，持续更新中。",
     tags: ["外链"],
   },
+  {
+    id: "letter",
+    title: "信",
+    icon: "✉️",
+    url: "/letter",
+    btn: "展开阅读",
+    desc: "写给自己，也写给一些人。",
+    tags: ["随笔"],
+  },
 ];
