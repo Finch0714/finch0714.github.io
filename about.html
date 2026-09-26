@@ -145,6 +145,25 @@
           </div>
           <div class="md-grid" id="feature-grid"></div>
         </section>
+
+        <!-- ============ 本次访问信息 ============ -->
+        <!-- 全部数据由浏览器在本地提供，只显示给访客自己看，不上传、不存储 -->
+        <section class="md-section">
+          <div class="md-section__head">
+            <div>
+              <h2 class="md-section__title">
+                <span class="md-section__rule"></span>本次访问信息
+              </h2>
+              <p class="md-body" style="margin: 8px 0 0">
+                这些信息由你的浏览器本地读出，不上传、不保存。
+              </p>
+            </div>
+            <span class="md-chip md-chip--muted" id="visitor-summary">识别中…</span>
+          </div>
+          <div class="md-card md-card--elevated" style="padding: 6px 8px">
+            <div class="md-list" id="visitor-list"></div>
+          </div>
+        </section>
       </div>
 
       <!-- ============ 页脚 ============ -->
@@ -337,6 +356,230 @@
           setTimeout(loadBusuanzi, 400);
         });
       }
+
+      /* ---------- 本次访问信息（全部在本地读取，不上传、不保存） ---------- */
+      /* UA 解析用 UAParser.js，走 CDN；一个源挂了自动换下一个，
+         两个都挂就用下面的极简解析兜底 —— 保证任何情况下卡片都有内容。 */
+      var UA_CDNS = [
+        "https://cdn.bootcdn.net/ajax/libs/UAParser.js/1.0.37/ua-parser.min.js",
+        "https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.37/dist/ua-parser.min.js",
+      ];
+
+      function loadUAParser(i, done) {
+        if (window.UAParser) return done(true);
+        if (i >= UA_CDNS.length) return done(false);
+        var s = document.createElement("script");
+        s.src = UA_CDNS[i];
+        s.async = true;
+        s.onload = function () {
+          done(!!window.UAParser);
+        };
+        s.onerror = function () {
+          loadUAParser(i + 1, done);
+        };
+        document.head.appendChild(s);
+      }
+
+      /* UAParser 拿不到时的极简兜底：只认最常见的几种，够用就行 */
+      function miniParse(ua) {
+        var out = {
+          browser: { name: "", version: "" },
+          os: { name: "", version: "" },
+          device: { type: "", vendor: "", model: "" },
+        };
+        var m;
+        if ((m = ua.match(/Windows NT ([\d.]+)/))) {
+          out.os = { name: "Windows", version: m[1] === "10.0" ? "10 / 11" : m[1] };
+        } else if ((m = ua.match(/Android ([\d.]+)/))) {
+          out.os = { name: "Android", version: m[1] };
+        } else if (/iPhone|iPad|iPod/.test(ua)) {
+          m = ua.match(/OS (\d+[_\d]*)/);
+          out.os = { name: "iOS", version: m ? m[1].replace(/_/g, ".") : "" };
+        } else if ((m = ua.match(/Mac OS X ([\d_.]+)/))) {
+          out.os = { name: "macOS", version: m[1].replace(/_/g, ".") };
+        } else if (/CrOS/.test(ua)) {
+          out.os = { name: "ChromeOS", version: "" };
+        } else if (/Linux/.test(ua)) {
+          out.os = { name: "Linux", version: "" };
+        }
+        if ((m = ua.match(/(Edg|Edge|EdgA|EdgiOS)\/([\d.]+)/))) {
+          out.browser = { name: "Edge", version: m[2] };
+        } else if ((m = ua.match(/OPR\/([\d.]+)/))) {
+          out.browser = { name: "Opera", version: m[1] };
+        } else if ((m = ua.match(/(Firefox|FxiOS)\/([\d.]+)/))) {
+          out.browser = { name: "Firefox", version: m[2] };
+        } else if ((m = ua.match(/Chrome\/([\d.]+)/))) {
+          out.browser = { name: "Chrome", version: m[1] };
+        } else if ((m = ua.match(/Version\/([\d.]+).*Safari/))) {
+          out.browser = { name: "Safari", version: m[1] };
+        }
+        if (/iPad|Tablet/.test(ua)) out.device.type = "tablet";
+        else if (/Mobi|Android|iPhone/.test(ua)) out.device.type = "mobile";
+        return out;
+      }
+
+      /* 任何取值都可能抛异常或返回空 —— 统一收成「未知」 */
+      function safeValue(fn) {
+        try {
+          var v = fn();
+          if (
+            v === undefined ||
+            v === null ||
+            v === "" ||
+            (typeof v === "number" && !isFinite(v))
+          ) {
+            return "未知";
+          }
+          return v;
+        } catch (e) {
+          return "未知";
+        }
+      }
+
+      function collectVisitor() {
+        var ua = navigator.userAgent || "";
+        var parsed = null;
+        try {
+          if (window.UAParser) parsed = new window.UAParser().getResult();
+        } catch (e) {
+          parsed = null;
+        }
+        var mini = parsed ? null : miniParse(ua);
+        var b = parsed ? parsed.browser : mini.browser;
+        var o = parsed ? parsed.os : mini.os;
+        var d = parsed ? parsed.device : mini.device;
+
+        /* [带图标的显示值, 纯文字值] */
+        var TYPES = {
+          mobile: ["📱 移动", "移动"],
+          tablet: ["📱 平板", "平板"],
+          console: ["🕹️ 游戏机", "游戏机"],
+          smarttv: ["📺 智能电视", "智能电视"],
+          wearable: ["⌚ 穿戴设备", "穿戴设备"],
+          embedded: ["🔌 嵌入式设备", "嵌入式设备"],
+        };
+
+        var bName = (b && b.name) || "";
+        var bVer = b && b.version ? " " + String(b.version).split(".")[0] : "";
+        var oName = (o && o.name) || "";
+        var oVer = o && o.version ? " " + o.version : "";
+        var devType = d && d.type && TYPES[d.type] ? TYPES[d.type][0] : "🖥️ 桌面";
+        var devTypePlain =
+          d && d.type && TYPES[d.type] ? TYPES[d.type][1] : "桌面";
+        var model =
+          [d && d.vendor, d && d.model].filter(Boolean).join(" ") || "未知";
+
+        /* 只认 UA / UAParser 的判断，不要拿「屏幕小 + 支持触屏」当依据 ——
+           带触屏的笔记本（比如 1366×768 触控本）会被误判成移动设备。 */
+        var isMobile =
+          (d && (d.type === "mobile" || d.type === "tablet")) ||
+          /Mobi|Android|iPhone|iPad|iPod|Windows Phone|Tablet/.test(ua);
+
+        var screenText = safeValue(function () {
+          return screen.width + " × " + screen.height;
+        });
+        if (screenText !== "未知" && window.devicePixelRatio) {
+          screenText += "　@" + window.devicePixelRatio + "x";
+        }
+
+        var langText = safeValue(function () {
+          var more =
+            navigator.languages && navigator.languages.length > 1
+              ? "（" + navigator.languages.slice(0, 3).join(" / ") + "）"
+              : "";
+          var v = navigator.language || navigator.userLanguage || "";
+          return v ? v + more : "";
+        });
+
+        var tzText = safeValue(function () {
+          var name = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+          var off = -new Date().getTimezoneOffset() / 60;
+          var abs = Math.abs(off);
+          var h = Math.floor(abs);
+          var mm = Math.round((abs - h) * 60);
+          var tail =
+            "UTC" + (off >= 0 ? "+" : "-") + h + (mm ? ":" + (mm < 10 ? "0" : "") + mm : "");
+          return (name ? name + "（" : "（") + tail + "）";
+        });
+
+        var coreText = safeValue(function () {
+          var n = navigator.hardwareConcurrency;
+          return n ? n + " 核" : "";
+        });
+
+        var memText = safeValue(function () {
+          var g = navigator.deviceMemory;
+          return g ? g + " GB" : "";
+        });
+
+        var netText = safeValue(function () {
+          var c =
+            navigator.connection ||
+            navigator.mozConnection ||
+            navigator.webkitConnection;
+          if (!c || !c.effectiveType) return "";
+          return (
+            String(c.effectiveType).toUpperCase() +
+            (c.downlink ? "（约 " + c.downlink + " Mbps）" : "") +
+            (c.saveData ? " · 省流量模式" : "")
+          );
+        });
+
+        var rows = [
+          ["🌐", "浏览器", bName ? bName + bVer : "未知"],
+          ["💻", "操作系统", oName ? oName + oVer : "未知"],
+          ["📟", "设备类型", devType],
+          ["🏷️", "厂商 / 型号", model],
+          ["🖥️", "屏幕分辨率", screenText],
+          ["🗣️", "浏览器语言", langText],
+          ["🕐", "时区", tzText],
+          ["⚙️", "CPU 核心数", coreText],
+          ["🧠", "设备内存", memText],
+          ["📶", "网络类型", netText],
+          ["👆", "是否移动设备", isMobile ? "是" : "否"],
+        ];
+
+        return {
+          rows: rows,
+          summary: [
+            bName ? bName + bVer : "未知浏览器",
+            oName || "未知系统",
+            devTypePlain,
+          ].join(" · "),
+        };
+      }
+
+      function renderVisitor() {
+        var box = document.getElementById("visitor-list");
+        if (!box) return;
+        var data = collectVisitor();
+        box.innerHTML = data.rows
+          .map(function (r) {
+            return (
+              '<div class="md-list-item">' +
+              '<span class="md-row" style="gap: 10px; flex-wrap: nowrap">' +
+              '<span class="md-avatar md-avatar--sm">' +
+              r[0] +
+              "</span>" +
+              '<span class="md-label">' +
+              MD.esc(r[1]) +
+              "</span>" +
+              "</span>" +
+              '<span class="md-mono" style="font-weight: 700; text-align: right; user-select: all">' +
+              MD.esc(r[2]) +
+              "</span>" +
+              "</div>"
+            );
+          })
+          .join("");
+        var chip = document.getElementById("visitor-summary");
+        if (chip) chip.textContent = data.summary;
+      }
+
+      renderVisitor(); /* 先用能同步拿到的信息渲染一次，卡片立刻有内容 */
+      loadUAParser(0, function () {
+        renderVisitor(); /* UAParser 到位后再用更准的结果覆盖一次 */
+      });
 
       document.getElementById("year").textContent = new Date().getFullYear();
 
