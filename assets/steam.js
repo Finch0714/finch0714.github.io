@@ -18,7 +18,7 @@ window.STEAM_DATA = {
     {
       appid: "manual_01",
       name: "Cyberpunk 2077",
-      playtime: 45,
+      playtime: 61,
       icon: "https://ts1.tc.mm.bing.net/th/id/R-C.4766d3a3044fc96967d19538153043c2?rik=Rq1FI%2fX5qARXSA&pid=ImgRaw&r=0",
     },
     {
