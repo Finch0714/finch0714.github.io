@@ -6,14 +6,14 @@
 
 window.SITE = {
   name: "Finch0714",
-  tagline: "restless, resetless.",
+  tagline: "海浪的声音平静了我的心灵。",
   avatar: "./avatar.jpg",
   bio: "你好！欢迎来到我的主页。我是一个热衷于终身学习和影视、游戏的探索者。",
   bilibili: "https://space.bilibili.com/2066563707",
   contacts: [
     { label: "QQ", value: "861288676" },
     { label: "EMAIL", value: "finch0714@qq.com" },
-    { label: "STEAM", value: "Latetelly" },
+    { label: "STEAM", value: "76561199778292070" },
   ],
 };
 
