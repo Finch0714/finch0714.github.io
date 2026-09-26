@@ -8,7 +8,7 @@
 
   /* ---------- 兜底数据（site.js 加载失败时仍能渲染导航） ---------- */
   var FALLBACK = [
-    { id: "about", title: "关于我", icon: "👤", url: "./about.html" },
+    { id: "about", title: "关于", icon: "👤", url: "./about.html" },
     { id: "mc_query", title: "MC 智能查询", icon: "⛏️", url: "./mcquery.html" },
     {
       id: "steam_status",
@@ -125,15 +125,14 @@
       '<header class="md-appbar" id="md-appbar">' +
       '<a class="md-brand" href="' +
       (BASE || "./") +
-      'about.html">' +
+      'about.html" aria-label="' +
+      esc(site.name || "Finch0714") +
+      ' 的首页">' +
       '<img class="md-brand__logo" src="' +
       linkTo(logo) +
       '" alt="' +
       esc(site.name || "Finch0714") +
       '" onerror="this.style.display=\'none\'">' +
-      "<span>" +
-      esc(site.name || "Finch0714") +
-      "</span>" +
       "</a>" +
       '<nav class="md-nav">' +
       links +

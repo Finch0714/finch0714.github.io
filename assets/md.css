@@ -56,8 +56,17 @@
   --md-ease: cubic-bezier(0.2, 0, 0, 1);
   --md-dur: 0.22s;
 
-  /* 布局 */
-  --md-appbar-h: 64px;
+  /* 布局 —— 顶栏尺寸全部用 clamp() 做「设备自适应」：
+     小屏手机取最小值，桌面（约 850px 以上）取最大值，中间连续过渡。
+     这样各设备的顶栏比例都协调，不必靠一堆断点硬跳。 */
+  --md-appbar-h: clamp(52px, 2.6vw + 42px, 64px);
+  --md-appbar-pad: clamp(12px, 1.6vw, 24px);
+  --md-appbar-gap: clamp(10px, 1.2vw, 20px);
+  --md-brand-logo: clamp(28px, 2.4vw + 18px, 38px);
+  --md-nav-font: clamp(0.8125rem, 0.35vw + 0.72rem, 0.9375rem);
+  --md-nav-pad-y: clamp(7px, 0.4vw + 5px, 10px);
+  --md-nav-pad-x: clamp(10px, 0.5vw + 8px, 15px);
+  --md-icon-btn: clamp(40px, 2.6vw + 30px, 44px);
   --md-max-w: 1120px;
 
   /* 站点字体：霞鹜文楷 Bright Medium（由页面以「非阻塞」方式引入 CDN）。
@@ -250,8 +259,8 @@ p {
   height: var(--md-appbar-h);
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 0 24px;
+  gap: var(--md-appbar-gap);
+  padding: 0 var(--md-appbar-pad);
   /* 用纯色表面，不做毛玻璃模糊：固定顶栏加 backdrop-filter 会在每次滚动时
      重新栅格化整块背景，滚动明显掉帧。Material 的 app bar 本来就是纯色。 */
   background: var(--md-surface);
@@ -267,20 +276,24 @@ p {
   border-bottom-color: transparent;
 }
 
+/* 品牌区现在只有一个头像（旁边的站点名已按要求去掉） */
 .md-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 1.0625rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
   color: var(--md-primary-dark);
   flex-shrink: 0;
+  border-radius: 50%;
+  transition: transform var(--md-dur) var(--md-ease);
+}
+
+.md-brand:hover {
+  transform: scale(1.06);
 }
 
 .md-brand__logo {
-  width: 34px;
-  height: 34px;
+  width: var(--md-brand-logo);
+  height: var(--md-brand-logo);
+  display: block;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 0 0 2px var(--md-primary-container);
@@ -307,10 +320,10 @@ p {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 14px;
+  gap: clamp(4px, 0.3vw, 6px);
+  padding: var(--md-nav-pad-y) var(--md-nav-pad-x);
   border-radius: var(--md-r-full);
-  font-size: 0.875rem;
+  font-size: var(--md-nav-font);
   font-weight: 500;
   color: var(--md-on-surface-variant);
   white-space: nowrap;
@@ -338,8 +351,8 @@ p {
 
 /* 汉堡按钮 */
 .md-icon-btn {
-  width: 42px;
-  height: 42px;
+  width: var(--md-icon-btn);
+  height: var(--md-icon-btn);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -399,8 +412,8 @@ p {
 .md-drawer__link {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
+  gap: clamp(12px, 1vw, 14px);
+  padding: clamp(13px, 1vw, 15px) clamp(14px, 1.2vw, 16px);
   border-radius: var(--md-r-full);
   color: var(--md-on-surface);
   font-size: 0.9375rem;
@@ -958,6 +971,15 @@ p {
 /* --------------------------------------------------------------------------
    17. 响应式
    -------------------------------------------------------------------------- */
+/* 中等屏幕（笔记本偏窄）：横向导航还在，把入口间距收紧，
+   给 7 个入口留出空间，避免挤成一团 */
+@media (max-width: 1280px) {
+  :root {
+    --md-nav-pad-x: 12px;
+  }
+}
+
+/* 平板/窄屏：横向导航收纳成抽屉菜单 */
 @media (max-width: 1080px) {
   .md-nav {
     display: none;
@@ -967,14 +989,9 @@ p {
   }
 }
 
+/* 手机：只收窄容器与卡片留白。
+   顶栏尺寸已由 clamp() 连续缩放，这里不再写死高度 */
 @media (max-width: 720px) {
-  :root {
-    --md-appbar-h: 60px;
-  }
-  .md-appbar {
-    padding: 0 16px;
-    gap: 12px;
-  }
   .md-container {
     padding: 0 18px;
   }
@@ -989,6 +1006,41 @@ p {
   }
   .md-section {
     margin-top: 40px;
+  }
+}
+
+/* 小屏手机：再收一档 */
+@media (max-width: 480px) {
+  :root {
+    --md-brand-logo: 30px;
+    --md-appbar-pad: 12px;
+  }
+  .md-container {
+    padding: 0 14px;
+  }
+  .md-drawer {
+    width: min(300px, 88vw);
+  }
+}
+
+/* 触摸设备（手机/平板）：把点按目标放大到手指友好尺寸，
+   顶栏高度也略微增加；鼠标设备不受影响 */
+@media (hover: none) and (pointer: coarse) {
+  :root {
+    --md-appbar-h: max(56px, var(--md-appbar-h));
+    --md-icon-btn: 44px;
+    --md-nav-pad-y: 10px;
+    --md-nav-pad-x: 14px;
+  }
+}
+
+/* 横屏矮设备（手机横过来）：顶栏别占掉太多竖向空间 */
+@media (orientation: landscape) and (max-height: 480px) {
+  :root {
+    --md-appbar-h: 48px;
+  }
+  .md-page {
+    padding-top: calc(var(--md-appbar-h) + 18px);
   }
 }
 
