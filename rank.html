@@ -123,10 +123,21 @@
         display: none;
       }
 
-      .pool-container {
+      /* 待分配区 + 右侧的「描述字体」选择器 */
+      .pool-wrap {
         width: 100%;
-        max-width: 860px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 18px;
         margin-top: 26px;
+      }
+
+      .pool-container {
+        flex: 1 1 560px;
+        min-width: 0;
+        max-width: 860px;
         padding: 18px;
         border: 2px dashed var(--md-primary-container);
         border-radius: var(--md-r-md);
@@ -150,6 +161,10 @@
         align-items: center;
         gap: 4px;
         cursor: grab;
+        /* 关掉移动端长按弹出的原生菜单（存图/拷贝图片），
+           免得跟我们自己的长按菜单打架 */
+        -webkit-touch-callout: none;
+        user-select: none;
       }
 
       .item-wrap .item {
@@ -159,9 +174,13 @@
 
       /* 图片下方的描述文字。字体由右侧选择器决定：
          默认跟网站一致（霞鹜文楷），也可以切成系统字体 */
+      .item-desc,
+      .item-input {
+        font-family: var(--md-font);
+      }
+
       .item-desc {
         width: 100%;
-        font-family: var(--md-font);
         font-size: 11px;
         line-height: 1.3;
         font-weight: 500;
@@ -171,6 +190,21 @@
         white-space: pre-wrap;
       }
 
+      /* 「添加描述」时的行内输入框：就开在图片下方，不用浏览器弹窗 */
+      .item-input {
+        width: 100%;
+        padding: 3px 4px;
+        font-size: 11px;
+        line-height: 1.3;
+        text-align: center;
+        color: #1a1c1a;
+        background: #fff;
+        border: 1px solid var(--md-primary);
+        border-radius: 4px;
+        outline: none;
+        box-shadow: 0 0 0 2px var(--md-primary-soft);
+      }
+
       /* 没写描述就不占位置 */
       .item-desc:empty {
         display: none;
@@ -178,7 +212,8 @@
 
       /* 切到系统字体时挂在 body 上，这样「待分配区」和「排行榜区」的
          描述字体保持一致（导出区域是 body 的子节点，所以也跟着变） */
-      body.font-system .item-desc {
+      body.font-system .item-desc,
+      body.font-system .item-input {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
           "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
       }
@@ -324,8 +359,18 @@
             </div>
           </div>
 
-          <!-- 右侧控制栏：描述文字用哪种字体（放在 capture-area 外面，
-               所以不会被截进导出的图片里） -->
+        </div>
+
+        <!-- 待分配区 + 右侧的「描述字体」选择器
+             （选择器在 capture-area 外面，所以不会被截进导出的图片里） -->
+        <div class="pool-wrap">
+          <div class="pool-container" style="text-align: left">
+            <p class="md-label" style="margin-bottom: 12px">
+              待分配图片 · 移动端按住约 0.2 秒可拖动，按住 0.7 秒弹出菜单
+            </p>
+            <div id="pool" class="tier-list"></div>
+          </div>
+
           <aside class="board-side">
             <p class="md-label" style="margin: 0">描述字体</p>
             <select id="desc-font" aria-label="图片描述文字字体">
@@ -336,13 +381,6 @@
               右键图片可以「添加描述」或「删除」。描述显示在图片下方，拖动时跟着图片一起走，导出的图里也会带上。
             </p>
           </aside>
-        </div>
-
-        <div class="pool-container" style="text-align: left">
-          <p class="md-label" style="margin-bottom: 12px">
-            待分配图片 · 移动端长按约 0.2 秒即可拖动
-          </p>
-          <div id="pool" class="tier-list"></div>
         </div>
       </div>
 
@@ -449,6 +487,12 @@
       });
 
       ctxMenu.addEventListener("click", function (e) {
+        /* 长按弹菜单时手指正压在菜单上，抬手可能带出一个 click，
+           这里先吞掉，避免误触到「删除」 */
+        if (ignoreNextCtxClick) {
+          ignoreNextCtxClick = false;
+          return;
+        }
         var btn = e.target.closest ? e.target.closest("[data-act]") : null;
         if (!btn || !ctxCell) return;
 
@@ -462,17 +506,8 @@
           return;
         }
 
-        /* 添加描述：把文字写到图片下方的那一层里 */
-        if (act === "desc") {
-          var desc = cell.querySelector(".item-desc");
-          if (!desc) return;
-          var text = window.prompt(
-            "给这张图写个描述（留空表示清除）：",
-            desc.textContent || "",
-          );
-          if (text === null) return; /* 点了取消 */
-          desc.textContent = text.trim();
-        }
+        /* 添加描述：直接在图片下方开一个行内输入框，不再是浏览器弹窗 */
+        if (act === "desc") startDescEdit(cell);
       });
 
       /* 点别处 / 按 Esc / 滚动，都收掉菜单 */
@@ -484,6 +519,147 @@
       });
       window.addEventListener("scroll", closeCtxMenu, { passive: true });
       window.addEventListener("resize", closeCtxMenu);
+
+      /* ==========================================================
+         添加描述：在图片正下方开一个行内输入框
+         Enter 保存 / 点别处自动保存 / Esc 取消
+         ========================================================== */
+      function startDescEdit(cell) {
+        if (cell.querySelector(".item-input")) {
+          cell.querySelector(".item-input").focus();
+          return;
+        }
+        var desc = cell.querySelector(".item-desc");
+        if (!desc) return;
+
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "item-input";
+        input.value = desc.textContent || "";
+        input.placeholder = "写点描述";
+        input.maxLength = 60;
+        input.setAttribute("aria-label", "图片描述");
+
+        /* 插在图片和描述之间 —— 也就是「图片下方」 */
+        cell.insertBefore(input, desc);
+        input.focus();
+        try {
+          input.setSelectionRange(input.value.length, input.value.length);
+        } catch (err) {}
+
+        var done = false;
+        function commit(save) {
+          if (done) return;
+          done = true;
+          if (save) desc.textContent = input.value.trim();
+          if (input.parentNode) input.remove();
+        }
+
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commit(true);
+            input.blur();
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            commit(false);
+          }
+        });
+        /* 点到别处就保存 */
+        input.addEventListener("blur", function () {
+          commit(true);
+        });
+        /* 拖动、长按菜单都别在编辑时插一脚 */
+        input.addEventListener("pointerdown", function (e) {
+          e.stopPropagation();
+        });
+        input.addEventListener("contextmenu", function (e) {
+          e.stopPropagation();
+        });
+      }
+
+      /* 导出前先把没保存完的输入框落定，免得把输入框截进图里 */
+      function commitOpenEditors() {
+        Array.prototype.forEach.call(
+          document.querySelectorAll(".item-input"),
+          function (inp) {
+            inp.blur();
+          },
+        );
+      }
+
+      /* ==========================================================
+         移动端：按住不动 0.7 秒 = 弹出菜单
+         手指一旦移动超过 10px 就当成拖拽/滚动，立刻取消，
+         所以不会和「按住 0.2 秒拖动」的手势抢
+         ========================================================== */
+      var LONG_PRESS_MS = 700;
+      var LONG_PRESS_SLOP = 10; /* 允许的抖动像素 */
+      var pressTimer = null;
+      var pressOrigin = null;
+      var pressCell = null;
+      var ignoreNextCtxClick = false;
+
+      function clearLongPress() {
+        if (pressTimer) {
+          clearTimeout(pressTimer);
+          pressTimer = null;
+        }
+        pressOrigin = null;
+        pressCell = null;
+      }
+
+      document.addEventListener(
+        "touchstart",
+        function (e) {
+          /* 新手势开始，解除上一次的防误触 */
+          ignoreNextCtxClick = false;
+
+          var cell = e.target.closest ? e.target.closest(".item-wrap") : null;
+          if (!cell) return;
+          /* 编辑描述时不长按 */
+          if (e.target.classList && e.target.classList.contains("item-input")) {
+            return;
+          }
+          if (e.touches.length !== 1) return; /* 双指缩放等不处理 */
+
+          var t = e.touches[0];
+          pressCell = cell;
+          pressOrigin = { x: t.clientX, y: t.clientY };
+          if (pressTimer) clearTimeout(pressTimer);
+          pressTimer = setTimeout(function () {
+            pressTimer = null;
+            if (!pressCell || !pressOrigin) return;
+            openCtxMenu(pressOrigin.x, pressOrigin.y, pressCell);
+            /* 抬手可能带出 click，吞掉一次避免误触菜单项 */
+            ignoreNextCtxClick = true;
+            if (navigator.vibrate) navigator.vibrate(12);
+            pressCell = null;
+            pressOrigin = null;
+          }, LONG_PRESS_MS);
+        },
+        { passive: true },
+      );
+
+      document.addEventListener(
+        "touchmove",
+        function (e) {
+          if (!pressTimer || !pressOrigin) return;
+          var t = e.touches[0];
+          if (!t) return;
+          var dx = t.clientX - pressOrigin.x;
+          var dy = t.clientY - pressOrigin.y;
+          if (dx * dx + dy * dy > LONG_PRESS_SLOP * LONG_PRESS_SLOP) {
+            clearLongPress(); /* 在拖/滚，不是长按 */
+          }
+        },
+        { passive: true },
+      );
+
+      document.addEventListener("touchend", clearLongPress, { passive: true });
+      document.addEventListener("touchcancel", clearLongPress, {
+        passive: true,
+      });
 
       /* ==========================================================
          描述文字的字体：网站字体 / 系统字体
@@ -523,6 +699,9 @@
 
         btn.textContent = "生成中（4K 采样）...";
         btn.disabled = true;
+
+        /* 正在写描述的话先存下来，别把输入框截进图里 */
+        commitOpenEditors();
 
         try {
           await ensureHtml2Canvas();
