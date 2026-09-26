@@ -23,7 +23,8 @@ jobs:
           python-version: '3.11' # 使用更现代的 Python
 
       - name: Install dependencies
-        run: pip install requests
+        # pillow 用来把封面图缩小压扁（没有也能跑，只是不压缩）
+        run: pip install requests pillow
 
       - name: Run script
         env:
@@ -38,6 +39,8 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add steam.json
           git add assets/steam.js
+          # 图片本地缓存也一起提交（头像 + 各游戏封面）
+          git add assets/steam
           # 如果文件没有变化，commit 会跳过，不会报错
           git commit -m "Update Steam Status (CS2 included)" || exit 0
           git push
