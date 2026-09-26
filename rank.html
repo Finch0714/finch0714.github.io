@@ -38,7 +38,10 @@
     <style>
       /* 导出区域：白底，保证截图好看 */
       #capture-area {
-        width: 100%;
+        /* 用 flex 伸缩而不是 width:100%：这样右侧能留出字体选择器的位置，
+           窄屏放不下时选择器会自动换到下面一行 */
+        flex: 1 1 560px;
+        min-width: 0;
         max-width: 860px;
         background: #fff;
         border: 1px solid var(--md-outline-variant);
@@ -136,6 +139,129 @@
         gap: 8px;
         min-height: 96px;
       }
+
+      /* ---- 图片 + 描述 组合成「一格」 ----
+         每张图都包在 .item-wrap 里，描述写在图片下方。
+         拖动和删除针对的都是这一整格，所以描述会跟着图片一起移动。 */
+      .item-wrap {
+        width: 78px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        cursor: grab;
+      }
+
+      .item-wrap .item {
+        width: 100%;
+        cursor: inherit;
+      }
+
+      /* 图片下方的描述文字。字体由右侧选择器决定：
+         默认跟网站一致（霞鹜文楷），也可以切成系统字体 */
+      .item-desc {
+        width: 100%;
+        font-family: var(--md-font);
+        font-size: 11px;
+        line-height: 1.3;
+        font-weight: 500;
+        color: #1a1c1a;
+        text-align: center;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+      }
+
+      /* 没写描述就不占位置 */
+      .item-desc:empty {
+        display: none;
+      }
+
+      /* 切到系统字体时挂在 body 上，这样「待分配区」和「排行榜区」的
+         描述字体保持一致（导出区域是 body 的子节点，所以也跟着变） */
+      body.font-system .item-desc {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+      }
+
+      /* ---- 排行榜 + 右侧控制栏 ---- */
+      .board-wrap {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 18px;
+      }
+
+      .board-side {
+        /* 固定宽度：不给固定值的话，里面的说明文字会把它撑到 600px+，
+           结果被挤到排行榜下面去 */
+        flex: 0 0 176px;
+        width: 176px;
+        padding: 14px 16px;
+        background: var(--md-surface);
+        border: 1px solid var(--md-outline-variant);
+        border-radius: var(--md-r-md);
+        text-align: left;
+      }
+
+      .board-side select {
+        width: 100%;
+        margin-top: 8px;
+        padding: 8px 10px;
+        font: inherit;
+        font-size: 0.875rem;
+        color: var(--md-on-surface);
+        background: var(--md-surface);
+        border: 1px solid var(--md-outline);
+        border-radius: var(--md-r-sm);
+        cursor: pointer;
+      }
+
+      /* ---- 图片右键菜单 ---- */
+      .ctx-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 3000;
+        display: none;
+        min-width: 136px;
+        padding: 6px;
+        background: var(--md-surface);
+        border: 1px solid var(--md-outline-variant);
+        border-radius: var(--md-r-sm);
+        box-shadow: var(--md-e4);
+      }
+
+      .ctx-menu.is-open {
+        display: block;
+      }
+
+      .ctx-menu__item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 9px 12px;
+        font: inherit;
+        font-size: 0.875rem;
+        text-align: left;
+        color: var(--md-on-surface);
+        background: transparent;
+        border: none;
+        border-radius: var(--md-r-xs);
+        cursor: pointer;
+      }
+
+      .ctx-menu__item:hover {
+        background: var(--md-primary-soft);
+        color: var(--md-primary-dark);
+      }
+
+      .ctx-menu__item--danger:hover {
+        background: #fdecea;
+        color: var(--md-error);
+      }
     </style>
   </head>
 
@@ -174,7 +300,7 @@
           </button>
         </div>
 
-        <div style="width: 100%; display: flex; justify-content: center">
+        <div class="board-wrap">
           <div id="capture-area">
             <div class="tier-row">
               <div class="tier-label tier-夯">夯</div>
@@ -197,6 +323,19 @@
               <div class="tier-content tier-list"></div>
             </div>
           </div>
+
+          <!-- 右侧控制栏：描述文字用哪种字体（放在 capture-area 外面，
+               所以不会被截进导出的图片里） -->
+          <aside class="board-side">
+            <p class="md-label" style="margin: 0">描述字体</p>
+            <select id="desc-font" aria-label="图片描述文字字体">
+              <option value="site">网站字体（霞鹜文楷）</option>
+              <option value="system">系统字体</option>
+            </select>
+            <p class="md-body" style="margin: 12px 0 0; font-size: 0.8125rem">
+              右键图片可以「添加描述」或「删除」。描述显示在图片下方，拖动时跟着图片一起走，导出的图里也会带上。
+            </p>
+          </aside>
         </div>
 
         <div class="pool-container" style="text-align: left">
@@ -211,6 +350,16 @@
         <p style="margin: 0">© <span id="year"></span> Finch0714</p>
       </footer>
     </main>
+
+    <!-- 图片右键菜单（挂在 body 上，不在 capture-area 里，导出时不会带上它） -->
+    <div class="ctx-menu" id="ctx-menu" role="menu" aria-hidden="true">
+      <button class="ctx-menu__item" type="button" data-act="desc">
+        ✏️ 添加描述
+      </button>
+      <button class="ctx-menu__item ctx-menu__item--danger" type="button" data-act="del">
+        🗑️ 删除
+      </button>
+    </div>
 
     <script src="./assets/site.js"></script>
     <script src="./assets/nav.js"></script>
@@ -230,19 +379,142 @@
         });
       });
 
+      /* ==========================================================
+         每一格 = 图片 + 下方描述
+         包成 .item-wrap 之后再交给 Sortable，拖动/删除针对的都是整格，
+         描述自然会跟着图片一起移动；导出时也一起进截图。
+         ========================================================== */
+      function createCell(src) {
+        var wrap = document.createElement("div");
+        wrap.className = "item-wrap";
+
+        var img = document.createElement("img");
+        img.src = src;
+        img.className = "item";
+        img.alt = "";
+        /* 关掉浏览器原生的图片拖拽，免得跟 Sortable 的拖动打架 */
+        img.draggable = false;
+
+        var desc = document.createElement("div");
+        desc.className = "item-desc";
+
+        wrap.appendChild(img);
+        wrap.appendChild(desc);
+        return wrap;
+      }
+
       function handleFiles(files) {
         var pool = document.getElementById("pool");
         Array.prototype.forEach.call(files, function (file) {
           var reader = new FileReader();
           reader.onload = function (e) {
-            var img = document.createElement("img");
-            img.src = e.target.result;
-            img.className = "item";
-            pool.appendChild(img);
+            pool.appendChild(createCell(e.target.result));
           };
           reader.readAsDataURL(file);
         });
       }
+
+      /* ==========================================================
+         右键菜单：删除 / 添加描述
+         ========================================================== */
+      var ctxMenu = document.getElementById("ctx-menu");
+      var ctxCell = null; /* 当前右键点中的那一格 */
+
+      function openCtxMenu(x, y, cell) {
+        ctxCell = cell;
+        /* 先显示出来才量得到尺寸，才能判断会不会超出视口 */
+        ctxMenu.classList.add("is-open");
+        ctxMenu.setAttribute("aria-hidden", "false");
+
+        var r = ctxMenu.getBoundingClientRect();
+        var left = Math.max(8, Math.min(x, window.innerWidth - r.width - 8));
+        var top = Math.max(8, Math.min(y, window.innerHeight - r.height - 8));
+        ctxMenu.style.left = left + "px";
+        ctxMenu.style.top = top + "px";
+      }
+
+      function closeCtxMenu() {
+        if (!ctxMenu.classList.contains("is-open")) return;
+        ctxMenu.classList.remove("is-open");
+        ctxMenu.setAttribute("aria-hidden", "true");
+        ctxCell = null;
+      }
+
+      /* 只在图片上拦截右键；其他地方保留浏览器自带菜单 */
+      document.addEventListener("contextmenu", function (e) {
+        var cell = e.target.closest ? e.target.closest(".item-wrap") : null;
+        if (!cell) return;
+        e.preventDefault();
+        openCtxMenu(e.clientX, e.clientY, cell);
+      });
+
+      ctxMenu.addEventListener("click", function (e) {
+        var btn = e.target.closest ? e.target.closest("[data-act]") : null;
+        if (!btn || !ctxCell) return;
+
+        var act = btn.getAttribute("data-act");
+        var cell = ctxCell;
+        closeCtxMenu();
+
+        /* 删除：整格（图片 + 描述）一起去掉 */
+        if (act === "del") {
+          cell.remove();
+          return;
+        }
+
+        /* 添加描述：把文字写到图片下方的那一层里 */
+        if (act === "desc") {
+          var desc = cell.querySelector(".item-desc");
+          if (!desc) return;
+          var text = window.prompt(
+            "给这张图写个描述（留空表示清除）：",
+            desc.textContent || "",
+          );
+          if (text === null) return; /* 点了取消 */
+          desc.textContent = text.trim();
+        }
+      });
+
+      /* 点别处 / 按 Esc / 滚动，都收掉菜单 */
+      document.addEventListener("pointerdown", function (e) {
+        if (!ctxMenu.contains(e.target)) closeCtxMenu();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeCtxMenu();
+      });
+      window.addEventListener("scroll", closeCtxMenu, { passive: true });
+      window.addEventListener("resize", closeCtxMenu);
+
+      /* ==========================================================
+         描述文字的字体：网站字体 / 系统字体
+         切换的是 #capture-area 上的 class，导出时 html2canvas 会照搬，
+         所以效果图里的字体会跟着变。
+         ========================================================== */
+      var FONT_KEY = "rank-desc-font";
+      var fontSel = document.getElementById("desc-font");
+      var captureArea = document.getElementById("capture-area");
+
+      function applyDescFont(mode) {
+        /* 挂在 body 上，待分配区和排行榜区一起变 */
+        document.body.classList.toggle("font-system", mode === "system");
+      }
+
+      try {
+        var savedFont = localStorage.getItem(FONT_KEY);
+        if (savedFont === "site" || savedFont === "system") {
+          fontSel.value = savedFont;
+        }
+      } catch (err) {
+        /* 隐私模式下 localStorage 可能不可用，忽略即可 */
+      }
+      applyDescFont(fontSel.value);
+
+      fontSel.addEventListener("change", function () {
+        applyDescFont(fontSel.value);
+        try {
+          localStorage.setItem(FONT_KEY, fontSel.value);
+        } catch (err) {}
+      });
 
       async function downloadRank() {
         var area = document.getElementById("capture-area");
