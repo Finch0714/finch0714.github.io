@@ -1,0 +1,6 @@
+# 以下是生成/压缩过的第三方文件，格式化只会制造噪音（甚至改坏压缩代码）
+assets/lxgw-bright.css
+assets/sortable.min.js
+assets/html2canvas.min.js
+assets/steam/
+__pycache__/
