@@ -158,7 +158,9 @@
                 这些信息由你的浏览器本地读出，不上传、不保存。
               </p>
             </div>
-            <span class="md-chip md-chip--muted" id="visitor-summary">识别中…</span>
+            <span class="md-chip md-chip--muted" id="visitor-summary"
+              >识别中…</span
+            >
           </div>
           <div class="md-card md-card--elevated" style="padding: 6px 8px">
             <div class="md-list" id="visitor-list"></div>
@@ -486,7 +488,10 @@
         };
         var m;
         if ((m = ua.match(/Windows NT ([\d.]+)/))) {
-          out.os = { name: "Windows", version: m[1] === "10.0" ? "10 / 11" : m[1] };
+          out.os = {
+            name: "Windows",
+            version: m[1] === "10.0" ? "10 / 11" : m[1],
+          };
         } else if ((m = ua.match(/Android ([\d.]+)/))) {
           out.os = { name: "Android", version: m[1] };
         } else if (/iPhone|iPad|iPod/.test(ua)) {
@@ -560,7 +565,8 @@
         var bVer = b && b.version ? " " + String(b.version).split(".")[0] : "";
         var oName = (o && o.name) || "";
         var oVer = o && o.version ? " " + o.version : "";
-        var devType = d && d.type && TYPES[d.type] ? TYPES[d.type][0] : "🖥️ 桌面";
+        var devType =
+          d && d.type && TYPES[d.type] ? TYPES[d.type][0] : "🖥️ 桌面";
         var devTypePlain =
           d && d.type && TYPES[d.type] ? TYPES[d.type][1] : "桌面";
         var model =
@@ -595,7 +601,10 @@
           var h = Math.floor(abs);
           var mm = Math.round((abs - h) * 60);
           var tail =
-            "UTC" + (off >= 0 ? "+" : "-") + h + (mm ? ":" + (mm < 10 ? "0" : "") + mm : "");
+            "UTC" +
+            (off >= 0 ? "+" : "-") +
+            h +
+            (mm ? ":" + (mm < 10 ? "0" : "") + mm : "");
           return (name ? name + "（" : "（") + tail + "）";
         });
 
@@ -628,7 +637,10 @@
           engineText = parsed.engine.name;
         } else if (/Gecko\/\d/.test(ua) && !/like Gecko/.test(ua)) {
           engineText = "Gecko";
-        } else if (/AppleWebKit/.test(ua) && /Chrome|Chromium|Edg|OPR/.test(ua)) {
+        } else if (
+          /AppleWebKit/.test(ua) &&
+          /Chrome|Chromium|Edg|OPR/.test(ua)
+        ) {
           engineText = "Blink";
         } else if (/AppleWebKit/.test(ua)) {
           engineText = "WebKit";
@@ -642,7 +654,11 @@
         var osText;
         if (/windows/i.test(oName) || /Windows/.test(ua)) {
           var major = null;
-          if (uaCh && /windows/i.test(uaCh.platform || "") && uaCh.platformVersion) {
+          if (
+            uaCh &&
+            /windows/i.test(uaCh.platform || "") &&
+            uaCh.platformVersion
+          ) {
             major = parseInt(String(uaCh.platformVersion).split(".")[0], 10);
           }
           if (major !== null && !isNaN(major)) {
@@ -684,7 +700,9 @@
             bits = bits || "32";
           }
         }
-        var archText = arch ? arch + (bits ? "（" + bits + " 位）" : "") : "未知";
+        var archText = arch
+          ? arch + (bits ? "（" + bits + " 位）" : "")
+          : "未知";
 
         var gpu = getGpu();
         var gpuText = gpu.model || gpu.vendor || "未知";
@@ -702,13 +720,17 @@
           if (battery.charging) {
             var ct =
               battery.chargingTime > 0 && isFinite(battery.chargingTime)
-                ? "（约 " + Math.round(battery.chargingTime / 60) + " 分钟充满）"
+                ? "（约 " +
+                  Math.round(battery.chargingTime / 60) +
+                  " 分钟充满）"
                 : "";
             battText = "充电中" + (lv ? " " + lv : "") + ct;
           } else {
             var dt =
               battery.dischargingTime > 0 && isFinite(battery.dischargingTime)
-                ? "（约 " + Math.round(battery.dischargingTime / 60) + " 分钟可用）"
+                ? "（约 " +
+                  Math.round(battery.dischargingTime / 60) +
+                  " 分钟可用）"
                 : "";
             battText = (lv ? lv + " " : "") + "放电中" + dt;
           }
@@ -774,7 +796,9 @@
       loadUAParser(0, function () {
         renderVisitor(); /* UAParser 到位后再用更准的结果覆盖一次 */
       });
-      collectUaCh(renderVisitor); /* UA-CH 到位后补上 Windows 版本 / 架构 / 位数 */
+      collectUaCh(
+        renderVisitor,
+      ); /* UA-CH 到位后补上 Windows 版本 / 架构 / 位数 */
       collectBattery(renderVisitor); /* 电池信息到位后补上 */
 
       document.getElementById("year").textContent = new Date().getFullYear();
