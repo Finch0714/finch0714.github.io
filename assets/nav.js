@@ -82,7 +82,7 @@
 
   /* ---------- 顶部应用栏 ---------- */
   function buildAppbar() {
-    var logo = site.avatar || "./avatar.jpg";
+    var logo = site.avatar || "./assets/avatar-160.jpg";
     var links = features
       .map(function (f, i) {
         var ext = f.external ? ' target="_blank" rel="noopener"' : "";

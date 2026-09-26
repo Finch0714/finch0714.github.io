@@ -8,13 +8,13 @@
       name="description"
       content="拖拽排序生成「夯 → 拉完了」五档排行榜，一键导出 4K 高清图。"
     />
-    <link rel="icon" type="image/png" href="Favicon.png" />
-    <!-- 拖拽要立刻可用，所以 defer 加载；html2canvas 只有点「保存高清图」才需要，
-         改成点击时按需加载，别让它拖住整个页面 -->
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
-    ></script>
+    <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <!-- 依赖已全部自托管：原来走 jsdelivr，国内经常连不上，
+         一旦拉不到，拖拽和导出就直接瘫痪（不是变慢，是不能用）。
+         拖拽要立刻可用所以 defer 加载；html2canvas 只有点「保存高清图」才需要，
+         仍然是点击时按需加载，不拖累首屏 -->
+    <script defer src="./assets/sortable.min.js"></script>
     <link rel="stylesheet" href="./assets/md.css" />
     <!-- 字体：霞鹜文楷 Bright Medium（中文网字计划 CDN，按 unicode-range 分片）
          非阻塞加载：media=print 先挂起，下载完自动切回 all，不挡首屏绘制 -->
@@ -743,8 +743,7 @@
         return new Promise(function (resolve, reject) {
           if (typeof html2canvas !== "undefined") return resolve();
           var s = document.createElement("script");
-          s.src =
-            "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
+          s.src = "./assets/html2canvas.min.js";
           s.onload = function () {
             resolve();
           };
