@@ -37,54 +37,38 @@
   <body>
     <main class="md-page">
       <div class="md-container">
-        <section class="md-hero md-anim">
-          <span class="md-hero__badge"><span class="md-dot"></span>STEAM</span>
-          <h1 class="md-display md-hero__title">我的游戏库</h1>
-          <p class="md-hero__desc">
-            数据由 GitHub Actions 每天自动同步一次，按游玩时长从高到低排列。
-          </p>
-        </section>
-
-        <!-- 概览 -->
-        <section
-          class="md-card md-card--elevated md-reveal"
-          style="margin-top: 28px"
-        >
-          <div class="md-row" style="gap: 24px; align-items: center">
-            <img
-              id="user-avatar"
-              src=""
-              alt="头像"
-              style="
-                width: 96px;
-                height: 96px;
-                border-radius: 50%;
-                object-fit: cover;
-                box-shadow: 0 0 0 3px var(--md-primary-container);
-                background: var(--md-surface-container);
-              "
-            />
-            <div style="flex: 1; min-width: 200px">
-              <h2 class="md-headline" id="user-name">加载中...</h2>
-              <div class="md-row" style="gap: 28px; margin-top: 10px">
-                <div>
-                  <p class="md-label">总游戏数</p>
-                  <b class="md-mono" id="game-count" style="font-size: 1.35rem"
-                    >--</b
-                  >
-                </div>
-                <div>
-                  <p class="md-label">累计时长</p>
-                  <b class="md-mono" id="total-hours" style="font-size: 1.35rem"
-                    >--</b
-                  >
-                </div>
-                <div>
-                  <p class="md-label">最后更新</p>
-                  <b class="md-mono" id="update-time" style="font-size: 1.05rem"
-                    >--</b
-                  >
-                </div>
+        <section class="md-hero md-anim steam-hero">
+          <!-- 初始 src 用 1x1 透明占位图：空 src="" 会立刻触发 onerror，
+               那样头像会被永久隐藏，等 JS 填上真实地址也救不回来。
+               真实地址由页面脚本从 steam.js 写入。 -->
+          <img
+            id="user-avatar"
+            class="steam-hero__avatar"
+            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+            alt="Steam 头像"
+            width="128"
+            height="128"
+            onload="this.classList.remove('is-broken')"
+            onerror="this.classList.add('is-broken')"
+          />
+          <div class="steam-hero__meta">
+            <span class="md-hero__badge"><span class="md-dot"></span>STEAM</span>
+            <h1 class="md-display md-hero__title" id="user-name">加载中…</h1>
+            <p class="md-hero__desc">
+              数据由 GitHub Actions 每天自动同步一次，按游玩时长从高到低排列。
+            </p>
+            <div class="steam-hero__stats">
+              <div class="steam-stat">
+                <p class="md-label">总游戏数</p>
+                <b class="md-mono" id="game-count">--</b>
+              </div>
+              <div class="steam-stat">
+                <p class="md-label">累计时长</p>
+                <b class="md-mono" id="total-hours">--</b>
+              </div>
+              <div class="steam-stat">
+                <p class="md-label">最后更新</p>
+                <b class="md-mono" id="update-time">--</b>
               </div>
             </div>
           </div>

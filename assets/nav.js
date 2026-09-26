@@ -268,6 +268,10 @@
     initScrollShadow();
     initDrawer();
     initRipple();
+    /* 页面里静态写死的 .md-reveal 元素也要登记进来。
+       以前这里漏了这句，导致静态卡片永远拿不到 is-visible：
+       .md-js .md-reveal 的 opacity:0 会让它「隐形但占位」，页面上就是一块空白。 */
+    reveal();
     document.documentElement.classList.add("md-ready");
   }
 

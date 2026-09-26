@@ -911,6 +911,64 @@ p {
 }
 
 /* --------------------------------------------------------------------------
+   Steam 页顶部个人资料（头像 + 用户名 + 统计数据）
+   尺寸全部用 clamp()：小屏取小值、桌面取大值，中间连续过渡，
+   所以手机 / 平板 / 桌面都不用另外写断点
+   -------------------------------------------------------------------------- */
+.steam-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(16px, 2.4vw, 32px);
+}
+
+.steam-hero__avatar {
+  flex-shrink: 0;
+  width: clamp(88px, 3vw + 74px, 128px);
+  height: clamp(88px, 3vw + 74px, 128px);
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--md-surface-container);
+  /* 三层环：白色内圈 + 浅绿外圈 + 柔和投影，跟重构前那个 avatar-frame 一个意思 */
+  box-shadow:
+    0 0 0 4px var(--md-surface),
+    0 0 0 7px var(--md-primary-container),
+    var(--md-e3);
+}
+
+/* 头像加载失败时不显示破图 */
+.steam-hero__avatar.is-broken {
+  visibility: hidden;
+}
+
+.steam-hero__meta {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+/* 用户名：跟着视口缩放，别在小屏上撑破一行 */
+.steam-hero__meta .md-hero__title {
+  font-size: clamp(1.6rem, 2.4vw + 1.05rem, 2.6rem);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.steam-hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(18px, 3vw, 44px);
+}
+
+.steam-stat .md-label {
+  margin: 0 0 2px;
+}
+
+.steam-stat b {
+  font-size: clamp(1.05rem, 0.5vw + 0.92rem, 1.35rem);
+  color: var(--md-on-surface);
+}
+
+/* --------------------------------------------------------------------------
    15. 水波纹 (Ripple)
    -------------------------------------------------------------------------- */
 .md-ripple {
@@ -994,6 +1052,22 @@ p {
 @media (max-width: 720px) {
   .md-container {
     padding: 0 18px;
+  }
+  /* Steam 页个人资料：手机上头像在上、文字居中 */
+  .steam-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+  .steam-hero__meta {
+    flex-basis: auto;
+    width: 100%;
+  }
+  .steam-hero__meta .md-hero__desc {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .steam-hero__stats {
+    justify-content: center;
   }
   .md-page {
     padding-top: calc(var(--md-appbar-h) + 22px);
