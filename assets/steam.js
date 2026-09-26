@@ -1,78 +1,78 @@
 /* 由 update_steam.py 自动生成，请勿手改。*/
 window.STEAM_DATA = {
-  "name": "苏通666",
-  "avatar": "./assets/steam/avatar.jpg",
-  "state": 0,
-  "game_ingame": null,
-  "total_hours": 962.6,
-  "game_count": 11,
-  "updated_at": 1790347642,
-  "games_list": [
+  name: "苏通666",
+  avatar: "./assets/steam/avatar.jpg",
+  state: 0,
+  game_ingame: null,
+  total_hours: 962.6,
+  game_count: 11,
+  updated_at: 1790347642,
+  games_list: [
     {
-      "appid": "manual_02",
-      "name": "Minecraft Java Edition",
-      "playtime": 839,
-      "icon": "./assets/steam/manual_02.jpg"
+      appid: "manual_02",
+      name: "Minecraft Java Edition",
+      playtime: 839,
+      icon: "./assets/steam/manual_02.jpg",
     },
     {
-      "appid": "manual_01",
-      "name": "Cyberpunk 2077",
-      "playtime": 61,
-      "icon": "./assets/steam/manual_01.jpg"
+      appid: "manual_01",
+      name: "Cyberpunk 2077",
+      playtime: 61,
+      icon: "./assets/steam/manual_01.jpg",
     },
     {
-      "appid": 730,
-      "name": "Counter-Strike 2",
-      "playtime": 28.2,
-      "icon": "./assets/steam/730.jpg"
+      appid: 730,
+      name: "Counter-Strike 2",
+      playtime: 28.2,
+      icon: "./assets/steam/730.jpg",
     },
     {
-      "appid": 271590,
-      "name": "Grand Theft Auto V Legacy",
-      "playtime": 19.3,
-      "icon": "./assets/steam/271590.jpg"
+      appid: 271590,
+      name: "Grand Theft Auto V Legacy",
+      playtime: 19.3,
+      icon: "./assets/steam/271590.jpg",
     },
     {
-      "appid": 431960,
-      "name": "Wallpaper Engine",
-      "playtime": 7.4,
-      "icon": "./assets/steam/431960.jpg"
+      appid: 431960,
+      name: "Wallpaper Engine",
+      playtime: 7.4,
+      icon: "./assets/steam/431960.jpg",
     },
     {
-      "appid": 420530,
-      "name": "OneShot",
-      "playtime": 3.5,
-      "icon": "./assets/steam/420530.jpg"
+      appid: 420530,
+      name: "OneShot",
+      playtime: 3.5,
+      icon: "./assets/steam/420530.jpg",
     },
     {
-      "appid": 2567870,
-      "name": "Chained Together",
-      "playtime": 1.3,
-      "icon": "./assets/steam/2567870.jpg"
+      appid: 2567870,
+      name: "Chained Together",
+      playtime: 1.3,
+      icon: "./assets/steam/2567870.jpg",
     },
     {
-      "appid": 413150,
-      "name": "Stardew Valley",
-      "playtime": 0.9,
-      "icon": "./assets/steam/413150.jpg"
+      appid: 413150,
+      name: "Stardew Valley",
+      playtime: 0.9,
+      icon: "./assets/steam/413150.jpg",
     },
     {
-      "appid": 438100,
-      "name": "VRChat",
-      "playtime": 0.9,
-      "icon": "./assets/steam/438100.jpg"
+      appid: 438100,
+      name: "VRChat",
+      playtime: 0.9,
+      icon: "./assets/steam/438100.jpg",
     },
     {
-      "appid": 2358720,
-      "name": "Black Myth: Wukong",
-      "playtime": 0.6,
-      "icon": "./assets/steam/2358720.jpg"
+      appid: 2358720,
+      name: "Black Myth: Wukong",
+      playtime: 0.6,
+      icon: "./assets/steam/2358720.jpg",
     },
     {
-      "appid": 578080,
-      "name": "PUBG: BATTLEGROUNDS",
-      "playtime": 0.5,
-      "icon": "./assets/steam/578080.jpg"
-    }
-  ]
+      appid: 578080,
+      name: "PUBG: BATTLEGROUNDS",
+      playtime: 0.5,
+      icon: "./assets/steam/578080.jpg",
+    },
+  ],
 };

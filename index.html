@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SYSTEM ACCESS | THE MACHINE</title>
     <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
-<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <!-- 原来这里加载的是 Tailwind 的 Play CDN（cdn.tailwindcss.com）——
          那是「浏览器内实时编译」版，实测 398KB，官方明确标注不要用于生产：
          它会阻塞解析、然后在浏览器里现场编译 CSS，首屏要 2 秒多。
@@ -64,59 +64,152 @@
 
       /* ---- 本页用到的工具类 ---- */
       /* 布局 */
-      .absolute { position: absolute; }
-      .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-      .flex { display: flex; }
-      .hidden { display: none; }
-      .items-center { align-items: center; }
-      .justify-between { justify-content: space-between; }
-      .justify-center { justify-content: center; }
+      .absolute {
+        position: absolute;
+      }
+      .inset-0 {
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+      .flex {
+        display: flex;
+      }
+      .hidden {
+        display: none;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .justify-center {
+        justify-content: center;
+      }
 
       /* 尺寸 */
-      .w-full { width: 100%; }
-      .w-0 { width: 0; }
-      .h-full { height: 100%; }
-      .h-1 { height: 0.25rem; }
+      .w-full {
+        width: 100%;
+      }
+      .w-0 {
+        width: 0;
+      }
+      .h-full {
+        height: 100%;
+      }
+      .h-1 {
+        height: 0.25rem;
+      }
 
       /* 间距 */
-      .mt-4 { margin-top: 1rem; }
-      .mt-12 { margin-top: 3rem; }
-      .pt-6 { padding-top: 1.5rem; }
-      .pb-2 { padding-bottom: 0.5rem; }
-      .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
-      .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-      .space-y-1 > * + * { margin-top: 0.25rem; }
-      .space-y-2 > * + * { margin-top: 0.5rem; }
-      .space-y-6 > * + * { margin-top: 1.5rem; }
+      .mt-4 {
+        margin-top: 1rem;
+      }
+      .mt-12 {
+        margin-top: 3rem;
+      }
+      .pt-6 {
+        padding-top: 1.5rem;
+      }
+      .pb-2 {
+        padding-bottom: 0.5rem;
+      }
+      .px-2 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+      .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+      }
+      .space-y-1 > * + * {
+        margin-top: 0.25rem;
+      }
+      .space-y-2 > * + * {
+        margin-top: 0.5rem;
+      }
+      .space-y-6 > * + * {
+        margin-top: 1.5rem;
+      }
 
       /* 文字 */
-      .text-\[9px\] { font-size: 9px; }
-      .text-\[10px\] { font-size: 10px; }
-      .text-xs { font-size: 0.75rem; line-height: 1rem; }
-      .text-2xl { font-size: 1.5rem; line-height: 2rem; }
-      .font-bold { font-weight: 700; }
-      .italic { font-style: italic; }
-      .uppercase { text-transform: uppercase; }
-      .text-center { text-align: center; }
-      .tracking-tighter { letter-spacing: -0.05em; }
-      .tracking-wider { letter-spacing: 0.05em; }
-      .tracking-widest { letter-spacing: 0.1em; }
-      .tracking-\[0\.2em\] { letter-spacing: 0.2em; }
+      .text-\[9px\] {
+        font-size: 9px;
+      }
+      .text-\[10px\] {
+        font-size: 10px;
+      }
+      .text-xs {
+        font-size: 0.75rem;
+        line-height: 1rem;
+      }
+      .text-2xl {
+        font-size: 1.5rem;
+        line-height: 2rem;
+      }
+      .font-bold {
+        font-weight: 700;
+      }
+      .italic {
+        font-style: italic;
+      }
+      .uppercase {
+        text-transform: uppercase;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .tracking-tighter {
+        letter-spacing: -0.05em;
+      }
+      .tracking-wider {
+        letter-spacing: 0.05em;
+      }
+      .tracking-widest {
+        letter-spacing: 0.1em;
+      }
+      .tracking-\[0\.2em\] {
+        letter-spacing: 0.2em;
+      }
 
       /* 颜色 */
-      .text-white { color: #fff; }
-      .text-black { color: #000; }
-      .text-red-500 { color: #ef4444; }
-      .text-yellow-500 { color: #eab308; }
-      .text-gray-500 { color: #6b7280; }
-      .bg-red-600 { background-color: #dc2626; }
-      .bg-gray-900 { background-color: #111827; }
+      .text-white {
+        color: #fff;
+      }
+      .text-black {
+        color: #000;
+      }
+      .text-red-500 {
+        color: #ef4444;
+      }
+      .text-yellow-500 {
+        color: #eab308;
+      }
+      .text-gray-500 {
+        color: #6b7280;
+      }
+      .bg-red-600 {
+        background-color: #dc2626;
+      }
+      .bg-gray-900 {
+        background-color: #111827;
+      }
 
       /* 描边 */
-      .border { border-width: 1px; }
-      .border-b { border-bottom-width: 1px; }
-      .border-red-600 { border-color: #dc2626; }
-      .border-red-900 { border-color: #7f1d1d; }
+      .border {
+        border-width: 1px;
+      }
+      .border-b {
+        border-bottom-width: 1px;
+      }
+      .border-red-600 {
+        border-color: #dc2626;
+      }
+      .border-red-900 {
+        border-color: #7f1d1d;
+      }
 
       /* 动效 */
       .transition-all {
@@ -124,16 +217,29 @@
         transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
         transition-duration: 150ms;
       }
-      .duration-700 { transition-duration: 700ms; }
-      .animate-pulse { animation: tw-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+      .duration-700 {
+        transition-duration: 700ms;
+      }
+      .animate-pulse {
+        animation: tw-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
       @keyframes tw-pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
       }
 
       /* 交互态 */
-      .hover\:bg-red-600:hover { background-color: #dc2626; }
-      .active\:scale-95:active { transform: scale(0.95); }
+      .hover\:bg-red-600:hover {
+        background-color: #dc2626;
+      }
+      .active\:scale-95:active {
+        transform: scale(0.95);
+      }
     </style>
     <style>
       :root {
