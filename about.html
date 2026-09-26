@@ -316,62 +316,32 @@
          绝不能挂在关键路径上：等页面 load 完、空闲了再拉，否则会把
          整个页面的「加载完成」拖到 1.5 秒，访客会觉得网站很慢。
 
-         还有一点：官方域名 busuanzi.ibruce.info 在国内时不时连不上，
-         一旦连不上页脚就永远是「—」。所以备了个用法完全兼容的
-         Vercount（写的是同一批 busuanzi_value_* 元素），
-         官方拿不到数字就自动换它再试一次。 */
-      var BS_SOURCES = [
-        "https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",
-        "https://events.vercount.one/js",
-      ];
-      var BS_IDS = ["busuanzi_value_site_pv", "busuanzi_value_site_uv"];
-
-      function bsHasNumber() {
-        return BS_IDS.some(function (id) {
-          var el = document.getElementById(id);
-          return el && /\d/.test(el.textContent);
-        });
-      }
-
-      function loadBusuanzi(i) {
-        if (i >= BS_SOURCES.length) {
-          /* 都没拿到，就保留占位符，别一直空着 */
-          BS_IDS.forEach(function (id) {
-            var el = document.getElementById(id);
-            if (el && !/\d/.test(el.textContent)) el.textContent = "—";
-          });
-          return;
-        }
-
-        var settled = false;
-        function giveUp() {
-          if (settled) return;
-          settled = true;
-          loadBusuanzi(i + 1);
-        }
-
+         注意：就只用 busuanzi 一家。曾经试过「官方拿不到数据就切到
+         另一个统计服务」的兜底，但各家计数是独立数据库、数值对不上，
+         一换就显示成别家的低数字，看起来像访客掉了。宁可显示「—」。 */
+      function loadBusuanzi() {
         var s = document.createElement("script");
-        s.src = BS_SOURCES[i];
+        s.src =
+          "https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js";
         s.async = true;
-        s.onerror = giveUp; /* 域名根本不通，脚本都没下来，立刻换 */
         document.body.appendChild(s);
 
-        /* 脚本下来了、但接口一直不吐数字，也给 4 秒 */
+        /* 还是拿不到数据就显示占位符，别一直空着 */
         setTimeout(function () {
-          if (bsHasNumber()) settled = true;
-          else giveUp();
-        }, 4000);
+          ["busuanzi_value_site_pv", "busuanzi_value_site_uv"].forEach(
+            function (id) {
+              var el = document.getElementById(id);
+              if (el && !/\d/.test(el.textContent)) el.textContent = "—";
+            },
+          );
+        }, 3000);
       }
 
       if (document.readyState === "complete") {
-        setTimeout(function () {
-          loadBusuanzi(0);
-        }, 400);
+        setTimeout(loadBusuanzi, 400);
       } else {
         window.addEventListener("load", function () {
-          setTimeout(function () {
-            loadBusuanzi(0);
-          }, 400);
+          setTimeout(loadBusuanzi, 400);
         });
       }
 
