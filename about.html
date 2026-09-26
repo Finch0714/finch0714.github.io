@@ -365,6 +365,10 @@
         "https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.37/dist/ua-parser.min.js",
       ];
 
+      /* UA-CH 和电池都是异步 API，拿到结果后要重渲染一次 */
+      var uaCh = null;
+      var battery = null;
+
       function loadUAParser(i, done) {
         if (window.UAParser) return done(true);
         if (i >= UA_CDNS.length) return done(false);
@@ -378,6 +382,99 @@
           loadUAParser(i + 1, done);
         };
         document.head.appendChild(s);
+      }
+
+      /* 显卡：WebGL 的调试扩展会把真实渲染器暴露出来，例如
+         "ANGLE (NVIDIA, NVIDIA GeForce RTX 2060 SUPER (0x00001F06) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+         拿不到（隐私模式、禁用 WebGL、Firefox 的部分配置）就返回空，由调用方显示「未知」。 */
+      function detectGpu() {
+        var out = { vendor: "", model: "" };
+        var gl = null;
+        try {
+          var cv = document.createElement("canvas");
+          gl = cv.getContext("webgl") || cv.getContext("experimental-webgl");
+          if (!gl) return out;
+          var ext = gl.getExtension("WEBGL_debug_renderer_info");
+          if (!ext) return out;
+          var raw = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || "");
+          if (!raw) return out;
+          /* 拿到字符串就立刻释放上下文：浏览器对同时存在的 WebGL 上下文有数量上限
+             （十几个），反复创建会触发「上下文丢失」告警 */
+          var lose = gl.getExtension("WEBGL_lose_context");
+          if (lose) lose.loseContext();
+          gl = null;
+          /* 剥掉 ANGLE(...) 外壳，再按逗号拆成「厂家, 型号+驱动后端, 图形 API」 */
+          var parts = raw
+            .replace(/^ANGLE\s*\((.*)\)\s*$/, "$1")
+            .split(",")
+            .map(function (s) {
+              return s.trim();
+            });
+          out.vendor = parts.length > 1 ? parts[0] : "";
+          /* 型号取最长的那段，再抹掉设备号 / 驱动后端 / 总线后缀 */
+          var best = "";
+          parts.forEach(function (p) {
+            if (p.length > best.length) best = p;
+          });
+          out.model = best
+            .replace(/\s*\(0x[0-9A-Fa-f]{4,}\)?/g, "")
+            .replace(/\s+(Direct3D|OpenGL|Vulkan|Metal|D3D)[\d.]*/gi, "")
+            .replace(/\s+(vs|ps)_[\d_]+/gi, "")
+            .replace(/\/(PCIe|SSE\d?)$/i, "")
+            .trim();
+        } catch (e) {
+          /* 隐私模式 / 禁用 WebGL 时可能直接抛异常，静默降级 */
+        }
+        return out;
+      }
+
+      /* UA-CH 高熵值：Windows 具体版本、CPU 架构、位数 —— 纯 UA 拿不到这些 */
+      function collectUaCh(done) {
+        var d = navigator.userAgentData;
+        if (!d || !d.getHighEntropyValues) return done();
+        try {
+          d.getHighEntropyValues(["platformVersion", "architecture", "bitness"])
+            .then(function (h) {
+              uaCh = h || {};
+              uaCh.platform = d.platform;
+              done();
+            })
+            .catch(function () {
+              done();
+            });
+        } catch (e) {
+          done();
+        }
+      }
+
+      /* 电池：只有 Chrome 系有 getBattery，其它浏览器直接跳过 */
+      function collectBattery(done) {
+        if (!navigator.getBattery) return done();
+        try {
+          navigator
+            .getBattery()
+            .then(function (b) {
+              battery = b;
+              /* 插拔电源、电量变化时自动刷新 */
+              if (b.addEventListener) {
+                b.addEventListener("levelchange", renderVisitor);
+                b.addEventListener("chargingchange", renderVisitor);
+              }
+              done();
+            })
+            .catch(function () {
+              done();
+            });
+        } catch (e) {
+          done();
+        }
+      }
+
+      /* 显卡在本次访问里不会变，检测一次就够了（顺便避免重复建 WebGL 上下文） */
+      var gpuCache = null;
+      function getGpu() {
+        if (!gpuCache) gpuCache = detectGpu();
+        return gpuCache;
       }
 
       /* UAParser 拿不到时的极简兜底：只认最常见的几种，够用就行 */
@@ -525,17 +622,114 @@
           );
         });
 
+        /* 浏览器内核 */
+        var engineText = "未知";
+        if (parsed && parsed.engine && parsed.engine.name) {
+          engineText = parsed.engine.name;
+        } else if (/Gecko\/\d/.test(ua) && !/like Gecko/.test(ua)) {
+          engineText = "Gecko";
+        } else if (/AppleWebKit/.test(ua) && /Chrome|Chromium|Edg|OPR/.test(ua)) {
+          engineText = "Blink";
+        } else if (/AppleWebKit/.test(ua)) {
+          engineText = "WebKit";
+        }
+
+        /* 操作系统：Windows 要特别处理 —— Win11 在 UA 里把自己报成
+           "Windows NT 10.0"，和 Win10 一模一样（微软刻意冻结的），纯 UA 只能读出 Win10。
+           只有 Chrome / Edge 支持的 UA-CH platformVersion 能区分：
+           1~10 = Windows 10，13 及以上 = Windows 11（微软官方规则）。
+           Firefox / Safari 拿不到这条线索，就如实写「Windows 10 / 11」，不瞎猜。 */
+        var osText;
+        if (/windows/i.test(oName) || /Windows/.test(ua)) {
+          var major = null;
+          if (uaCh && /windows/i.test(uaCh.platform || "") && uaCh.platformVersion) {
+            major = parseInt(String(uaCh.platformVersion).split(".")[0], 10);
+          }
+          if (major !== null && !isNaN(major)) {
+            if (major >= 13) osText = "Windows 11";
+            else if (major >= 1) osText = "Windows 10";
+            else osText = "Windows 7 / 8 / 8.1";
+          } else {
+            osText = "Windows 10 / 11";
+          }
+        } else {
+          osText = oName ? oName + oVer : "未知";
+        }
+
+        /* CPU 架构 / 位数：优先 UA-CH，UA 兜底 */
+        var arch = "";
+        var bits = "";
+        if (uaCh) {
+          arch =
+            { x86: "x86", arm: "ARM" }[uaCh.architecture] ||
+            uaCh.architecture ||
+            "";
+          bits = uaCh.bitness || "";
+        }
+        if (!arch) {
+          if (/aarch64|arm64/i.test(ua)) {
+            arch = "ARM64";
+            bits = bits || "64";
+          } else if (/armv\d+/i.test(ua)) {
+            arch = "ARM32";
+            bits = bits || "32";
+          } else if (/loongarch/i.test(ua)) {
+            arch = "LoongArch";
+            bits = bits || "64";
+          } else if (/x64|x86_64|Win64|WOW64/i.test(ua)) {
+            arch = "x86";
+            bits = bits || "64";
+          } else if (/x86|Win32|i686/i.test(ua)) {
+            arch = "x86";
+            bits = bits || "32";
+          }
+        }
+        var archText = arch ? arch + (bits ? "（" + bits + " 位）" : "") : "未知";
+
+        var gpu = getGpu();
+        var gpuText = gpu.model || gpu.vendor || "未知";
+
+        var depthText = safeValue(function () {
+          return screen.colorDepth ? screen.colorDepth + " 位" : "";
+        });
+
+        var battText = "未知";
+        if (battery) {
+          var lv =
+            typeof battery.level === "number"
+              ? Math.round(battery.level * 100) + "%"
+              : "";
+          if (battery.charging) {
+            var ct =
+              battery.chargingTime > 0 && isFinite(battery.chargingTime)
+                ? "（约 " + Math.round(battery.chargingTime / 60) + " 分钟充满）"
+                : "";
+            battText = "充电中" + (lv ? " " + lv : "") + ct;
+          } else {
+            var dt =
+              battery.dischargingTime > 0 && isFinite(battery.dischargingTime)
+                ? "（约 " + Math.round(battery.dischargingTime / 60) + " 分钟可用）"
+                : "";
+            battText = (lv ? lv + " " : "") + "放电中" + dt;
+          }
+        }
+
         var rows = [
           ["🌐", "浏览器", bName ? bName + bVer : "未知"],
-          ["💻", "操作系统", oName ? oName + oVer : "未知"],
+          ["🧩", "浏览器内核", engineText],
+          ["💻", "操作系统", osText],
           ["📟", "设备类型", devType],
           ["🏷️", "厂商 / 型号", model],
+          ["🎮", "显卡", gpuText],
           ["🖥️", "屏幕分辨率", screenText],
+          ["🎨", "屏幕色深", depthText],
           ["🗣️", "浏览器语言", langText],
           ["🕐", "时区", tzText],
           ["⚙️", "CPU 核心数", coreText],
+          ["🧮", "CPU 架构", archText],
           ["🧠", "设备内存", memText],
           ["📶", "网络类型", netText],
+          ["🔋", "电池", battText],
           ["👆", "是否移动设备", isMobile ? "是" : "否"],
         ];
 
@@ -543,7 +737,7 @@
           rows: rows,
           summary: [
             bName ? bName + bVer : "未知浏览器",
-            oName || "未知系统",
+            osText,
             devTypePlain,
           ].join(" · "),
         };
@@ -580,6 +774,8 @@
       loadUAParser(0, function () {
         renderVisitor(); /* UAParser 到位后再用更准的结果覆盖一次 */
       });
+      collectUaCh(renderVisitor); /* UA-CH 到位后补上 Windows 版本 / 架构 / 位数 */
+      collectBattery(renderVisitor); /* 电池信息到位后补上 */
 
       document.getElementById("year").textContent = new Date().getFullYear();
 
