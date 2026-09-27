@@ -590,7 +590,7 @@
 
 　　展信安。
 
-　　我在内心斗争许久，思虑再三，最终写下这封信，可能这样我的内心才能释然。至于密码的含义，是这个想法诞生的日子。
+　　我在内心斗争许久，思虑再三，最终写下这封信，可能这样我的内心才能释然。至于密码<span class="lock-hint" id="codeHint"></span>的含义，是这个想法诞生的日子。
 
 　　抱歉，当你阅读到这行文字的时候，意味着我们仍然认识彼此，但不再是好朋友。我们之间没有对与错，我明白每个人都有自己的生活方式和习惯，无高下好坏之分，只是走到这里，我发现我已经没有力气再维持这段关系了。
 
@@ -866,6 +866,16 @@
 
       let password = "";
 
+      /* ---------------------------------------------------------
+         信件里那句「至于密码……的含义」后面要跟上的四个数字。
+
+         这里刻意不写死密码：只有输对密码才会解锁信件，
+         所以在解锁的那一刻，把访客刚刚按下的最后四个数字填进去就行
+         （填进 letterMarkdown 里预留的 #codeHint 里）。
+         --------------------------------------------------------- */
+
+      let lastTypedCode = "";
+
       function updateDots() {
         const dots = document.querySelectorAll(".dot");
 
@@ -942,6 +952,16 @@
             ===================================================== */
 
         if (secondMD5 === target) {
+          /* 把访客刚输入的四个数字填进信件那句话里（源码里不出现明文密码） */
+
+          lastTypedCode = password;
+
+          const hint = document.getElementById("codeHint");
+
+          if (hint) {
+            hint.textContent = lastTypedCode;
+          }
+
           const loginBox = document.getElementById("loginBox");
 
           loginBox.style.opacity = "0";
