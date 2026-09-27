@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>家庭服务器状态 · Finch0714</title>
+    <meta
+      name="description"
+      content="我家那台 Phicomm N1 小主机的实时状态：负载、CPU 温度、内存、磁盘与运行中的容器。"
+    />
+    <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="stylesheet" href="./assets/md.css" />
+    <!-- 字体：霞鹜文楷 Bright Medium（样式表自托管，分片按需取自原图床） -->
+    <link rel="preconnect" href="https://ik.imagekit.io" crossorigin />
+    <link
+      rel="stylesheet"
+      href="./assets/lxgw-bright.css"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="./assets/lxgw-bright.css" />
+    </noscript>
+    <script>
+      document.documentElement.classList.add("md-js");
+    </script>
+
+    <style>
+      /* ---------- 状态页专用样式 ---------- */
+
+      /* Hero 里的三个统计 */
+      .status-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 28px;
+        margin-top: 26px;
+      }
+
+      .status-stat .md-label {
+        margin: 0 0 4px;
+      }
+
+      .status-stat b {
+        font-size: 1.0625rem;
+        font-weight: 700;
+        color: var(--md-primary-dark);
+      }
+
+      .status-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 22px;
+      }
+
+      /* 呼吸的在线小圆点 */
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--md-primary);
+        animation: livePulse 2.2s ease-out infinite;
+      }
+
+      .live-dot--off {
+        background: var(--md-on-surface-muted);
+        animation: none;
+      }
+
+      @keyframes livePulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.45);
+        }
+        70% {
+          box-shadow: 0 0 0 9px rgba(46, 125, 50, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+        }
+      }
+
+      /* 横向柱状图卡片 */
+      .gauge {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .gauge__top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .gauge__value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+
+      .gauge__value small {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--md-on-surface-muted);
+        margin-left: 2px;
+      }
+
+      .gauge__note {
+        font-size: 0.75rem;
+        color: var(--md-on-surface-muted);
+        margin: 0;
+      }
+
+      .gauge .md-progress {
+        height: 10px;
+      }
+
+      .fill--ok {
+        background: linear-gradient(90deg, #8bd48d, #2e7d32) !important;
+      }
+
+      .fill--warn {
+        background: linear-gradient(90deg, #ffcc80, #ef6c00) !important;
+      }
+
+      .fill--danger {
+        background: linear-gradient(90deg, #ff8a80, #c62828) !important;
+      }
+
+      /* 容器标签 */
+      .container-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: var(--md-r-sm);
+        border: 1px solid var(--md-outline-variant);
+        background: var(--md-surface);
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="md-page">
+      <div class="md-container">
+        <section class="md-hero md-anim">
+          <span class="md-hero__badge">
+            <span class="live-dot" id="live-dot"></span>
+            <span id="live-text">连接中</span>
+          </span>
+          <h1 class="md-display md-hero__title" id="host-name">正在连接…</h1>
+          <p class="md-hero__desc" id="host-meta">
+            正在从家庭服务器读取实时状态，这台小主机在国内家宽后面，
+            经 Tailscale 隧道取数，第一次可能要等几秒。
+          </p>
+          <div class="status-stats">
+            <div class="status-stat">
+              <p class="md-label">在线时长</p>
+              <b class="md-mono" id="uptime">--</b>
+            </div>
+            <div class="status-stat">
+              <p class="md-label">负载 1 / 5 / 15</p>
+              <b class="md-mono" id="load">--</b>
+            </div>
+            <div class="status-stat">
+              <p class="md-label">数据时间</p>
+              <b class="md-mono" id="updated">--</b>
+            </div>
+          </div>
+          <div class="status-actions">
+            <button
+              class="md-btn md-btn--filled md-ripple"
+              id="refresh-btn"
+              type="button"
+            >
+              刷新
+            </button>
+            <span class="md-label" id="fetch-state"></span>
+          </div>
+        </section>
+
+        <!-- 资源占用 -->
+        <section class="md-section">
+          <div class="md-section__head">
+            <h2 class="md-section__title">
+              <span class="md-section__rule"></span>资源占用
+            </h2>
+            <span class="md-chip md-chip--muted" id="gauges-chip">—</span>
+          </div>
+          <div class="md-grid" id="gauges"></div>
+        </section>
+
+        <!-- 硬件与系统 -->
+        <section class="md-section">
+          <div class="md-section__head">
+            <h2 class="md-section__title">
+              <span class="md-section__rule"></span>硬件与系统
+            </h2>
+            <span class="md-chip md-chip--muted" id="kernel-chip">—</span>
+          </div>
+          <div class="md-card md-card--elevated" style="padding: 6px 8px">
+            <div class="md-list" id="specs"></div>
+          </div>
+        </section>
+
+        <!-- 容器 -->
+        <section class="md-section">
+          <div class="md-section__head">
+            <h2 class="md-section__title">
+              <span class="md-section__rule"></span>运行中的容器
+            </h2>
+            <span class="md-chip md-chip--muted" id="containers-chip">—</span>
+          </div>
+          <div class="md-row" id="containers" style="gap: 10px"></div>
+        </section>
+      </div>
+
+      <footer class="md-footer">
+        <p style="margin: 0">
+          © <span id="year"></span> Finch0714 · 数据每 2 分钟由小主机自身刷新一次
+        </p>
+      </footer>
+    </main>
+
+    <script src="./assets/site.js"></script>
+    <script src="./assets/nav.js"></script>
+    <script>
+      /* ----------------------------------------------------------------------
+         家庭服务器状态 —— 每次打开都取实时数据（不缓存）
+
+         数据链路：本页 → Tailscale Funnel（HTTPS）→ 家里小主机的 nginx
+                   → /var/www/nav/status.json（由 systemd timer 每 2 分钟重写）
+         隧道绕美国，单次请求 5~8 秒，所以这里用 30 秒超时并把等待状态显示出来。
+         ---------------------------------------------------------------------- */
+      var STATUS_URL = "https://finch-server.tail36ef08.ts.net/status.json";
+      var TIMEOUT_MS = 30000;
+      var AUTO_REFRESH_MS = 60000;
+
+      function esc(s) {
+        return MD.esc(s);
+      }
+
+      /* ---------- 小工具 ---------- */
+      function fmtBytes(b) {
+        if (typeof b !== "number" || !isFinite(b) || b < 0) return "未知";
+        var units = ["B", "KB", "MB", "GB", "TB"];
+        var i = 0;
+        while (b >= 1024 && i < units.length - 1) {
+          b /= 1024;
+          i++;
+        }
+        return (i === 0 ? b : b.toFixed(2)) + " " + units[i];
+      }
+
+      function clampPct(v) {
+        v = Number(v);
+        if (!isFinite(v)) return 0;
+        return Math.max(0, Math.min(100, v));
+      }
+
+      function levelClass(pct) {
+        return pct >= 88 ? "fill--danger" : pct >= 70 ? "fill--warn" : "fill--ok";
+      }
+
+      function tempClass(t) {
+        return t >= 80 ? "fill--danger" : t >= 65 ? "fill--warn" : "fill--ok";
+      }
+
+      function fmtLoad(load) {
+        if (!load) return "未知";
+        var f = function (n) {
+          return typeof n === "number" ? n.toFixed(2) : "?";
+        };
+        return f(load.m1) + " / " + f(load.m5) + " / " + f(load.m15);
+      }
+
+      function fmtTime(iso) {
+        if (!iso) return "未知";
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return String(iso);
+        var p = function (n) {
+          return (n < 10 ? "0" : "") + n;
+        };
+        return p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+      }
+
+      function gaugeCard(o) {
+        return (
+          '<article class="md-card md-card--elevated md-reveal" style="padding:20px">' +
+          '<div class="gauge">' +
+          '<div class="gauge__top">' +
+          '<span class="md-label">' +
+          esc(o.label) +
+          "</span>" +
+          '<span class="gauge__value md-mono">' +
+          esc(o.value) +
+          (o.unit ? "<small>" + esc(o.unit) + "</small>" : "") +
+          "</span>" +
+          "</div>" +
+          '<div class="md-progress"><div class="md-progress__fill ' +
+          o.fill +
+          '" style="width:' +
+          o.percent +
+          '%"></div></div>' +
+          (o.note ? '<p class="gauge__note">' + esc(o.note) + "</p>" : "") +
+          "</div></article>"
+        );
+      }
+
+      function specRow(label, value) {
+        return (
+          '<div class="md-list-item">' +
+          '<span class="md-label">' +
+          esc(label) +
+          "</span>" +
+          '<span class="md-mono" style="font-weight:700; text-align:right; user-select:all">' +
+          esc(value) +
+          "</span>" +
+          "</div>"
+        );
+      }
+
+      /* ---------- 渲染 ---------- */
+      function render(d) {
+        var cpu = d.cpu || {};
+        var mem = d.memory || {};
+        var disk = d.disk || {};
+        var net = d.network || {};
+        var ctn = d.containers || {};
+        var cpuPct = clampPct(cpu.used_pct);
+        var memPct = clampPct(mem.used_pct);
+        var diskPct = clampPct(disk.used_pct);
+        var temp = Number(cpu.temp_c);
+
+        document.getElementById("host-name").textContent = d.host || "未知主机";
+        document.getElementById("host-meta").textContent =
+          [d.model, d.os, d.kernel].filter(Boolean).join(" · ") ||
+          "家庭服务器实时状态";
+
+        document.getElementById("uptime").textContent = d.uptime_human || "未知";
+        document.getElementById("load").textContent = fmtLoad(d.load);
+        document.getElementById("updated").textContent = fmtTime(d.updated);
+
+        document.getElementById("gauges-chip").textContent =
+          (cpu.cores || "?") + " 核";
+
+        document.getElementById("gauges").innerHTML =
+          gaugeCard({
+            label: "CPU 使用率",
+            value: cpuPct,
+            unit: " %",
+            percent: cpuPct,
+            fill: levelClass(cpuPct),
+            note: "负载 " + fmtLoad(d.load),
+          }) +
+          gaugeCard({
+            label: "CPU 温度",
+            value: isFinite(temp) ? temp : "--",
+            unit: " °C",
+            percent: clampPct(temp),
+            fill: tempClass(temp),
+            note: isFinite(temp) && temp >= 80 ? "偏高，注意散热" : "正常范围",
+          }) +
+          gaugeCard({
+            label: "内存占用",
+            value: memPct,
+            unit: " %",
+            percent: memPct,
+            fill: levelClass(memPct),
+            note: (mem.used_mb || 0) + " / " + (mem.total_mb || 0) + " MB",
+          }) +
+          gaugeCard({
+            label: "根分区占用",
+            value: diskPct,
+            unit: " %",
+            percent: diskPct,
+            fill: levelClass(diskPct),
+            note:
+              ((disk.used_mb || 0) / 1024).toFixed(1) +
+              " / " +
+              ((disk.total_mb || 0) / 1024).toFixed(1) +
+              " GB",
+          });
+
+        document.getElementById("kernel-chip").textContent =
+          d.kernel || "—";
+
+        document.getElementById("specs").innerHTML = [
+          specRow("主机名", d.host || "未知"),
+          specRow("机型", d.model || "未知"),
+          specRow("操作系统", d.os || "未知"),
+          specRow("内核", d.kernel || "未知"),
+          specRow("CPU 核心", (cpu.cores || "?") + " 核"),
+          specRow("CPU 温度", isFinite(temp) ? temp + " °C" : "未知"),
+          specRow("累计接收", fmtBytes(net.rx_bytes)),
+          specRow("累计发送", fmtBytes(net.tx_bytes)),
+          specRow("数据时间", fmtTime(d.updated)),
+        ].join("");
+
+        var names = (ctn.names || []).filter(Boolean);
+        document.getElementById("containers-chip").textContent =
+          (ctn.running || names.length || 0) + " 个运行中";
+        document.getElementById("containers").innerHTML = names.length
+          ? names
+              .map(function (n) {
+                return (
+                  '<span class="container-chip"><span class="md-dot"></span>' +
+                  esc(n) +
+                  "</span>"
+                );
+              })
+              .join("")
+          : '<p class="md-body" style="margin:0">没有容器在运行。</p>';
+
+        MD.reveal(document.getElementById("gauges"));
+      }
+
+      /* ---------- 取数 ---------- */
+      var busy = false;
+
+      async function loadStatus(isAuto) {
+        if (busy) return;
+        busy = true;
+
+        var state = document.getElementById("fetch-state");
+        var btn = document.getElementById("refresh-btn");
+        var dot = document.getElementById("live-dot");
+        var liveText = document.getElementById("live-text");
+
+        btn.disabled = true;
+        state.textContent = isAuto ? "后台刷新中…" : "正在读取实时数据…";
+        liveText.textContent = "连接中";
+
+        var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+        var timer = setTimeout(function () {
+          if (ctrl) ctrl.abort();
+        }, TIMEOUT_MS);
+
+        try {
+          var res = await fetch(STATUS_URL, {
+            cache: "no-store",
+            signal: ctrl ? ctrl.signal : undefined,
+          });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          var data = await res.json();
+
+          render(data);
+
+          dot.classList.remove("live-dot--off");
+          liveText.textContent = "实时";
+          state.textContent = "刚刚更新 · 每 60 秒自动刷新";
+        } catch (e) {
+          console.error("读取服务器状态失败:", e);
+          dot.classList.add("live-dot--off");
+          liveText.textContent = "离线";
+          state.textContent = "读取失败，点「刷新」重试";
+          document.getElementById("host-name").textContent = "暂时连不上";
+          document.getElementById("host-meta").textContent =
+            "小主机可能正在重启、离线，或隧道断了（数据全程经 Tailscale 隧道）。";
+          document.getElementById("gauges").innerHTML =
+            '<div class="md-card md-center" style="grid-column:1/-1"><p class="md-body" style="margin:0">拿不到状态数据，稍后再试。</p></div>';
+        } finally {
+          clearTimeout(timer);
+          btn.disabled = false;
+          busy = false;
+        }
+      }
+
+      document.getElementById("year").textContent = new Date().getFullYear();
+      document.getElementById("refresh-btn").addEventListener("click", function () {
+        loadStatus(false);
+      });
+      loadStatus(false);
+
+      /* 页面在前台时每 60 秒静默刷新一次 */
+      setInterval(function () {
+        if (!document.hidden) loadStatus(true);
+      }, AUTO_REFRESH_MS);
+    </script>
+  </body>
+</html>

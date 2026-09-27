@@ -47,6 +47,15 @@ window.SITE_FEATURES = [
     tags: ["每日同步"],
   },
   {
+    id: "server_status",
+    title: "家庭服务器",
+    icon: "🖥️",
+    url: "./status.html",
+    btn: "查看状态",
+    desc: "我家那台 Phicomm N1 小主机的实时状态：负载、CPU 温度、内存、磁盘与运行中的容器。",
+    tags: ["实时"],
+  },
+  {
     id: "reaction_test",
     title: "反应速度测试",
     icon: "⚡",

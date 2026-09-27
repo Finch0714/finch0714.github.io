@@ -39,6 +39,7 @@
     about: "关于",
     mc_query: "MC 查询",
     steam_status: "Steam",
+    server_status: "服务器",
     reaction_test: "反应测试",
     cps_test: "点击速度",
     rank_list: "夯到拉排行",
