@@ -6,7 +6,7 @@
     <title>家庭服务器状态 · Finch0714</title>
     <meta
       name="description"
-      content="我家那台 Phicomm N1 小主机的实时状态：负载、CPU 温度、内存、磁盘与运行中的容器。"
+      content="我家那台 Phicomm N1 小主机的实时状态（负载、CPU 温度、内存、磁盘、容器），以及跑在上面的 AstrBot 统计（消息量、LLM 调用、token 用量）。"
     />
     <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -130,6 +130,10 @@
         background: linear-gradient(90deg, #ff8a80, #c62828) !important;
       }
 
+      .fill--info {
+        background: linear-gradient(90deg, #90caf9, #1565c0) !important;
+      }
+
       /* 容器标签 */
       .container-chip {
         display: inline-flex;
@@ -141,6 +145,167 @@
         background: var(--md-surface);
         font-weight: 600;
         font-size: 0.875rem;
+      }
+
+      /* ---------- 竖栏 + 分栏 ---------- */
+      .status-layout {
+        display: grid;
+        grid-template-columns: 208px minmax(0, 1fr);
+        gap: 26px;
+        align-items: start;
+        margin-top: 6px;
+      }
+
+      .status-rail {
+        position: sticky;
+        top: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .status-rail__btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 13px 16px;
+        border-radius: var(--md-r-sm);
+        border: 1px solid var(--md-outline-variant);
+        background: var(--md-surface);
+        color: var(--md-on-surface);
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        text-align: left;
+        cursor: pointer;
+        transition:
+          background-color 0.18s ease,
+          border-color 0.18s ease,
+          color 0.18s ease,
+          transform 0.18s ease;
+      }
+
+      .status-rail__btn:hover {
+        border-color: var(--md-primary);
+        transform: translateX(2px);
+      }
+
+      .status-rail__btn:focus-visible {
+        outline: 2px solid var(--md-primary);
+        outline-offset: 2px;
+      }
+
+      .status-rail__btn.is-active {
+        background: var(--md-primary);
+        border-color: var(--md-primary);
+        color: #fff;
+        box-shadow: 0 6px 16px rgba(46, 125, 50, 0.24);
+      }
+
+      .status-rail__ico {
+        font-size: 1.05rem;
+        line-height: 1;
+      }
+
+      .status-pane[hidden] {
+        display: none;
+      }
+
+      /* ---------- 绝对量柱状图（消息量 / 调用量 / token） ---------- */
+      .bar-list {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: 58px minmax(0, 1fr) 72px;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .bar-row__label {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+      }
+
+      .bar-row__name {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--md-on-surface-muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .bar-row__sub {
+        font-size: 0.6875rem;
+        font-style: normal;
+        color: var(--md-on-surface-muted);
+        opacity: 0.85;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .bar-row__track {
+        height: 9px;
+      }
+
+      .bar-row__value {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-align: right;
+      }
+
+      .bar-row__value--zero {
+        font-weight: 600;
+        color: var(--md-on-surface-muted);
+      }
+
+      .bar-list--models .bar-row {
+        grid-template-columns: 190px minmax(0, 1fr) 90px;
+      }
+
+      .bar-list--models .bar-row__name {
+        font-size: 0.8125rem;
+      }
+
+      @media (max-width: 860px) {
+        .status-layout {
+          grid-template-columns: 1fr;
+          gap: 18px;
+        }
+
+        .status-rail {
+          position: static;
+          flex-direction: row;
+        }
+
+        .status-rail__btn {
+          flex: 1 1 0;
+          justify-content: center;
+          padding: 12px 10px;
+        }
+
+        .status-rail__btn:hover {
+          transform: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .bar-row {
+          grid-template-columns: 46px minmax(0, 1fr) 58px;
+          gap: 9px;
+        }
+
+        .bar-list--models .bar-row {
+          grid-template-columns: 104px minmax(0, 1fr) 68px;
+        }
       }
     </style>
   </head>
@@ -184,45 +349,194 @@
           </div>
         </section>
 
-        <!-- 资源占用 -->
-        <section class="md-section">
-          <div class="md-section__head">
-            <h2 class="md-section__title">
-              <span class="md-section__rule"></span>资源占用
-            </h2>
-            <span class="md-chip md-chip--muted" id="gauges-chip">—</span>
-          </div>
-          <div class="md-grid" id="gauges"></div>
-        </section>
+        <!-- 左侧竖栏 + 右侧内容 -->
+        <div class="status-layout">
+          <nav
+            class="status-rail"
+            role="tablist"
+            aria-orientation="vertical"
+            aria-label="状态分类"
+          >
+            <button
+              class="status-rail__btn is-active"
+              id="tab-server"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="pane-server"
+            >
+              <span class="status-rail__ico">🖥️</span>
+              <span>服务器信息</span>
+            </button>
+            <button
+              class="status-rail__btn"
+              id="tab-astrbot"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="pane-astrbot"
+            >
+              <span class="status-rail__ico">🤖</span>
+              <span>AstrBot 信息</span>
+            </button>
+          </nav>
 
-        <!-- 硬件与系统 -->
-        <section class="md-section">
-          <div class="md-section__head">
-            <h2 class="md-section__title">
-              <span class="md-section__rule"></span>硬件与系统
-            </h2>
-            <span class="md-chip md-chip--muted" id="kernel-chip">—</span>
-          </div>
-          <div class="md-card md-card--elevated" style="padding: 6px 8px">
-            <div class="md-list" id="specs"></div>
-          </div>
-        </section>
+          <div class="status-panes">
+            <!-- ==================== 服务器信息 ==================== -->
+            <div
+              class="status-pane"
+              id="pane-server"
+              role="tabpanel"
+              aria-labelledby="tab-server"
+            >
+              <!-- 资源占用 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>资源占用
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="gauges-chip">—</span>
+                </div>
+                <div class="md-grid" id="gauges"></div>
+              </section>
 
-        <!-- 容器 -->
-        <section class="md-section">
-          <div class="md-section__head">
-            <h2 class="md-section__title">
-              <span class="md-section__rule"></span>运行中的容器
-            </h2>
-            <span class="md-chip md-chip--muted" id="containers-chip">—</span>
+              <!-- 硬件与系统 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>硬件与系统
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="kernel-chip">—</span>
+                </div>
+                <div class="md-card md-card--elevated" style="padding: 6px 8px">
+                  <div class="md-list" id="specs"></div>
+                </div>
+              </section>
+
+              <!-- 累计流量 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>累计流量
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="net-chip">—</span>
+                </div>
+                <div class="md-card md-card--elevated" style="padding: 6px 8px">
+                  <div class="md-list" id="net"></div>
+                </div>
+              </section>
+
+              <!-- 容器 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>运行中的容器
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="containers-chip">—</span>
+                </div>
+                <div class="md-row" id="containers" style="gap: 10px"></div>
+              </section>
+            </div>
+
+            <!-- ==================== AstrBot 信息 ==================== -->
+            <div
+              class="status-pane"
+              id="pane-astrbot"
+              role="tabpanel"
+              aria-labelledby="tab-astrbot"
+              hidden
+            >
+              <!-- 概览 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>AstrBot 概览
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="ab-version-chip">—</span>
+                </div>
+                <div class="md-grid" id="ab-overview"></div>
+              </section>
+
+              <!-- 消息量 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>消息量
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="ab-msg-chip">—</span>
+                </div>
+                <div class="md-grid" id="ab-msg-gauges"></div>
+                <div class="md-card md-card--elevated" style="padding: 20px; margin-top: 16px">
+                  <p class="md-label" style="margin: 0 0 12px">最近 24 小时（每小时）</p>
+                  <div class="bar-list" id="ab-msg-24h"></div>
+                  <p class="md-label" style="margin: 22px 0 12px">最近 7 天</p>
+                  <div class="bar-list" id="ab-msg-7d"></div>
+                </div>
+              </section>
+
+              <!-- LLM 调用 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>模型调用
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="ab-llm-chip">—</span>
+                </div>
+                <div class="md-grid" id="ab-llm-gauges"></div>
+                <div class="md-card md-card--elevated" style="padding: 20px; margin-top: 16px">
+                  <p class="md-label" style="margin: 0 0 12px">最近 24 小时（每小时）</p>
+                  <div class="bar-list" id="ab-llm-24h"></div>
+                  <p class="md-label" style="margin: 22px 0 12px">最近 7 天</p>
+                  <div class="bar-list" id="ab-llm-7d"></div>
+                </div>
+              </section>
+
+              <!-- 模型 token 用量 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>各模型 token 用量
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="ab-model-chip">—</span>
+                </div>
+                <div class="md-card md-card--elevated" style="padding: 20px">
+                  <div class="bar-list bar-list--models" id="ab-models"></div>
+                </div>
+              </section>
+
+              <!-- 用量明细 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>用量明细
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="ab-token-chip">—</span>
+                </div>
+                <div class="md-card md-card--elevated" style="padding: 6px 8px">
+                  <div class="md-list" id="ab-tokens"></div>
+                </div>
+              </section>
+
+              <!-- 技术信息 -->
+              <section class="md-section">
+                <div class="md-section__head">
+                  <h2 class="md-section__title">
+                    <span class="md-section__rule"></span>运行信息
+                  </h2>
+                  <span class="md-chip md-chip--muted" id="ab-tech-chip">—</span>
+                </div>
+                <div class="md-card md-card--elevated" style="padding: 6px 8px">
+                  <div class="md-list" id="ab-tech"></div>
+                </div>
+              </section>
+            </div>
           </div>
-          <div class="md-row" id="containers" style="gap: 10px"></div>
-        </section>
+        </div>
       </div>
 
       <footer class="md-footer">
         <p style="margin: 0">
-          © <span id="year"></span> Finch0714 · 数据每 30 秒由小主机自身刷新一次
+          © <span id="year"></span> Finch0714 · 数据每 10 分钟由小主机自身刷新一次
         </p>
       </footer>
     </main>
@@ -234,8 +548,11 @@
          家庭服务器状态 —— 每次打开都取实时数据（不缓存）
 
          数据链路：本页 → Tailscale Funnel（HTTPS）→ 家里小主机的 nginx
-                   → /var/www/nav/status.json（由 systemd timer 每 30 秒重写）
+                   → /var/www/nav/status.json（由 systemd timer 每 10 分钟重写）
+         同一份 JSON 里既有机器的状态，也有 AstrBot 的统计（.astrbot 字段）。
          隧道绕美国，单次请求 5~8 秒，所以这里用 30 秒超时并把等待状态显示出来。
+
+         隐私：AstrBot 那部分只有计数与聚合值，页面不做任何会话/用户维度展示。
          ---------------------------------------------------------------------- */
       var STATUS_URL = "https://finch-server.tail36ef08.ts.net/status.json";
       var TIMEOUT_MS = 30000;
@@ -256,6 +573,18 @@
         return (i === 0 ? b : b.toFixed(2)) + " " + units[i];
       }
 
+      function fmtInt(n) {
+        if (typeof n !== "number" || !isFinite(n)) return "—";
+        return n.toLocaleString("zh-CN");
+      }
+
+      function fmtTokens(n) {
+        n = Number(n) || 0;
+        if (n >= 100000000) return (n / 100000000).toFixed(2) + " 亿";
+        if (n >= 10000) return (n / 10000).toFixed(2) + " 万";
+        return fmtInt(n);
+      }
+
       function clampPct(v) {
         v = Number(v);
         if (!isFinite(v)) return 0;
@@ -268,6 +597,10 @@
 
       function tempClass(t) {
         return t >= 80 ? "fill--danger" : t >= 65 ? "fill--warn" : "fill--ok";
+      }
+
+      function rateClass(pct) {
+        return pct >= 95 ? "fill--ok" : pct >= 80 ? "fill--warn" : "fill--danger";
       }
 
       function fmtLoad(load) {
@@ -286,6 +619,13 @@
           return (n < 10 ? "0" : "") + n;
         };
         return p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+      }
+
+      /* 后端给的是 "2026-09-27 06:20:41" 这种本地时间串，直接截取显示 */
+      function fmtStamp(s) {
+        if (!s) return "未知";
+        var t = String(s).replace("T", " ");
+        return t.length >= 16 ? t.slice(5, 16) : t;
       }
 
       function gaugeCard(o) {
@@ -311,6 +651,23 @@
         );
       }
 
+      /* 没有分母的绝对量卡片：只有大字，没有进度条 */
+      function statCard(label, value, unit, note) {
+        return (
+          '<article class="md-card md-card--elevated md-reveal" style="padding:20px">' +
+          '<div class="gauge">' +
+          '<span class="md-label">' +
+          esc(label) +
+          "</span>" +
+          '<span class="gauge__value md-mono">' +
+          esc(value) +
+          (unit ? "<small>" + esc(unit) + "</small>" : "") +
+          "</span>" +
+          (note ? '<p class="gauge__note">' + esc(note) + "</p>" : "") +
+          "</div></article>"
+        );
+      }
+
       function specRow(label, value) {
         return (
           '<div class="md-list-item">' +
@@ -324,7 +681,44 @@
         );
       }
 
-      /* ---------- 渲染 ---------- */
+      /* 横向柱状图：按最大值归一化宽度 */
+      function barRows(items, opt) {
+        opt = opt || {};
+        var max = 1;
+        items.forEach(function (it) {
+          if (it.value > max) max = it.value;
+        });
+        return items
+          .map(function (it) {
+            var pct = it.value > 0 ? Math.max(3, Math.round((it.value / max) * 100)) : 0;
+            var fill = it.value > 0 ? opt.fill || "fill--ok" : "";
+            return (
+              '<div class="bar-row">' +
+              '<span class="bar-row__label">' +
+              '<b class="bar-row__name md-mono" title="' +
+              esc(it.title || it.label) +
+              '">' +
+              esc(it.label) +
+              "</b>" +
+              (it.sub ? '<i class="bar-row__sub">' + esc(it.sub) + "</i>" : "") +
+              "</span>" +
+              '<div class="md-progress bar-row__track"><div class="md-progress__fill ' +
+              fill +
+              '" style="width:' +
+              pct +
+              '%"></div></div>' +
+              '<span class="bar-row__value md-mono' +
+              (it.value > 0 ? "" : " bar-row__value--zero") +
+              '">' +
+              esc(opt.fmt ? opt.fmt(it.value) : it.value) +
+              "</span>" +
+              "</div>"
+            );
+          })
+          .join("");
+      }
+
+      /* ---------- 渲染：服务器 ---------- */
       function render(d) {
         var cpu = d.cpu || {};
         var mem = d.memory || {};
@@ -396,9 +790,14 @@
           specRow("内核", d.kernel || "未知"),
           specRow("CPU 核心", (cpu.cores || "?") + " 核"),
           specRow("CPU 温度", isFinite(temp) ? temp + " °C" : "未知"),
+          specRow("系统在线时长", d.uptime_human || "未知"),
+          specRow("数据时间", fmtTime(d.updated)),
+        ].join("");
+
+        document.getElementById("net-chip").textContent = "开机以来累计";
+        document.getElementById("net").innerHTML = [
           specRow("累计接收", fmtBytes(net.rx_bytes)),
           specRow("累计发送", fmtBytes(net.tx_bytes)),
-          specRow("数据时间", fmtTime(d.updated)),
         ].join("");
 
         var names = (ctn.names || []).filter(Boolean);
@@ -417,6 +816,248 @@
           : '<p class="md-body" style="margin:0">没有容器在运行。</p>';
 
         MD.reveal(document.getElementById("gauges"));
+
+        renderAstrbot(d.astrbot);
+      }
+
+      /* ---------- 渲染：AstrBot ---------- */
+      var AB_EMPTY =
+        '<div class="md-card md-center" style="grid-column:1/-1">' +
+        '<p class="md-body" style="margin:0">暂时拿不到 AstrBot 的统计数据。</p></div>';
+
+      function renderAstrbot(ab) {
+        var ids = [
+          "ab-overview",
+          "ab-msg-gauges",
+          "ab-llm-gauges",
+          "ab-tokens",
+          "ab-tech",
+        ];
+        var bars = ["ab-msg-24h", "ab-msg-7d", "ab-llm-24h", "ab-llm-7d", "ab-models"];
+
+        if (!ab || !ab.ok) {
+          ids.forEach(function (id) {
+            var el = document.getElementById(id);
+            el.className = id === "ab-overview" || id.indexOf("gauges") > -1 ? "md-grid" : "md-list";
+            el.innerHTML = AB_EMPTY;
+          });
+          bars.forEach(function (id) {
+            document.getElementById(id).innerHTML = "";
+          });
+          document.getElementById("ab-version-chip").textContent = "未运行";
+          document.getElementById("ab-msg-chip").textContent = "—";
+          document.getElementById("ab-llm-chip").textContent = "—";
+          document.getElementById("ab-model-chip").textContent = "—";
+          document.getElementById("ab-token-chip").textContent = "—";
+          document.getElementById("ab-tech-chip").textContent = "—";
+          return;
+        }
+
+        var msg = ab.message || {};
+        var llm = ab.llm || {};
+        var plg = ab.plugins || {};
+        var conv = ab.conversations || {};
+        var models = llm.by_model || [];
+
+        document.getElementById("ab-version-chip").textContent =
+          "v" + (ab.version || "?") + (ab.running ? " · 运行中" : " · 未运行");
+
+        /* 概览 */
+        document.getElementById("ab-overview").innerHTML = [
+          statCard("版本", ab.version || "未知", "", ab.running ? "运行中" : "未运行"),
+          statCard("运行时长", ab.uptime_human || "未知", "", "自 AstrBot 启动以来"),
+          statCard(
+            "内存占用",
+            typeof ab.memory_mb === "number" ? ab.memory_mb : "—",
+            " MB",
+            "AstrBot 进程 RSS",
+          ),
+          statCard(
+            "插件",
+            (plg.enabled != null ? plg.enabled : "—") + " / " + (plg.installed != null ? plg.installed : "—"),
+            "",
+            "已启用 / 已安装" + (plg.disabled ? "（禁用 " + plg.disabled + "）" : ""),
+          ),
+          statCard("会话数", fmtInt(conv.count), "", "不含任何会话标识"),
+          statCard(
+            "统计库体积",
+            typeof ab.db_mb === "number" ? ab.db_mb : "—",
+            " MB",
+            "data_v4.db（含 WAL）",
+          ),
+        ].join("");
+
+        /* 消息量 */
+        document.getElementById("ab-msg-chip").textContent =
+          "今日 " + fmtInt(msg.today) + " 条";
+        document.getElementById("ab-msg-gauges").innerHTML = [
+          statCard("今日消息", fmtInt(msg.today), " 条", "今天 00:00 起"),
+          statCard(
+            "最近一小时",
+            fmtInt(msg.last_hour),
+            " 条",
+            msg.last_bucket_at ? "统计到 " + msg.last_bucket_at.slice(11, 16) : "",
+          ),
+          statCard("累计消息", fmtInt(msg.total), " 条", "统计库记录的总量"),
+        ].join("");
+
+        document.getElementById("ab-msg-24h").innerHTML = barRows(
+          (msg.last24h || []).map(function (o) {
+            return { label: o.t, value: o.n, title: o.t + " · " + o.n + " 条" };
+          }),
+        );
+        document.getElementById("ab-msg-7d").innerHTML = barRows(
+          (msg.last7d || []).map(function (o) {
+            return { label: o.d, value: o.n, title: o.d + " · " + o.n + " 条" };
+          }),
+        );
+
+        /* 模型调用 */
+        var rate = Number(llm.success_rate) || 0;
+        var cachePct = Number(llm.cache_hit_pct) || 0;
+        document.getElementById("ab-llm-chip").textContent =
+          fmtInt(llm.calls_total) + " 次 · 成功 " + rate + "%";
+        document.getElementById("ab-llm-gauges").innerHTML = [
+          gaugeCard({
+            label: "调用成功率",
+            value: rate,
+            unit: " %",
+            percent: clampPct(rate),
+            fill: rateClass(rate),
+            note: "成功 " + fmtInt(llm.completed) + " · 失败 " + fmtInt(llm.error),
+          }),
+          gaugeCard({
+            label: "缓存命中率",
+            value: cachePct,
+            unit: " %",
+            percent: clampPct(cachePct),
+            fill: cachePct >= 50 ? "fill--ok" : "fill--warn",
+            note: "命中越高越省钱",
+          }),
+          statCard("平均响应", llm.avg_duration_s != null ? llm.avg_duration_s : "—", " s", "每次调用平均耗时"),
+          statCard("今日调用", fmtInt(llm.calls_today), " 次", "按调用发生时间统计"),
+        ].join("");
+
+        document.getElementById("ab-llm-24h").innerHTML = barRows(
+          (llm.last24h || []).map(function (o) {
+            return { label: o.t, value: o.n, title: o.t + " · " + o.n + " 次", fill: "fill--info" };
+          }),
+          { fill: "fill--info" },
+        );
+        document.getElementById("ab-llm-7d").innerHTML = barRows(
+          (llm.last7d || []).map(function (o) {
+            return { label: o.d, value: o.n, title: o.d + " · " + o.n + " 次" };
+          }),
+          { fill: "fill--info" },
+        );
+
+        /* 各模型 token */
+        document.getElementById("ab-model-chip").textContent =
+          models.length + " 个模型";
+        document.getElementById("ab-models").innerHTML = models.length
+          ? barRows(
+              models.map(function (m) {
+                var total = (Number(m.input_tokens) || 0) + (Number(m.output_tokens) || 0);
+                return {
+                  label: m.model,
+                  title: m.model,
+                  sub:
+                    fmtInt(m.calls) +
+                    " 次 · 平均 " +
+                    (m.avg_duration_s != null ? m.avg_duration_s : "?") +
+                    " s",
+                  value: total,
+                };
+              }),
+              { fmt: fmtTokens, fill: "fill--info" },
+            )
+          : '<p class="md-body" style="margin:0">还没有模型调用记录。</p>';
+
+        /* 用量明细 */
+        var rows = [
+          specRow("输入 token（非缓存）", fmtInt(llm.input_tokens)),
+          specRow("输入 token（缓存命中）", fmtInt(llm.cached_tokens)),
+          specRow("输出 token", fmtInt(llm.output_tokens)),
+          specRow("token 合计", fmtInt(llm.total_tokens)),
+          specRow("今日 token", fmtInt(llm.tokens_today)),
+          specRow("累计调用次数", fmtInt(llm.calls_total) + " 次"),
+          specRow("今日调用次数", fmtInt(llm.calls_today) + " 次"),
+          specRow("最近一次调用", fmtStamp(llm.last_call_at)),
+        ];
+        if (Number(llm.avg_ttft_s) > 0) {
+          rows.push(specRow("平均首字延迟", llm.avg_ttft_s + " s"));
+        }
+        document.getElementById("ab-tokens").innerHTML = rows.join("");
+        document.getElementById("ab-token-chip").textContent =
+          "合计 " + fmtTokens(llm.total_tokens) + " token";
+
+        /* 运行信息 */
+        var platforms = (msg.by_platform || [])
+          .map(function (p) {
+            return p.platform + "（" + fmtInt(p.count) + " 条）";
+          })
+          .join("、");
+        document.getElementById("ab-tech").innerHTML = [
+          specRow("运行状态", ab.running ? "运行中" : "未运行"),
+          specRow("AstrBot 版本", ab.version || "未知"),
+          specRow("进程内存", (ab.memory_mb != null ? ab.memory_mb : "—") + " MB"),
+          specRow(
+            "插件",
+            (plg.enabled != null ? plg.enabled : "—") +
+              " 启用 / " +
+              (plg.installed != null ? plg.installed : "—") +
+              " 安装" +
+              (plg.disabled ? "（禁用 " + plg.disabled + "）" : ""),
+          ),
+          specRow("消息平台", platforms || "未知"),
+          specRow("会话数", fmtInt(conv.count) + " 个（累计 " + fmtTokens(conv.tokens) + " token）"),
+          specRow("统计库体积", (ab.db_mb != null ? ab.db_mb : "—") + " MB"),
+          specRow("统计生成时间", fmtStamp(ab.generated_at)),
+        ].join("");
+        document.getElementById("ab-tech-chip").textContent = ab.running ? "在线" : "离线";
+
+        MD.reveal(document.getElementById("pane-astrbot"));
+      }
+
+      /* ---------- 竖栏切换 ---------- */
+      function selectTab(name) {
+        var isServer = name !== "astrbot";
+        var tS = document.getElementById("tab-server");
+        var tA = document.getElementById("tab-astrbot");
+        tS.classList.toggle("is-active", isServer);
+        tA.classList.toggle("is-active", !isServer);
+        tS.setAttribute("aria-selected", isServer ? "true" : "false");
+        tA.setAttribute("aria-selected", !isServer ? "true" : "false");
+        document.getElementById("pane-server").hidden = !isServer;
+        document.getElementById("pane-astrbot").hidden = isServer;
+        if (!isServer) MD.reveal(document.getElementById("pane-astrbot"));
+        try {
+          history.replaceState(null, "", isServer ? "#server" : "#astrbot");
+        } catch (e) {
+          /* file:// 下可能失败，忽略 */
+        }
+      }
+
+      function initTabs() {
+        var tS = document.getElementById("tab-server");
+        var tA = document.getElementById("tab-astrbot");
+        tS.addEventListener("click", function () {
+          selectTab("server");
+        });
+        tA.addEventListener("click", function () {
+          selectTab("astrbot");
+        });
+        [tS, tA].forEach(function (btn) {
+          btn.addEventListener("keydown", function (e) {
+            if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+              e.preventDefault();
+              var next = btn === tS ? tA : tS;
+              next.focus();
+              selectTab(next === tS ? "server" : "astrbot");
+            }
+          });
+        });
+        selectTab(location.hash === "#astrbot" ? "astrbot" : "server");
       }
 
       /* ---------- 取数 ---------- */
@@ -452,7 +1093,7 @@
 
           dot.classList.remove("live-dot--off");
           liveText.textContent = "实时";
-          state.textContent = "刚刚更新 · 数据由小主机每 30 秒重写一次";
+          state.textContent = "刚刚更新 · 数据由小主机每 10 分钟重写一次";
         } catch (e) {
           console.error("读取服务器状态失败:", e);
           dot.classList.add("live-dot--off");
@@ -463,6 +1104,7 @@
             "小主机可能正在重启、离线，或隧道断了（数据全程经 Tailscale 隧道）。";
           document.getElementById("gauges").innerHTML =
             '<div class="md-card md-center" style="grid-column:1/-1"><p class="md-body" style="margin:0">拿不到状态数据，稍后再试。</p></div>';
+          renderAstrbot(null);
         } finally {
           clearTimeout(timer);
           btn.disabled = false;
@@ -474,6 +1116,7 @@
       document.getElementById("refresh-btn").addEventListener("click", function () {
         loadStatus();
       });
+      initTabs();
       loadStatus();
     </script>
   </body>
