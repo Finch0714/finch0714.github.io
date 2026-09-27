@@ -708,6 +708,44 @@ p {
   border-radius: 0;
 }
 
+/* 可折叠面板的标题行（关于页「本次访问信息」）——
+   用 <button> 实现，键盘 Tab / 空格也能操作 */
+.md-disclosure {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: var(--md-r-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--md-dur) var(--md-ease);
+}
+
+.md-disclosure:hover {
+  background: var(--md-primary-tint);
+}
+
+.md-disclosure:focus-visible {
+  outline: 2px solid var(--md-primary);
+  outline-offset: -2px;
+}
+
+.md-disclosure__icon {
+  font-size: 0.7rem;
+  color: var(--md-on-surface-variant);
+  transition: transform var(--md-dur) var(--md-ease);
+}
+
+.md-disclosure[aria-expanded="true"] .md-disclosure__icon {
+  transform: rotate(180deg);
+}
+
 /* --------------------------------------------------------------------------
    11. 进度条
    -------------------------------------------------------------------------- */

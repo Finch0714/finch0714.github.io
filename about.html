@@ -163,7 +163,25 @@
             >
           </div>
           <div class="md-card md-card--elevated" style="padding: 6px 8px">
-            <div class="md-list" id="visitor-list"></div>
+            <!-- 默认折叠：标题行本身就是按钮，点一下才展开 -->
+            <button
+              class="md-disclosure"
+              id="visitor-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="visitor-panel"
+            >
+              <span class="md-row" style="gap: 10px; flex-wrap: nowrap">
+                <span class="md-avatar md-avatar--sm">📋</span>
+                <span class="md-label" id="visitor-toggle-text"
+                  >展开完整信息</span
+                >
+              </span>
+              <span class="md-disclosure__icon">▼</span>
+            </button>
+            <div class="md-disclosure-panel" id="visitor-panel" hidden>
+              <div class="md-list" id="visitor-list"></div>
+            </div>
           </div>
         </section>
       </div>
@@ -790,6 +808,35 @@
           .join("");
         var chip = document.getElementById("visitor-summary");
         if (chip) chip.textContent = data.summary;
+        visitorRowCount = data.rows.length;
+        syncVisitorToggle();
+      }
+
+      /* ---------- 折叠面板：默认折叠，点标题行展开 ---------- */
+      var visitorRowCount = 0;
+
+      function syncVisitorToggle() {
+        var btn = document.getElementById("visitor-toggle");
+        var panel = document.getElementById("visitor-panel");
+        var txt = document.getElementById("visitor-toggle-text");
+        if (!btn || !panel || !txt) return;
+        var open = !panel.hidden;
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        txt.textContent =
+          (open ? "收起" : "展开完整信息") +
+          (visitorRowCount ? "（" + visitorRowCount + " 项）" : "");
+      }
+
+      function initVisitorToggle() {
+        var btn = document.getElementById("visitor-toggle");
+        var panel = document.getElementById("visitor-panel");
+        if (!btn || !panel) return;
+        panel.hidden = true; /* 默认折叠 */
+        btn.addEventListener("click", function () {
+          panel.hidden = !panel.hidden;
+          syncVisitorToggle();
+        });
+        syncVisitorToggle();
       }
 
       renderVisitor(); /* 先用能同步拿到的信息渲染一次，卡片立刻有内容 */
@@ -800,6 +847,7 @@
         renderVisitor,
       ); /* UA-CH 到位后补上 Windows 版本 / 架构 / 位数 */
       collectBattery(renderVisitor); /* 电池信息到位后补上 */
+      initVisitorToggle(); /* 默认折叠，绑定展开 / 收起 */
 
       document.getElementById("year").textContent = new Date().getFullYear();
 
