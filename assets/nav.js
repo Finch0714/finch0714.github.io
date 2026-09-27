@@ -249,6 +249,59 @@
     });
   }
 
+  /* ---------- 资源预热 ----------
+     在「其它页面」上先把跨网 / 跨域的开销付掉，点开状态页时几乎瞬时：
+       1. preconnect —— Tailscale 隧道建连（TLS 就要 4 秒）和字体图床是不同域，
+          空闲时先把连接握好；
+       2. prefetch status.json —— 状态页每次取数要经隧道走 5~8 秒，提前抓进
+          HTTP 缓存（服务端给了 max-age=120），点开直接命中；
+       3. prefetch 字体样式表 —— 让字体表在导航前就进缓存。
+     规则：只在非状态页执行、每个会话只做一次、走 requestIdleCallback 排队，
+     不跟当前页面首屏抢带宽；任何一步失败都无所谓，正式访问时会重新取。 */
+  function warmup() {
+    var W = (window.SITE || {}).warmup;
+    if (!W || !window.fetch) return;
+
+    var here = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+    if (here === String(W.statusPage || "status.html").toLowerCase()) return;
+
+    try {
+      if (sessionStorage.getItem("md-warmed")) return;
+      sessionStorage.setItem("md-warmed", "1");
+    } catch (e) {
+      /* 隐私模式下 sessionStorage 可能不可用，最多多预热一次 */
+    }
+
+    (W.origins || []).forEach(function (href) {
+      if (document.querySelector('link[rel="preconnect"][href="' + href + '"]')) return;
+      var link = document.createElement("link");
+      link.rel = "preconnect";
+      link.href = href;
+      link.crossOrigin = "";
+      document.head.appendChild(link);
+    });
+
+    var grab = function (url, opt) {
+      try {
+        fetch(url, opt).catch(function () {});
+      } catch (e) {
+        /* 忽略 */
+      }
+    };
+    if (W.fontCss) grab(W.fontCss, { cache: "force-cache" });
+    if (W.statusUrl) {
+      grab(W.statusUrl, { cache: "force-cache", mode: "cors", credentials: "omit" });
+    }
+  }
+
+  function scheduleWarmup() {
+    if (window.requestIdleCallback) {
+      requestIdleCallback(warmup, { timeout: 2500 });
+    } else {
+      setTimeout(warmup, 1200);
+    }
+  }
+
   /* ---------- 全站小工具 ---------- */
   window.MD = {
     open: function (id) {
@@ -274,6 +327,7 @@
        .md-js .md-reveal 的 opacity:0 会让它「隐形但占位」，页面上就是一块空白。 */
     reveal();
     document.documentElement.classList.add("md-ready");
+    scheduleWarmup();
   }
 
   /* nav.js 放在 </body> 之前，此刻 body 已经存在 —— 直接同步构建顶栏，

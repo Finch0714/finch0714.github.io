@@ -11,6 +11,8 @@
     <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="stylesheet" href="./assets/md.css" />
+    <!-- 隧道：状态数据的来源，提前握手（TLS 就要 4 秒） -->
+    <link rel="preconnect" href="https://finch-server.tail36ef08.ts.net" crossorigin />
     <!-- 字体：霞鹜文楷 Bright Medium（样式表自托管，分片按需取自原图床） -->
     <link rel="preconnect" href="https://ik.imagekit.io" crossorigin />
     <link
@@ -1154,10 +1156,16 @@
         selectTab(location.hash === "#astrbot" ? "astrbot" : "server");
       }
 
-      /* ---------- 取数 ---------- */
+      /* ---------- 取数 ----------
+         站点其它页面已经预热过这份 JSON（见 assets/nav.js 的 warmup），
+         所以这里先吃 HTTP 缓存：命中就立刻渲染，再在后台拉一次真正最新的。
+         隧道单次要 5~8 秒，因此「800ms 内返回」就足以判定是缓存命中。 */
       var busy = false;
 
-      async function loadStatus() {
+      async function loadStatus(opt) {
+        opt = opt || {};
+        var useCache = !!opt.cache;
+        var background = !!opt.background;
         if (busy) return;
         busy = true;
 
@@ -1167,7 +1175,7 @@
         var liveText = document.getElementById("live-text");
 
         btn.disabled = true;
-        state.textContent = "正在读取实时数据…";
+        state.textContent = background ? "正在同步最新数据…" : "正在读取实时数据…";
         liveText.textContent = "连接中";
 
         var ctrl =
@@ -1175,20 +1183,28 @@
         var timer = setTimeout(function () {
           if (ctrl) ctrl.abort();
         }, TIMEOUT_MS);
+        var t0 = Date.now();
+        var needLive = false;
 
         try {
           var res = await fetch(STATUS_URL, {
-            cache: "no-store",
+            cache: useCache ? "default" : "no-store",
             signal: ctrl ? ctrl.signal : undefined,
           });
           if (!res.ok) throw new Error("HTTP " + res.status);
           var data = await res.json();
+          var fromCache = useCache && Date.now() - t0 < 800;
 
           render(data);
 
           dot.classList.remove("live-dot--off");
-          liveText.textContent = "实时";
-          state.textContent = "刚刚更新 · 数据由小主机每 10 分钟重写一次";
+          liveText.textContent = fromCache ? "缓存" : "实时";
+          if (fromCache) {
+            state.textContent = "已显示缓存数据，正在同步最新…";
+            needLive = true;
+          } else {
+            state.textContent = "刚刚更新 · 数据由小主机每 10 分钟重写一次";
+          }
         } catch (e) {
           console.error("读取服务器状态失败:", e);
           dot.classList.add("live-dot--off");
@@ -1205,16 +1221,20 @@
           btn.disabled = false;
           busy = false;
         }
+
+        /* 缓存命中就再悄悄拉一次最新的（此刻 busy 已释放，不会被拦掉） */
+        if (needLive) loadStatus({ background: true });
       }
 
       document.getElementById("year").textContent = new Date().getFullYear();
       document
         .getElementById("refresh-btn")
         .addEventListener("click", function () {
+          /* 手动点刷新始终绕过缓存 */
           loadStatus();
         });
       initTabs();
-      loadStatus();
+      loadStatus({ cache: true });
     </script>
   </body>
 </html>

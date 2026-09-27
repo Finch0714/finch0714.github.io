@@ -15,6 +15,20 @@ window.SITE = {
     { label: "EMAIL", value: "finch0714@qq.com" },
     { label: "STEAM", value: "76561199778292070" },
   ],
+  /* 资源预热：进站就在空闲时把跨网/跨域的开销提前付掉。
+     由 assets/nav.js 执行（状态页自己会取数，所以会跳过）。 */
+  warmup: {
+    /* 状态页要经 Tailscale 隧道取这份 JSON，单次 5~8 秒，提前抓进缓存后秒开 */
+    statusUrl: "https://finch-server.tail36ef08.ts.net/status.json",
+    statusPage: "status.html",
+    /* 字体样式表（自托管）：导航前先让它进缓存 */
+    fontCss: "./assets/lxgw-bright.css",
+    /* 需要提前握手的外域：隧道（TLS 要 4 秒）、字体分片图床 */
+    origins: [
+      "https://finch-server.tail36ef08.ts.net",
+      "https://ik.imagekit.io",
+    ],
+  },
 };
 
 window.SITE_FEATURES = [
