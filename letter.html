@@ -528,7 +528,9 @@
         }
       }
     </style>
-  </head>
+      <!-- 信件托管在家里的小主机上：提前把隧道 TLS 握好 -->
+    <link rel="preconnect" href="https://finch-server.tail36ef08.ts.net" crossorigin />
+</head>
 
   <body>
     <!-- =========================================================
@@ -581,77 +583,18 @@
     </div>
 
     <script>
-      /* =========================================================
-           信件内容
-        ========================================================= */
+      /* ---------------------------------------------------------
+         信件正文不再写在这个页面里。
 
-      const letterMarkdown = `
-<h1 align="center">致方鸿</h1>
+         输对密码后，才向家里的小主机取：
+           https://finch-server.tail36ef08.ts.net/letter.md?pwd=四位密码
+         密码由服务端（nginx）校验：不对就直接拿不到文件，
+         所以这个页面里既没有信的正文，也没有密码。
+         --------------------------------------------------------- */
 
-　　展信安。
+      const LETTER_URL = "https://finch-server.tail36ef08.ts.net/letter.md";
 
-　　我在内心斗争许久，思虑再三，最终写下这封信，可能这样我的内心才能释然。至于密码<span class="lock-hint" id="codeHint"></span>的含义，是这个想法诞生的日子。
-
-　　抱歉，当你阅读到这行文字的时候，意味着我们仍然认识彼此，但不再是好朋友。我们之间没有对与错，我明白每个人都有自己的生活方式和习惯，无高下好坏之分，只是走到这里，我发现我已经没有力气再维持这段关系了。
-
-　　认识这么久以来，我逐渐意识到，即使高一的一年我们度过了许多快乐的时光，也无法掩盖我们从内心深处不合的事实，即我们不是同一类人。和你待在一起的时候，你的一些行为言论我实在无法苟同，有时候甚至有点看不过眼，一次次的欲言又止使我负重不堪，今天我想卸下这些包袱了。
-
-　　接下来我会先谈谈我自己，再谈谈关于你的事情。
-
----
-
-## 关于我自己
-
-　　我对自己没有很清晰的认知，我感觉自己的性格像一块大拼图，和谁在一起久了，谁占的比例就会越大。我知道任何人都差不多是这样，但我的这种现象尤为严重。长久以来（真的很久），我一直在习惯性地“解构”身边的人，无法停止这种行为。在 d 老师的帮助下，我才知道这是一种自我防御的机制——只有足够了解别人，就不会被伤害、被抛弃，这大概也是我行为性格同化比较严重的原因。
-
-　　即使这样，种种现象使我确定了关于我的一些确定的部分，不会被影响、改变的部分：
-
-　　1. **我很注重与人之间的情感。** 我极不希望别人因我而受到伤害从而讨厌我，因此我学习他们，尽量不冒犯别人。可以概括地说，我是一个感性的人（直到前不久，我一直认为自己理性脑占主导）。我并不讨厌这样，这是真实的我。
-
-　　2. **我大概是一个理想主义者。** 这里引用 d 老师原话：
-
-> 容易把“人应该怎样”投射到具体的人身上。理想主义者对朋友、伴侣、群体往往有很高的期待。他们不是要求对方完美，而是要求对方“符合我心中那个善良/正直/真诚的标准”。一旦对方达不到，他们会比普通人更受伤——因为那不只是失望，是信念被冒犯。
-
-　　和你在一起的时候我确实偶尔会有些失望，最起码的：
-
-　　- 我不希望我的朋友和我单独出去吃饭时会一直看着视频；
-　　- 我也不希望谁都没告诉的二人旅行的视频会被随手发给刚认识的素未谋面的网友；
-　　- 我更不希望我的朋友们整天聊的内容都是谁很强，谁比谁弱，谁最卷，谁不卷，谁瞧不起谁。
-
-　　特别是最后一条，每天我听得耳朵都快起茧。这也是为什么我和钱泓文、张江平、王浩峰也不怎么说话了——这种类型的玩笑在我心里是属于“过分”范畴的，这样的群体我只好敬而远之。
-
----
-
-## 关于你
-
-　　说实话，在你身上我看到了许多徐钰轩的影子：口无遮拦，做事比较随性，偶尔我甚至能看到我自己以前的样子：个性张扬，爱憎分明。你这些其实都挺好的。
-
-　　不过我得提醒你一个实际存在的问题：**你的随性太没有边界了。**
-
-　　人与人之间，再亲密无间的朋友间也应该有边界感，有分寸，不随便插手别人的事情，别人喜爱讨厌的事物不做太多评价。而到了你这里，冒犯别人成了家常便饭。起码我被冒犯过很多次，我不想和别人闹掰，也就忍了，时间的确会磨平一切。
-
-　　徐钰轩也是个随性的人，但他如果做错事会道歉，他待人接物是有分寸的。
-
-　　我和曹峦逸之间，其实也有很长一段时间没说过话，从初一下一直到九上。那时候的情况和我们现在差不多，只不过我成了现在的你，曹峦逸成了现在的我。那时我也随性，个性外露，也曾冒犯过他。记得有一次我把他父母的名字合并成了一个人名，结果他板着脸没说话，我也没有道歉。我和他决定“绝交”的那天，几乎同时提出这个要求。前一天晚上我想了很久，也 figure out 了一些东西，我还记得我的结论是：**我俩必须有一个人做出改变，否则就不适合做朋友。**
-
-　　Things turn out，我不知不觉间变了，收敛了很多，我和他之间又和好了。和好是突然发生的，没有任何迹象，某一天我们突然就像什么都没发生过，又成了朋友，一直到现在。
-
-　　我当然不希望你变，我估计你也不会变，这样挺好的。有时我也想变回从前的我，却做不到。
-
----
-
-　　以上分析，我们不太适合做朋友了，但我仍然对你真心祝好。
-
-　　人生有梦，各自精彩，愿你保重。
-
-<div class="signature">
-
-<p>Finch</p>
-
-<p>20260925</p>
-
-</div>
-`;
+      const LETTER_TIMEOUT_MS = 30000;
 
       /* =========================================================
            Markdown 渲染
@@ -853,28 +796,18 @@
         return result;
       }
 
-      /* =========================================================
-           渲染信件
-        ========================================================= */
-
-      document.getElementById("letter").innerHTML =
-        renderMarkdown(letterMarkdown);
 
       /* =========================================================
            密码系统
+
+         密码本体的校验在服务端（nginx 的 ?pwd= 判断），
+         这里只负责把四位数字发给服务器、再把拿回来的信渲染出来。
         ========================================================= */
 
       let password = "";
 
-      /* ---------------------------------------------------------
-         信件里那句「至于密码……的含义」后面要跟上的四个数字。
-
-         这里刻意不写死密码：只有输对密码才会解锁信件，
-         所以在解锁的那一刻，把访客刚刚按下的最后四个数字填进去就行
-         （填进 letterMarkdown 里预留的 #codeHint 里）。
-         --------------------------------------------------------- */
-
-      let lastTypedCode = "";
+      /* 正在向服务器取信时，不接受新的按键 */
+      let loading = false;
 
       function updateDots() {
         const dots = document.querySelectorAll(".dot");
@@ -889,11 +822,69 @@
       }
 
       /* =========================================================
+           中文乱码防护
+
+         优先按 UTF-8 解；万一拿到的是 GBK，解出来会满是 U+FFFD（），
+         这时用 GBK 再解一次、取更干净的那个；
+         顺手去掉 BOM，并把 CRLF 统一成 LF。
+        ========================================================= */
+
+      function decodeBytes(buffer) {
+        const bytes = new Uint8Array(buffer);
+
+        /* UTF-16 LE 的 BOM */
+        if (bytes.length > 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+          return decodeAs("utf-16le", bytes).replace(/^\uFEFF/, "");
+        }
+
+        let text = decodeAs("utf-8", bytes);
+
+        const broken = (text.match(/\uFFFD/g) || []).length;
+
+        if (broken > 0) {
+          try {
+            const gbk = decodeAs("gbk", bytes);
+
+            if ((gbk.match(/\uFFFD/g) || []).length < broken) {
+              text = gbk;
+            }
+          } catch (error) {
+            /* 浏览器不支持 gbk 就算了 */
+          }
+        }
+
+        return text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
+      }
+
+      function decodeAs(encoding, bytes) {
+        if (typeof TextDecoder === "function") {
+          try {
+            return new TextDecoder(encoding, { fatal: false }).decode(bytes);
+          } catch (error) {
+            /* 不认识的编码名，走下面的兜底 */
+          }
+        }
+
+        /* 老浏览器兜底：还原成 %XX 再 decodeURIComponent（等价 UTF-8 解码） */
+        let escaped = "";
+
+        for (let i = 0; i < bytes.length; i++) {
+          escaped += "%" + ("0" + bytes[i].toString(16)).slice(-2);
+        }
+
+        try {
+          return decodeURIComponent(escaped);
+        } catch (error) {
+          return String.fromCharCode.apply(null, bytes);
+        }
+      }
+
+      /* =========================================================
            输入数字
         ========================================================= */
 
       function pressKey(number) {
-        if (password.length >= 4) {
+        if (loading || password.length >= 4) {
           return;
         }
 
@@ -911,7 +902,7 @@
 
         if (password.length === 4) {
           setTimeout(function () {
-            verifyPassword();
+            unlock();
           }, 120);
         }
       }
@@ -921,96 +912,122 @@
         ========================================================= */
 
       function deleteKey() {
-        if (password.length > 0) {
-          password = password.slice(0, -1);
-
-          updateDots();
+        if (loading || password.length === 0) {
+          return;
         }
+
+        password = password.slice(0, -1);
+
+        updateDots();
       }
 
       /* =========================================================
-           验证密码
+           取信 → 渲染
+
+         密码不对：403/404；被限流：429；连不上：fetch 抛错。
+         三种情况都给提示，并且清空重输。
         ========================================================= */
 
-      function verifyPassword() {
-        /*
-         * MD5(MD5(password))
-         */
-
-        const firstMD5 = md5(password);
-
-        const secondMD5 = md5(firstMD5);
-
-        /*
-         * 双重 MD5
-         */
-
-        const target = "131aadf2c6880dbe424030542ff1cd07";
-
-        /* =====================================================
-               密码正确
-            ===================================================== */
-
-        if (secondMD5 === target) {
-          /* 把访客刚输入的四个数字填进信件那句话里（源码里不出现明文密码） */
-
-          lastTypedCode = password;
-
-          const hint = document.getElementById("codeHint");
-
-          if (hint) {
-            hint.textContent = lastTypedCode;
-          }
-
-          const loginBox = document.getElementById("loginBox");
-
-          loginBox.style.opacity = "0";
-
-          setTimeout(function () {
-            loginBox.style.display = "none";
-
-            document.getElementById("content").classList.add("show");
-          }, 350);
+      async function unlock() {
+        if (loading) {
+          return;
         }
 
-        /* =====================================================
-               密码错误
-            ===================================================== */
-        else {
-          const message = document.getElementById("message");
+        loading = true;
 
-          const dots = document.getElementById("dots");
+        const message = document.getElementById("message");
 
-          message.textContent = "密码错误";
+        message.textContent = "正在打开…";
 
-          message.classList.add("error");
+        message.classList.remove("error");
 
-          /*
-           * 重新触发抖动
-           */
+        let text = null;
+        let error = "";
+
+        const controller =
+          typeof AbortController === "function" ? new AbortController() : null;
+
+        const timer = setTimeout(function () {
+          if (controller) {
+            controller.abort();
+          }
+        }, LETTER_TIMEOUT_MS);
+
+        try {
+          const response = await fetch(
+            LETTER_URL + "?pwd=" + encodeURIComponent(password),
+            {
+              cache: "no-store",
+              signal: controller ? controller.signal : undefined,
+            },
+          );
+
+          if (response.status === 429) {
+            error = "尝试太频繁，等一会儿再试";
+          } else if (!response.ok) {
+            error = "密码错误";
+          } else {
+            text = decodeBytes(await response.arrayBuffer());
+          }
+        } catch (requestError) {
+          error = "连不上服务器，检查网络后再试";
+        } finally {
+          clearTimeout(timer);
+        }
+
+        loading = false;
+
+        if (error || text === null) {
+          showError(error || "读取失败");
+
+          return;
+        }
+
+        document.getElementById("letter").innerHTML = renderMarkdown(text);
+
+        const loginBox = document.getElementById("loginBox");
+
+        loginBox.style.opacity = "0";
+
+        setTimeout(function () {
+          loginBox.style.display = "none";
+
+          document.getElementById("content").classList.add("show");
+        }, 350);
+      }
+
+      /* =========================================================
+           出错：提示 + 抖动 + 清空重输
+        ========================================================= */
+
+      function showError(text) {
+        const message = document.getElementById("message");
+
+        const dots = document.getElementById("dots");
+
+        message.textContent = text;
+
+        message.classList.add("error");
+
+        /* 重新触发抖动 */
+
+        dots.classList.remove("shake");
+
+        void dots.offsetWidth;
+
+        dots.classList.add("shake");
+
+        setTimeout(function () {
+          password = "";
+
+          updateDots();
+
+          message.textContent = "请输入密码";
+
+          message.classList.remove("error");
 
           dots.classList.remove("shake");
-
-          void dots.offsetWidth;
-
-          dots.classList.add("shake");
-
-          /*
-           * 自动重置
-           */
-
-          setTimeout(function () {
-            password = "";
-
-            updateDots();
-
-            message.textContent = "请输入密码";
-
-            message.classList.remove("error");
-
-            dots.classList.remove("shake");
-          }, 700);
-        }
+        }, 900);
       }
 
       /* =========================================================
@@ -1025,330 +1042,6 @@
         }
       });
 
-      /* =========================================================
-           MD5
-        ========================================================= */
-
-      function md5(string) {
-        function RotateLeft(lValue, iShiftBits) {
-          return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
-        }
-
-        function AddUnsigned(lX, lY) {
-          let lX4;
-          let lY4;
-          let lX8;
-          let lY8;
-          let lResult;
-
-          lX8 = lX & 0x80000000;
-
-          lY8 = lY & 0x80000000;
-
-          lX4 = lX & 0x40000000;
-
-          lY4 = lY & 0x40000000;
-
-          lResult = (lX & 0x3fffffff) + (lY & 0x3fffffff);
-
-          if (lX4 & lY4) {
-            return lResult ^ 0x80000000 ^ lX8 ^ lY8;
-          }
-
-          if (lX4 | lY4) {
-            if (lResult & 0x40000000) {
-              return lResult ^ 0xc0000000 ^ lX8 ^ lY8;
-            } else {
-              return lResult ^ 0x40000000 ^ lX8 ^ lY8;
-            }
-          }
-
-          return lResult ^ lX8 ^ lY8;
-        }
-
-        function F(x, y, z) {
-          return (x & y) | (~x & z);
-        }
-
-        function G(x, y, z) {
-          return (x & z) | (y & ~z);
-        }
-
-        function H(x, y, z) {
-          return x ^ y ^ z;
-        }
-
-        function I(x, y, z) {
-          return y ^ (x | ~z);
-        }
-
-        function FF(a, b, c, d, x, s, ac) {
-          a = AddUnsigned(a, AddUnsigned(AddUnsigned(F(b, c, d), x), ac));
-
-          return AddUnsigned(RotateLeft(a, s), b);
-        }
-
-        function GG(a, b, c, d, x, s, ac) {
-          a = AddUnsigned(a, AddUnsigned(AddUnsigned(G(b, c, d), x), ac));
-
-          return AddUnsigned(RotateLeft(a, s), b);
-        }
-
-        function HH(a, b, c, d, x, s, ac) {
-          a = AddUnsigned(a, AddUnsigned(AddUnsigned(H(b, c, d), x), ac));
-
-          return AddUnsigned(RotateLeft(a, s), b);
-        }
-
-        function II(a, b, c, d, x, s, ac) {
-          a = AddUnsigned(a, AddUnsigned(AddUnsigned(I(b, c, d), x), ac));
-
-          return AddUnsigned(RotateLeft(a, s), b);
-        }
-
-        function ConvertToWordArray(string) {
-          let lWordCount;
-
-          const lMessageLength = string.length;
-
-          const lNumberOfWordsTemp1 = lMessageLength + 8;
-
-          const lNumberOfWordsTemp2 =
-            (lNumberOfWordsTemp1 - (lNumberOfWordsTemp1 % 64)) / 64;
-
-          const lNumberOfWords = (lNumberOfWordsTemp2 + 1) * 16;
-
-          const lWordArray = Array(lNumberOfWords - 1);
-
-          let lBytePosition = 0;
-          let lByteCount = 0;
-
-          while (lByteCount < lMessageLength) {
-            lWordCount = (lByteCount - (lByteCount % 4)) / 4;
-
-            lBytePosition = (lByteCount % 4) * 8;
-
-            lWordArray[lWordCount] =
-              lWordArray[lWordCount] |
-              (string.charCodeAt(lByteCount) << lBytePosition);
-
-            lByteCount++;
-          }
-
-          lWordCount = (lByteCount - (lByteCount % 4)) / 4;
-
-          lBytePosition = (lByteCount % 4) * 8;
-
-          lWordArray[lWordCount] =
-            lWordArray[lWordCount] | (0x80 << lBytePosition);
-
-          lWordArray[lNumberOfWords - 2] = lMessageLength << 3;
-
-          lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29;
-
-          return lWordArray;
-        }
-
-        function WordToHex(lWord) {
-          let lByte;
-          let lCount;
-
-          let lWordToHex = "";
-
-          for (lCount = 0; lCount <= 3; lCount++) {
-            lByte = (lWord >>> (lCount * 8)) & 255;
-
-            lWordToHex += ("0" + lByte.toString(16)).slice(-2);
-          }
-
-          return lWordToHex;
-        }
-
-        function Utf8Encode(string) {
-          string = string.replace(/\r\n/g, "\n");
-
-          let utftext = "";
-
-          for (let n = 0; n < string.length; n++) {
-            const c = string.charCodeAt(n);
-
-            if (c < 128) {
-              utftext += String.fromCharCode(c);
-            } else if (c > 127 && c < 2048) {
-              utftext += String.fromCharCode((c >> 6) | 192);
-
-              utftext += String.fromCharCode((c & 63) | 128);
-            } else {
-              utftext += String.fromCharCode((c >> 12) | 224);
-
-              utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-
-              utftext += String.fromCharCode((c & 63) | 128);
-            }
-          }
-
-          return utftext;
-        }
-
-        string = Utf8Encode(string);
-
-        const x = ConvertToWordArray(string);
-
-        let a = 0x67452301;
-
-        let b = 0xefcdab89;
-
-        let c = 0x98badcfe;
-
-        let d = 0x10325476;
-
-        for (let k = 0; k < x.length; k += 16) {
-          const AA = a;
-          const BB = b;
-          const CC = c;
-          const DD = d;
-
-          a = FF(a, b, c, d, x[k + 0], 7, 0xd76aa478);
-
-          d = FF(d, a, b, c, x[k + 1], 12, 0xe8c7b756);
-
-          c = FF(c, d, a, b, x[k + 2], 17, 0x242070db);
-
-          b = FF(b, c, d, a, x[k + 3], 22, 0xc1bdceee);
-
-          a = FF(a, b, c, d, x[k + 4], 7, 0xf57c0faf);
-
-          d = FF(d, a, b, c, x[k + 5], 12, 0x4787c62a);
-
-          c = FF(c, d, a, b, x[k + 6], 17, 0xa8304613);
-
-          b = FF(b, c, d, a, x[k + 7], 22, 0xfd469501);
-
-          a = FF(a, b, c, d, x[k + 8], 7, 0x698098d8);
-
-          d = FF(d, a, b, c, x[k + 9], 12, 0x8b44f7af);
-
-          c = FF(c, d, a, b, x[k + 10], 17, 0xffff5bb1);
-
-          b = FF(b, c, d, a, x[k + 11], 22, 0x895cd7be);
-
-          a = FF(a, b, c, d, x[k + 12], 7, 0x6b901122);
-
-          d = FF(d, a, b, c, x[k + 13], 12, 0xfd987193);
-
-          c = FF(c, d, a, b, x[k + 14], 17, 0xa679438e);
-
-          b = FF(b, c, d, a, x[k + 15], 22, 0x49b40821);
-
-          a = GG(a, b, c, d, x[k + 1], 5, 0xf61e2562);
-
-          d = GG(d, a, b, c, x[k + 6], 9, 0xc040b340);
-
-          c = GG(c, d, a, b, x[k + 11], 14, 0x265e5a51);
-
-          b = GG(b, c, d, a, x[k + 0], 20, 0xe9b6c7aa);
-
-          a = GG(a, b, c, d, x[k + 5], 5, 0xd62f105d);
-
-          d = GG(d, a, b, c, x[k + 10], 9, 0x02441453);
-
-          c = GG(c, d, a, b, x[k + 15], 14, 0xd8a1e681);
-
-          b = GG(b, c, d, a, x[k + 4], 20, 0xe7d3fbc8);
-
-          a = GG(a, b, c, d, x[k + 9], 5, 0x21e1cde6);
-
-          d = GG(d, a, b, c, x[k + 14], 9, 0xc33707d6);
-
-          c = GG(c, d, a, b, x[k + 3], 14, 0xf4d50d87);
-
-          b = GG(b, c, d, a, x[k + 8], 20, 0x455a14ed);
-
-          a = GG(a, b, c, d, x[k + 13], 5, 0xa9e3e905);
-
-          d = GG(d, a, b, c, x[k + 2], 9, 0xfcefa3f8);
-
-          c = GG(c, d, a, b, x[k + 7], 14, 0x676f02d9);
-
-          b = GG(b, c, d, a, x[k + 12], 20, 0x8d2a4c8a);
-
-          a = HH(a, b, c, d, x[k + 5], 4, 0xfffa3942);
-
-          d = HH(d, a, b, c, x[k + 8], 11, 0x8771f681);
-
-          c = HH(c, d, a, b, x[k + 11], 16, 0x6d9d6122);
-
-          b = HH(b, c, d, a, x[k + 14], 23, 0xfde5380c);
-
-          a = HH(a, b, c, d, x[k + 1], 4, 0xa4beea44);
-
-          d = HH(d, a, b, c, x[k + 4], 11, 0x4bdecfa9);
-
-          c = HH(c, d, a, b, x[k + 7], 16, 0xf6bb4b60);
-
-          b = HH(b, c, d, a, x[k + 10], 23, 0xbebfbc70);
-
-          a = HH(a, b, c, d, x[k + 13], 4, 0x289b7ec6);
-
-          d = HH(d, a, b, c, x[k + 0], 11, 0xeaa127fa);
-
-          c = HH(c, d, a, b, x[k + 3], 16, 0xd4ef3085);
-
-          b = HH(b, c, d, a, x[k + 6], 23, 0x04881d05);
-
-          a = HH(a, b, c, d, x[k + 9], 4, 0xd9d4d039);
-
-          d = HH(d, a, b, c, x[k + 12], 11, 0xe6db99e5);
-
-          c = HH(c, d, a, b, x[k + 15], 16, 0x1fa27cf8);
-
-          b = HH(b, c, d, a, x[k + 2], 23, 0xc4ac5665);
-
-          a = II(a, b, c, d, x[k + 0], 6, 0xf4292244);
-
-          d = II(d, a, b, c, x[k + 7], 10, 0x432aff97);
-
-          c = II(c, d, a, b, x[k + 14], 15, 0xab9423a7);
-
-          b = II(b, c, d, a, x[k + 5], 21, 0xfc93a039);
-
-          a = II(a, b, c, d, x[k + 12], 6, 0x655b59c3);
-
-          d = II(d, a, b, c, x[k + 3], 10, 0x8f0ccc92);
-
-          c = II(c, d, a, b, x[k + 10], 15, 0xffeff47d);
-
-          b = II(b, c, d, a, x[k + 1], 21, 0x85845dd1);
-
-          a = II(a, b, c, d, x[k + 8], 6, 0x6fa87e4f);
-
-          d = II(d, a, b, c, x[k + 15], 10, 0xfe2ce6e0);
-
-          c = II(c, d, a, b, x[k + 6], 15, 0xa3014314);
-
-          b = II(b, c, d, a, x[k + 13], 21, 0x4e0811a1);
-
-          a = II(a, b, c, d, x[k + 4], 6, 0xf7537e82);
-
-          d = II(d, a, b, c, x[k + 11], 10, 0xbd3af235);
-
-          c = II(c, d, a, b, x[k + 2], 15, 0x2ad7d2bb);
-
-          b = II(b, c, d, a, x[k + 9], 21, 0xeb86d391);
-
-          a = AddUnsigned(a, AA);
-
-          b = AddUnsigned(b, BB);
-
-          c = AddUnsigned(c, CC);
-
-          d = AddUnsigned(d, DD);
-        }
-
-        const temp = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d);
-
-        return temp.toLowerCase();
-      }
     </script>
   </body>
 </html>
