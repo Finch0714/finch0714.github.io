@@ -1328,32 +1328,26 @@ p {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   系统的「减弱动效」偏好。
+   坑：Windows「设置 → 辅助功能 → 视觉效果 → 动画效果」一关，浏览器就会报 reduce；
+   而常见的那种「*,*::before,*::after 全砍到 0.001ms」写法会让整站变成一张张静止
+   的图 —— 实测入场错开、页面淡变、标题上浮、hover 反馈全没了，看着像页面坏了。
+   所以这里只降级真正会引起不适的两样：
+     · 平滑滚动 → 直接跳（大幅平移是典型的眩晕源）
+     · 入场/标题的位移动画 → 压成纯淡入，不做位移
+   其余（短过渡、hover、页面交叉淡变）照常跑；内容也绝不会卡在隐藏态。
+   --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    transition-delay: 0s !important;
-  }
   html {
     scroll-behavior: auto;
   }
-  /* 关键：入场动画一律降级成「直接可见」，
-     绝不能让任何内容卡在 opacity:0 的隐藏态里。 */
+  /* 入场只保留淡入：把位移动画钉住，同时确保不会卡在 opacity:0 */
   .md-js .md-reveal,
   .md-anim,
   .md-js .md-split__i,
   .md-js .md-section__rule {
     opacity: 1 !important;
     transform: none !important;
-    animation: none !important;
-  }
-  /* 页面切换的交叉淡变也一起停掉（伪元素不在上面那条 `*` 的匹配范围内） */
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation: none !important;
   }
 }

@@ -302,19 +302,12 @@
         animation: pulse-target 2400ms cubic-bezier(0.76, 0, 0.24, 1) infinite;
       }
 
-      /* 无动画偏好：呼吸与光标闪烁都停掉，文字立刻全部可见 */
-      @media (prefers-reduced-motion: reduce) {
-        .target-box,
-        .cursor {
-          animation: none !important;
-        }
-        #bar {
-          transition-duration: 1ms !important;
-        }
-        #init-btn {
-          transition-duration: 1ms !important;
-        }
-      }
+      /* 入口页不跟随系统的「减弱动效」偏好。
+         这一页的「活气」几乎全在打字机 + 呼吸框 + 光标闪烁上；而 Windows 的
+         「设置 → 辅助功能 → 视觉效果 → 动画效果」一关，浏览器就报
+         prefers-reduced-motion: reduce —— 实测那一档下整页会变成一张静止的图
+         （CSS 动画 0 个、名字一次性出现、微倾也不绑）。
+         站点其它页面的动效层（md.css）仍然照常按 reduce 降级。 */
     </style>
     <style>
       :root {
@@ -523,11 +516,10 @@
           setTimeout(typeWriter, 120);
         }
       }
+      /* 打字机无条件跑：这是门页唯一的入场叙事（一次性、不晃眼），
+         不该被系统的「减弱动效」关掉 —— 之前跟着 canTilt 一起关，
+         结果开了那个开关的人看到的是一个静止的页面。 */
       window.onload = () => {
-        if (!canTilt) {
-          nameNode.nodeValue = nameText;
-          return;
-        }
         typeWriter();
       };
 
@@ -542,9 +534,8 @@
       const TILT_MAX = 8; // 最大倾角（度）
       const TILT_K = 14; // 逼近速度：越大越跟手，越小越飘
       const TILT_EPS = 0.02; // 何时算「到位」
-      const canTilt =
-        !window.matchMedia ||
-        !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      /* 微倾同样不受「减弱动效」影响：这一页的纵深全靠它，
+         关掉之后卡片就是一张钉死的平面图（站长明确要求入口页保留动效）。 */
 
       let tiltTargetX = 0;
       let tiltTargetY = 0;
@@ -589,17 +580,15 @@
         tiltRaf = requestAnimationFrame(tiltStep);
       }
 
-      if (canTilt) {
-        document.addEventListener("pointermove", (e) => {
-          const nx = (e.clientX / window.innerWidth) * 2 - 1; // -1 .. 1
-          const ny = (e.clientY / window.innerHeight) * 2 - 1;
-          tiltTo(-nx * TILT_MAX, ny * TILT_MAX);
-        });
+      document.addEventListener("pointermove", (e) => {
+        const nx = (e.clientX / window.innerWidth) * 2 - 1; // -1 .. 1
+        const ny = (e.clientY / window.innerHeight) * 2 - 1;
+        tiltTo(-nx * TILT_MAX, ny * TILT_MAX);
+      });
 
-        /* 指针离开窗口：回到正前方，同样会停在 0 */
-        document.addEventListener("pointerleave", () => tiltTo(0, 0));
-        window.addEventListener("blur", () => tiltTo(0, 0));
-      }
+      /* 指针离开窗口：回到正前方，同样会停在 0 */
+      document.addEventListener("pointerleave", () => tiltTo(0, 0));
+      window.addEventListener("blur", () => tiltTo(0, 0));
 
       // 💡 修复：添加防抖逻辑
       function startSequence() {
