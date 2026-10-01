@@ -4,9 +4,9 @@ window.STEAM_DATA = {
   "avatar": "./assets/steam/avatar.jpg",
   "state": 0,
   "game_ingame": null,
-  "total_hours": 974.4,
+  "total_hours": 976.3,
   "game_count": 10,
-  "updated_at": 1790769581,
+  "updated_at": 1790826437,
   "games_list": [
     {
       "appid": "manual_02",
@@ -35,13 +35,13 @@ window.STEAM_DATA = {
     {
       "appid": 431960,
       "name": "Wallpaper Engine",
-      "playtime": 10.9,
+      "playtime": 11.8,
       "icon": "./assets/steam/431960.jpg"
     },
     {
       "appid": 420530,
       "name": "OneShot",
-      "playtime": 4.7,
+      "playtime": 5.6,
       "icon": "./assets/steam/420530.jpg"
     },
     {
