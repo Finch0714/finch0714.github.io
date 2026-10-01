@@ -14,12 +14,19 @@
 参数：
     --src     源字体（默认用本机下载目录里的 仓耳今楷05-W04.ttf）
     --out     输出（默认 assets/fonts/tsanger-jinkai05-w04.woff2）
-    --extra   额外字符文件（比如你要收录一批动态文案里会出现的字）
+    --extra   额外字符文件（默认 scripts/extra_chars.txt，以 # 开头的行不算字符）
     --stats   只统计，不生成文件
+    --check   体检：仓库里用到的字是不是都在已生成的字体里
 
-注意：运行时才拿到的内容（每日一言、服务器返回的名字、信）里超出这份子集的字，
-会按 CSS 字体栈的顺序退回系统字体（PingFang SC / 微软雅黑），不会出现豆腐块，
-但同一行里可能两种字体混排。要避免就把那批字加进 --extra。
+要收进字体的有两类字：
+  ① 仓库里的文案 —— 本脚本直接扫（改了页面文案重跑一次即可）。
+  ② 运行时才从服务器拿的文案 —— 信件正文、status.json 的「2天23小时28分」、
+     状态页的聚合标签之类，仓库里根本没有，本脚本扫不到。它们由
+     scripts/dynamic_chars.py 抓成 scripts/extra_chars.txt 再并进来。
+     改了信、或改了服务器上的状态标签，就把那两个脚本按顺序重跑一遍。
+
+剩下的（「每日一言」这种外部 API 的任意句子）不收进子集：它整段用系统字体栈，
+所以不会出现「同一行两种字体混排」。
 """
 
 import argparse
@@ -93,7 +100,8 @@ def main():
     ap.add_argument("--src", default=r"I:\Chrome下载目录\仓耳今楷05-W04.ttf")
     ap.add_argument("--out", default=os.path.join(
         ROOT, "assets", "fonts", "tsanger-jinkai05-w04.woff2"))
-    ap.add_argument("--extra", help="额外字符文件（可给多个字，任意排版）")
+    ap.add_argument("--extra", default=os.path.join(ROOT, "scripts", "extra_chars.txt"),
+                    help="额外字符文件（默认 scripts/extra_chars.txt：服务器上运行时才出现的中文）")
     ap.add_argument("--stats", action="store_true", help="只统计不生成")
     ap.add_argument("--check", action="store_true",
                     help="体检：仓库里用到的字是不是都在已生成的字体里")
@@ -101,8 +109,13 @@ def main():
 
     extra = ""
     if args.extra:
-        with open(args.extra, encoding="utf-8") as f:
-            extra = f.read()
+        if os.path.exists(args.extra):
+            with open(args.extra, encoding="utf-8") as f:
+                # 以 # 开头的行是说明文字，不算字符
+                extra = "".join(l for l in f if not l.lstrip().startswith("#"))
+            print("额外字符：%s（%d 个）" % (args.extra, len(set(extra))))
+        else:
+            print("提示：没有 --extra 文件 %s，这次只按仓库文案裁" % args.extra, file=sys.stderr)
 
     chars, files = collect_chars(extra)
     cjk = sum(1 for c in chars if unicodedata.east_asian_width(c) in ("W", "F"))

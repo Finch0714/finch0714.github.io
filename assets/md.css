@@ -87,15 +87,21 @@
   /* 站点字体：仓耳今楷 05 W04（自托管子集，声明在 assets/fonts.css ——
      只带本站用到的 1153 个字，改了文案就用 scripts/subset_font.py 重裁一次）。 */
   --md-font: "TsangerJinKai05 W04", var(--md-font-system);
-  /* 纯系统字体栈：给「运行时才拿到的动态文字」用（每日一言、信、服务器返回的名字）。
-     这些字的范围无法预先知道，子集里没有的会逐字回退，导致同一句话里两种字体混排 ——
-     所以这类元素直接整段用系统字体，看起来才是一致的。 */
+  /* 纯系统字体栈：只给「文案不可预知」的地方用（当前是「每日一言」—— 那是外部
+     API 的任意句子，没法预先裁进子集）。服务器上**自己的**文案（信、状态数字、
+     聚合标签）不要用这个：它们的字由 scripts/dynamic_chars.py 收进子集，
+     用 --md-font 就是站点字体。 */
   --md-font-system:
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system,
     BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  /* 等宽栈里没有任何中文字体，而页面会把「2天23小时28分」「2 条」这类含中文的值
+     放进 .md-mono，所以中文字必须兜到站点字体上。
+     注意顺序：站点字体一定要放在泛型关键字（monospace）**之前** ——
+     实测泛型会把后面的逐字回退吃掉（Chrome 直接落到系统兜底 NSimSun/新宋体），
+     写成「..., monospace, var(--md-font)」是不生效的。 */
   --md-font-mono:
     "Roboto Mono", ui-monospace, "Cascadia Mono", Consolas, "SFMono-Regular",
-    monospace;
+    var(--md-font);
 }
 
 /* --------------------------------------------------------------------------
