@@ -14,17 +14,21 @@
     <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="stylesheet" href="./assets/md.css" />
-    <!-- 字体：霞鹜文楷 Bright Medium（中文网字计划 CDN，按 unicode-range 分片）
-         非阻塞加载：media=print 先挂起，下载完自动切回 all，不挡首屏绘制 -->
+    <!-- 字体：霞鹜文楷 Bright Medium —— 外部托管（cn-font 分片 CDN，样式表不再放本仓库）
+         ① preconnect：两个域名的握手提前做掉（含 307 跳转的目标域 ik.imagekit.io）
+         ② preload：抢高优先级，不用等 CSS 解析完才发现要下字体
+         ③ media 交换：样式表不阻塞首屏，下完再应用；字体分片按需从图床取 -->
+    <link rel="preconnect" href="https://cn-font.claude-code-best.win" />
     <link rel="preconnect" href="https://ik.imagekit.io" crossorigin />
+    <link rel="preload" as="style" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
     <link
       rel="stylesheet"
-      href="./assets/lxgw-bright.css"
+      href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css"
       media="print"
       onload="this.media = 'all'"
     />
     <noscript>
-      <link rel="stylesheet" href="./assets/lxgw-bright.css" />
+      <link rel="stylesheet" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
     </noscript>
     <style>
       #click-area {

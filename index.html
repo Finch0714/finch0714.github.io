@@ -6,6 +6,12 @@
     <title>SYSTEM ACCESS | THE MACHINE</title>
     <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <!-- 字体资源预热：本页用等宽字体做终端风，但访客下一步大概率进 about 等页面，
+         所以在这里就把外部字体 CDN 的连接和样式表提前取好，
+         切到下一页时字体 CSS 已在缓存里，直接命中，不用现场下载。 -->
+    <link rel="preconnect" href="https://cn-font.claude-code-best.win" />
+    <link rel="preconnect" href="https://ik.imagekit.io" crossorigin />
+    <link rel="preload" as="style" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
     <!-- 原来这里加载的是 Tailwind 的 Play CDN（cdn.tailwindcss.com）——
          那是「浏览器内实时编译」版，实测 398KB，官方明确标注不要用于生产：
          它会阻塞解析、然后在浏览器里现场编译 CSS，首屏要 2 秒多。
@@ -240,6 +246,64 @@
       .active\:scale-95:active {
         transform: scale(0.95);
       }
+
+      /* ---- 动效令牌 + 修掉两处手感问题 ---- */
+      :root {
+        --dur-instant: 90ms;
+        --dur-fast: 180ms;
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-out-circ: cubic-bezier(0, 0.55, 0.45, 1);
+      }
+
+      /* 进度条：原来动的是 width（每帧触发布局），改成 scaleX 只走合成层 */
+      #bar {
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 1400ms var(--ease-out-circ);
+        will-change: transform;
+      }
+
+      /* 按钮：原来 transition-all 会把颜色/阴影/缩放全带上（还包含布局属性），
+         收窄成背景色 + 缩放，并补上键盘可达的焦点环 */
+      #init-btn {
+        transition:
+          background-color var(--dur-fast) var(--ease-out-expo),
+          color var(--dur-fast) var(--ease-out-expo),
+          transform var(--dur-instant) var(--ease-out-circ);
+      }
+
+      #init-btn:hover {
+        background-color: #dc2626;
+        color: #000;
+      }
+
+      #init-btn:focus-visible {
+        outline: 3px solid var(--poi-yellow);
+        outline-offset: 3px;
+      }
+
+      #init-btn:active {
+        transform: scale(0.95);
+      }
+
+      /* 捕捉框的呼吸：改用 in-out 缓动，幅度收一点，别抢戏 */
+      .target-box {
+        animation: pulse-target 2400ms cubic-bezier(0.76, 0, 0.24, 1) infinite;
+      }
+
+      /* 无动画偏好：呼吸与光标闪烁都停掉，文字立刻全部可见 */
+      @media (prefers-reduced-motion: reduce) {
+        .target-box,
+        .cursor {
+          animation: none !important;
+        }
+        #bar {
+          transition-duration: 1ms !important;
+        }
+        #init-btn {
+          transition-duration: 1ms !important;
+        }
+      }
     </style>
     <style>
       :root {
@@ -294,7 +358,8 @@
         border: 1px solid rgba(255, 255, 255, 0.05);
         position: relative;
         transform-style: preserve-3d;
-        transition: transform 0.1s ease-out;
+        /* 注意：这里的 transform 由 JS 每帧写（帧率无关的逼近），
+           所以不能再挂 CSS transition —— 两个滤波器叠加会变成「慢半拍还抖」。 */
       }
 
       /* 💡 修复后的捕捉框：物理定位四个 L 型角 */
@@ -411,10 +476,7 @@
             </button>
             <div id="loader" class="hidden mt-4 space-y-2">
               <div class="w-full bg-gray-900 h-1">
-                <div
-                  id="bar"
-                  class="bg-red-600 h-full w-0 transition-all duration-700"
-                ></div>
+                <div id="bar" class="bg-red-600 h-full w-0"></div>
               </div>
               <p
                 class="text-[9px] text-red-500 animate-pulse uppercase text-center font-bold"
@@ -435,23 +497,98 @@
       // 💡 新增：锁机制
       let isProcessing = false;
 
+      /* 打字机：原来用 innerHTML += 逐字拼（每字重解析一次 HTML），
+         改成「一个纯文本节点装名字 + 一个独立光标 span」——每字只写文本，
+         没有元素级 DOM 变动。无动画偏好时不做逐字，直接整段出现。 */
+      const nameNode = document.createTextNode("");
+      typedName.appendChild(nameNode);
+      typedName.appendChild(document.createElement("span")).className = "cursor";
+
       let i = 0;
       function typeWriter() {
         if (i < nameText.length) {
-          typedName.innerHTML += nameText.charAt(i);
+          nameNode.nodeValue += nameText.charAt(i);
           i++;
           setTimeout(typeWriter, 120);
-        } else {
-          typedName.innerHTML += '<span class="cursor"></span>';
         }
       }
-      window.onload = typeWriter;
+      window.onload = () => {
+        if (!canTilt) {
+          nameNode.nodeValue = nameText;
+          return;
+        }
+        typeWriter();
+      };
 
-      document.addEventListener("mousemove", (e) => {
-        const xAxis = (window.innerWidth / 2 - e.pageX) / 20;
-        const yAxis = (window.innerHeight / 2 - e.pageY) / 20;
-        card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-      });
+      /* ---- 卡片跟随鼠标微倾（带纵深：卡片里那个捕捉框在 translateZ(60px)，
+              所以倾斜时会有真实视差，不是平面歪一下） ----
+         规则来自 motion-web：凡是「跟随」的东西，都不能把鼠标坐标直接写进
+         transform —— 那样帧率越高越抖、而且永远停不下来。正确做法是每帧用
+         1 - exp(-k·dt) 逼近目标：
+           · k 与帧率无关，60Hz / 120Hz 手感一致；
+           · 逼近到阈值就直接吸附到目标并停掉 rAF（静止时零开销，不会一直微晃）；
+           · 指针离开窗口时回到中位，同样是「到达并停住」。 */
+      const TILT_MAX = 8; // 最大倾角（度）
+      const TILT_K = 14; // 逼近速度：越大越跟手，越小越飘
+      const TILT_EPS = 0.02; // 何时算「到位」
+      const canTilt =
+        !window.matchMedia ||
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      let tiltTargetX = 0;
+      let tiltTargetY = 0;
+      let tiltX = 0;
+      let tiltY = 0;
+      let tiltLast = 0;
+      let tiltRaf = 0;
+
+      function tiltStep(now) {
+        /* dt 必须夹在 [0, 0.05]：rAF 给的时间戳可能比 tiltTo 里的 performance.now()
+           还早一点点（同一帧内），负的 dt 会让逼近系数变成负数（反着跑） */
+        const dt = Math.max(0, Math.min((now - tiltLast) / 1000, 0.05));
+        tiltLast = now;
+        const a = 1 - Math.exp(-TILT_K * dt); // 帧率无关的逼近系数
+
+        tiltX += (tiltTargetX - tiltX) * a;
+        tiltY += (tiltTargetY - tiltY) * a;
+
+        if (
+          Math.abs(tiltTargetX - tiltX) <= TILT_EPS &&
+          Math.abs(tiltTargetY - tiltY) <= TILT_EPS
+        ) {
+          /* 到位：吸附 + 写最后一次 + 收工（停 rAF、摘掉 will-change） */
+          tiltX = tiltTargetX;
+          tiltY = tiltTargetY;
+          card.style.transform = `rotateY(${tiltX}deg) rotateX(${tiltY}deg)`;
+          card.style.willChange = "";
+          tiltRaf = 0;
+          return;
+        }
+
+        card.style.transform = `rotateY(${tiltX.toFixed(3)}deg) rotateX(${tiltY.toFixed(3)}deg)`;
+        tiltRaf = requestAnimationFrame(tiltStep);
+      }
+
+      function tiltTo(x, y) {
+        tiltTargetX = x;
+        tiltTargetY = y;
+        if (tiltRaf) return;
+        card.style.willChange = "transform"; // 只在真正动的时候挂
+        tiltLast = performance.now();
+        tiltRaf = requestAnimationFrame(tiltStep);
+      }
+
+      if (canTilt) {
+        document.addEventListener("pointermove", (e) => {
+          const nx = (e.clientX / window.innerWidth) * 2 - 1; // -1 .. 1
+          const ny = (e.clientY / window.innerHeight) * 2 - 1;
+          tiltTo(-nx * TILT_MAX, ny * TILT_MAX);
+        });
+
+        /* 指针离开窗口：回到正前方，同样会停在 0 */
+        document.addEventListener("pointerleave", () => tiltTo(0, 0));
+        window.addEventListener("blur", () => tiltTo(0, 0));
+      }
 
       // 💡 修复：添加防抖逻辑
       function startSequence() {
@@ -466,7 +603,7 @@
         loader.classList.remove("hidden");
 
         setTimeout(() => {
-          bar.style.width = "100%";
+          bar.style.transform = "scaleX(1)";
         }, 100);
 
         // 跳转逻辑
