@@ -7,17 +7,28 @@
     <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <!-- 字体资源预热：本页用等宽字体做终端风，但访客下一步大概率进 about 等页面，
-         所以在这里就把外部字体 CDN 的连接和样式表提前取好，
-         切到下一页时字体 CSS 已在缓存里，直接命中，不用现场下载。 -->
-    <link rel="preconnect" href="https://cn-font.claude-code-best.win" />
-    <link rel="preconnect" href="https://ik.imagekit.io" crossorigin />
-    <link rel="preload" as="style" href="https://cn-font.claude-code-best.win/packages/lxgwwenkaibright/dist/LXGWBright-Medium/result.css" />
+         所以在这里就把自托管字体（单个 woff2）提前拉进缓存 ——
+         点「Enter」后那 1.6 秒的等待正好用来下它，切页时直接命中。 -->
+    <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/tsanger-jinkai05-w04.woff2" crossorigin />
     <!-- 原来这里加载的是 Tailwind 的 Play CDN（cdn.tailwindcss.com）——
          那是「浏览器内实时编译」版，实测 398KB，官方明确标注不要用于生产：
          它会阻塞解析、然后在浏览器里现场编译 CSS，首屏要 2 秒多。
          本页实际只用到下面这一组工具类，这里把等价 CSS 直接写出来，
          去掉整包依赖（净省约 398KB，且不再依赖国外 CDN）。 -->
     <style>
+      /* 进入首页时用一次跨文档交叉淡变（仅 180ms）：
+         终端门页（深色）→ 明色主页，直接瞬切会「啪」一下。
+         不支持的浏览器会自动忽略，行为与现在完全一致。 */
+      @view-transition {
+        navigation: auto;
+      }
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 180ms;
+        animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+      }
+
       /* ---- 基础重置：等价于 Tailwind preflight 中本页会用到的部分 ---- */
       *,
       ::before,

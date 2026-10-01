@@ -21,13 +21,12 @@ window.SITE = {
     /* 状态页要经 Tailscale 隧道取这份 JSON，单次 5~8 秒，提前抓进缓存后秒开 */
     statusUrl: "https://finch-server.tail36ef08.ts.net/status.json",
     statusPage: "status.html",
-    /* 字体样式表（自托管）：导航前先让它进缓存 */
-    fontCss: "./assets/lxgw-bright.css",
-    /* 需要提前握手的外域：隧道（TLS 要 4 秒）、字体分片图床 */
-    origins: [
-      "https://finch-server.tail36ef08.ts.net",
-      "https://ik.imagekit.io",
-    ],
+    /* 字体样式表：自托管（assets/fonts.css）。以前这里写的是 CDN 时代的
+       lxgw-bright.css，那个文件早就不在仓库里了 —— 每次访问都是一次 404 预热。 */
+    fontCss: "./assets/fonts.css",
+    /* 需要提前握手的外域：只剩状态页那条 Tailscale 隧道（TLS 要 4 秒）。
+       字体已经自托管，不用再给图床建连了。 */
+    origins: ["https://finch-server.tail36ef08.ts.net"],
   },
 };
 

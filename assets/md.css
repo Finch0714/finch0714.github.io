@@ -67,6 +67,10 @@
   --md-ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
   --md-stagger: 0.06s;
 
+  /* 指针 / 滚动动效层（第 17 节）——同样集中取值，组件里不现编数字 */
+  --md-split-step: 42ms; /* 大标题逐字上浮的错开步长 */
+  --md-split-y: 0.36em; /* 上浮距离：按字号的 em，随字号一起缩放 */
+
   /* 布局 —— 顶栏尺寸全部用 clamp() 做「设备自适应」：
      小屏手机取最小值，桌面（约 850px 以上）取最大值，中间连续过渡。
      这样各设备的顶栏比例都协调，不必靠一堆断点硬跳。 */
@@ -80,11 +84,15 @@
   --md-icon-btn: clamp(40px, 2.6vw + 30px, 44px);
   --md-max-w: 1120px;
 
-  /* 站点字体：霞鹜文楷 Bright Medium（由页面以「非阻塞」方式引入 CDN）。
-     后面的系统字体是加载期间 / CDN 挂掉时的兜底，保证文字永远不空白。 */
-  --md-font:
-    "LXGW Bright Medium", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  /* 站点字体：仓耳今楷 05 W04（自托管子集，声明在 assets/fonts.css ——
+     只带本站用到的 1153 个字，改了文案就用 scripts/subset_font.py 重裁一次）。 */
+  --md-font: "TsangerJinKai05 W04", var(--md-font-system);
+  /* 纯系统字体栈：给「运行时才拿到的动态文字」用（每日一言、信、服务器返回的名字）。
+     这些字的范围无法预先知道，子集里没有的会逐字回退，导致同一句话里两种字体混排 ——
+     所以这类元素直接整段用系统字体，看起来才是一致的。 */
+  --md-font-system:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
   --md-font-mono:
     "Roboto Mono", ui-monospace, "Cascadia Mono", Consolas, "SFMono-Regular",
     monospace;
@@ -486,6 +494,8 @@ p {
   cursor: pointer;
   display: block;
   color: inherit;
+  /* 指针高光（见第 17 节 .md-card--interactive::after）需要一个定位父级 */
+  position: relative;
 }
 
 .md-card--interactive:hover {
@@ -563,10 +573,15 @@ p {
     box-shadow var(--md-dur) var(--md-ease),
     background var(--md-dur) var(--md-ease),
     transform 0.12s var(--md-ease);
+  /* transform 由变量组装：默认值就是「不动」。指针磁吸（--md-mag-x/y）和按压
+     （--md-press）只改变量，所以样式表里不必为它们抢优先级，
+     :active 也只改一个变量，不再和别的 transform 规则打架。 */
+  transform: translate(var(--md-mag-x, 0px), var(--md-mag-y, 0px))
+    scale(var(--md-press, 1));
 }
 
 .md-btn:active {
-  transform: scale(0.97);
+  --md-press: 0.97;
 }
 
 .md-btn--filled {
@@ -1078,7 +1093,145 @@ p {
 }
 
 /* --------------------------------------------------------------------------
-   17. 响应式
+   17. 动效层（滚动 + 指针）
+   --------------------------------------------------------------------------
+   四条硬规则（来自 motion-web 的判据）：
+   · 只动 transform / opacity —— 既不触发布局，也不触发重绘；
+   · 凡「跟随指针」的量一律用 1 - exp(-k·dt) 逼近目标：与帧率无关
+     （60 / 120Hz 手感一致），而且「到达就停住」；把坐标直接写进 transform
+     会一直微抖、永不静止；
+   · JS 只写 CSS 变量，transform 由样式表组装 —— 行内 transform 的优先级
+     高于样式表，会把 :hover / :active 这些交互态悄悄吃掉；
+   · 指针层只在「鼠标 + 精确指针 + 未开启减弱动效」时运行，触屏和键盘用户
+     走纯 CSS 路径，功能与观感都不受影响。
+   -------------------------------------------------------------------------- */
+
+/* ---- 17.1 顶栏阅读进度条 ---- */
+/* 贴在顶栏下沿，滚起来才出现。进度写到 --md-read，scaleX 由样式表组装，
+   所以滚动过程中被改动的只有合成属性。 */
+.md-readbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--md-primary);
+  border-radius: 0 var(--md-r-full) var(--md-r-full) 0;
+  transform: scaleX(var(--md-read, 0));
+  transform-origin: left center;
+  opacity: 0;
+  transition: opacity var(--md-dur) var(--md-ease);
+  pointer-events: none;
+}
+
+.md-appbar.is-scrolled .md-readbar {
+  opacity: 1;
+}
+
+/* ---- 17.2 章节标题前的短划线：进视口时从左往右长出来 ---- */
+.md-js .md-section__rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--md-dur-slow) var(--md-ease-out-expo) 60ms;
+}
+
+.md-js .md-section__rule.is-visible {
+  transform: scaleX(1);
+}
+
+/* ---- 17.3 大标题逐字上浮 ----
+   每个字/词一个 inline-block 单元，--i 是它在标题里的序号，
+   延迟按序号错开，于是「从上往下」掉进位置。 */
+.md-js .md-split__i {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(var(--md-split-y, 0.36em));
+  transition:
+    opacity var(--md-dur-std) var(--md-ease-out-expo),
+    transform var(--md-dur-std) var(--md-ease-out-expo);
+  transition-delay: calc(var(--i, 0) * var(--md-split-step, 42ms));
+}
+
+.md-js .md-split.is-visible .md-split__i {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- 17.4 可点卡片：指针微倾 + 跟着指针走的高光 ----
+   .md-pt 存在期间 transform 由 JS 逐帧驱动，所以这里不能再挂 CSS 过渡
+   （两个滤波器叠在一起就是「慢半拍还抖」）。
+   .md-glow 只管高光的淡入淡出，指针一离开就先撤掉它。 */
+.md-card--interactive.md-pt {
+  transform: perspective(900px) translate3d(0, var(--md-lift, 0px), 0)
+    rotateX(var(--md-tilt-x, 0deg)) rotateY(var(--md-tilt-y, 0deg));
+  transition:
+    box-shadow var(--md-dur) var(--md-ease),
+    border-color var(--md-dur) var(--md-ease);
+}
+
+.md-card--interactive::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    240px circle at var(--md-mx, 50%) var(--md-my, 50%),
+    rgba(46, 125, 50, 0.13),
+    rgba(46, 125, 50, 0) 70%
+  );
+  opacity: 0;
+  transition: opacity var(--md-dur-medium) var(--md-ease);
+}
+
+.md-card--interactive.md-glow::after {
+  opacity: 1;
+}
+
+/* ---- 17.5 按钮：磁吸 + 按压 ----
+   transform 一直由 --md-mag-* / --md-press 组装（默认值即「不动」），
+   所以这里只需要在磁吸生效期间把 transform 从过渡里摘出去，
+   让 JS 逐帧接管它。 */
+.md-btn.md-pt {
+  transition:
+    box-shadow var(--md-dur) var(--md-ease),
+    background var(--md-dur) var(--md-ease);
+}
+
+/* ---- 17.6 页面之间：交叉淡变 ----
+   同源跨页导航时旧页淡出、新页淡入（180ms），顶栏因为是同名元素所以
+   不参与淡变、原地不动 —— 这正是「像 App」的那一下。
+   不支持的浏览器会整段忽略，直接瞬跳，没有任何副作用。 */
+@view-transition {
+  navigation: auto;
+}
+
+.md-appbar {
+  view-transition-name: md-appbar;
+}
+
+::view-transition-group(md-appbar) {
+  animation-duration: 180ms;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* 切换期间把入场动画一律降级成「立刻到位」：交叉淡变已经在演这一段，
+   两段叠在一起会像闪了两下。.md-vt 由 nav.js 在 pagereveal 里挂上，
+   切换结束后立刻摘掉（不影响之后滚动时的入场）。 */
+.md-vt .md-reveal,
+.md-vt .md-split__i {
+  transition: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   18. 响应式
    -------------------------------------------------------------------------- */
 /* 中等屏幕（笔记本偏窄）：横向导航还在，把入口间距收紧，
    给 7 个入口留出空间，避免挤成一团 */
@@ -1184,9 +1337,17 @@ p {
   /* 关键：入场动画一律降级成「直接可见」，
      绝不能让任何内容卡在 opacity:0 的隐藏态里。 */
   .md-js .md-reveal,
-  .md-anim {
+  .md-anim,
+  .md-js .md-split__i,
+  .md-js .md-section__rule {
     opacity: 1 !important;
     transform: none !important;
+    animation: none !important;
+  }
+  /* 页面切换的交叉淡变也一起停掉（伪元素不在上面那条 `*` 的匹配范围内） */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
     animation: none !important;
   }
 }
