@@ -589,12 +589,17 @@
          信件正文不再写在这个页面里。
 
          输对密码后，才向家里的小主机取：
-           https://finch-server.tail36ef08.ts.net/letter.md?pwd=四位密码
+           https://finch-server.tail36ef08.ts.net/letter.md?pwd=四位密码    ← 0905：别人写来的
+           https://finch-server.tail36ef08.ts.net/letter1.md?pwd=四位密码   ← 1001：自己写给别人的
+         两封**同时**请求，哪一封 200 就显示哪一封（另一封 404，属正常）。
          密码由服务端（nginx）校验：不对就直接拿不到文件，
-         所以这个页面里既没有信的正文，也没有密码。
+         所以这个页面里既没有信的正文，也没有密码，连「有几封信」都得靠试。
          --------------------------------------------------------- */
 
-      const LETTER_URL = "https://finch-server.tail36ef08.ts.net/letter.md";
+      const LETTER_URLS = [
+        "https://finch-server.tail36ef08.ts.net/letter.md",
+        "https://finch-server.tail36ef08.ts.net/letter1.md",
+      ];
 
       const LETTER_TIMEOUT_MS = 30000;
 
@@ -699,6 +704,18 @@
         text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
 
         /* =====================================================
+               Markdown 图片
+               （必须排在「链接」前面：否则 ![](…) 里的
+                 [](…) 会先被链接规则吃掉，剩下一个孤零零的 !）
+            ===================================================== */
+
+        text = text.replace(
+          /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g,
+
+          '<img src="$2" alt="$1">',
+        );
+
+        /* =====================================================
                Markdown 链接
             ===================================================== */
 
@@ -769,6 +786,7 @@
             trimmed.startsWith("</div") ||
             trimmed.startsWith("<p") ||
             trimmed.startsWith("</p") ||
+            trimmed.startsWith("<img") ||
             trimmed.startsWith("@@CODEBLOCK")
           ) {
             flushParagraph();
@@ -945,6 +963,8 @@
 
         let text = null;
         let error = "";
+        let busy = false;
+        let offline = false;
 
         const controller =
           typeof AbortController === "function" ? new AbortController() : null;
@@ -955,32 +975,60 @@
           }
         }, LETTER_TIMEOUT_MS);
 
-        try {
-          const response = await fetch(
-            LETTER_URL + "?pwd=" + encodeURIComponent(password),
-            {
+        /* 两封信并发取：谁 200 就是谁的密码，显示谁。
+           404 = 不是这一封（正常情况，不出声）；429 = 被限速；其它 = 网络问题。
+           两封都 404 才算密码错 —— 前端也依旧不知道到底有几封信。 */
+        const results = await Promise.allSettled(
+          LETTER_URLS.map(function (url) {
+            return fetch(url + "?pwd=" + encodeURIComponent(password), {
               cache: "no-store",
               signal: controller ? controller.signal : undefined,
-            },
-          );
+            }).then(function (response) {
+              if (response.status === 429) {
+                return { busy: true };
+              }
 
-          if (response.status === 429) {
-            error = "尝试太频繁，等一会儿再试";
-          } else if (!response.ok) {
-            error = "密码错误";
-          } else {
-            text = decodeBytes(await response.arrayBuffer());
+              if (!response.ok) {
+                return { miss: true };
+              }
+
+              return response.arrayBuffer().then(function (buffer) {
+                return { text: decodeBytes(buffer) };
+              });
+            });
+          }),
+        );
+
+        clearTimeout(timer);
+
+        results.forEach(function (result) {
+          if (result.status !== "fulfilled") {
+            offline = true;
+
+            return;
           }
-        } catch (requestError) {
-          error = "连不上服务器，检查网络后再试";
-        } finally {
-          clearTimeout(timer);
-        }
+
+          const value = result.value;
+
+          if (value.busy) {
+            busy = true;
+          } else if (typeof value.text === "string" && text === null) {
+            text = value.text;
+          }
+        });
 
         loading = false;
 
-        if (error || text === null) {
-          showError(error || "读取失败");
+        if (text === null) {
+          if (busy) {
+            error = "尝试太频繁，等一会儿再试";
+          } else if (offline) {
+            error = "连不上服务器，检查网络后再试";
+          } else {
+            error = "密码错误";
+          }
+
+          showError(error);
 
           return;
         }

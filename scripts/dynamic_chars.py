@@ -31,7 +31,8 @@ OUT = os.path.join(ROOT, "scripts", "extra_chars.txt")
 
 # 服务器上这些文件里的中文都可能出现在页面上
 REMOTE_FILES = [
-    "/var/www/nav/letter.md",       # 信件正文
+    "/var/www/nav/letter.md",       # 信件正文（0905 那封）
+    "/var/www/nav/letter1.md",      # 信件正文（1001 那封，后来加的）
     "/var/www/nav/index.html",      # 服务器自己的导航页
     "/root/server-status.sh",       # 生成 status.json 的中文标签
     "/root/astrbot-stats.py",       # AstrBot 统计的中文标签
