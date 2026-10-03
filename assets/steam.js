@@ -4,9 +4,9 @@ window.STEAM_DATA = {
   "avatar": "./assets/steam/avatar.jpg",
   "state": 0,
   "game_ingame": null,
-  "total_hours": 977.5,
-  "game_count": 10,
-  "updated_at": 1790956515,
+  "total_hours": 978.9,
+  "game_count": 11,
+  "updated_at": 1791040208,
   "games_list": [
     {
       "appid": "manual_02",
@@ -35,7 +35,7 @@ window.STEAM_DATA = {
     {
       "appid": 431960,
       "name": "Wallpaper Engine",
-      "playtime": 12.4,
+      "playtime": 12.6,
       "icon": "./assets/steam/431960.jpg"
     },
     {
@@ -61,6 +61,12 @@ window.STEAM_DATA = {
       "name": "Chained Together",
       "playtime": 1.3,
       "icon": "./assets/steam/2567870.jpg"
+    },
+    {
+      "appid": 3240220,
+      "name": "Grand Theft Auto V Enhanced",
+      "playtime": 1.2,
+      "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3240220/capsule_184x69.jpg"
     },
     {
       "appid": 438100,
