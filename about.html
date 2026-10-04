@@ -371,68 +371,10 @@
       }
       renderFeatures();
 
-      /* ---------- 下拉的交互 ----------
-         桌面端的「悬停展开」完全由 CSS 负责（md.css 里那个
-         @media (hover: hover)），这里只管点按、键盘、点别处收起。
-         触摸屏上 :hover 会粘住，所以触摸端一律靠这里切 .is-open。 */
-      (function initDropdowns() {
-        var cards = Array.prototype.slice.call(
-          document.querySelectorAll(".md-dropdown"),
-        );
-
-        if (!cards.length) {
-          return;
-        }
-
-        function setOpen(card, open) {
-          card.classList.toggle("is-open", open);
-
-          var trigger = card.querySelector(".md-dropdown__trigger");
-
-          if (trigger) {
-            trigger.setAttribute("aria-expanded", open ? "true" : "false");
-          }
-        }
-
-        cards.forEach(function (card) {
-          var trigger = card.querySelector(".md-dropdown__trigger");
-
-          if (!trigger) {
-            return;
-          }
-
-          trigger.addEventListener("click", function () {
-            setOpen(card, !card.classList.contains("is-open"));
-          });
-
-          /* 键盘：Enter / 空格 等同于点击，Esc 收起并把焦点还给触发区 */
-          trigger.addEventListener("keydown", function (event) {
-            if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
-              event.preventDefault();
-
-              setOpen(card, !card.classList.contains("is-open"));
-            }
-          });
-
-          card.addEventListener("keydown", function (event) {
-            if (event.key === "Escape") {
-              setOpen(card, false);
-
-              trigger.focus();
-            }
-          });
-        });
-
-        /* 点别处收起。点自己不会被误关：点击先冒泡到 trigger 的监听，
-           再到这里，而这里判断的是 card.contains(target)。 */
-        document.addEventListener("click", function (event) {
-          cards.forEach(function (card) {
-            if (!card.contains(event.target)) {
-              setOpen(card, false);
-            }
-          });
-        });
-      })();
+      /* 下拉的交互（点按 / 键盘 Enter 空格 / Esc / 点别处收起）统一在
+         assets/nav.js 的 initDropdowns() 里做事件委托 —— 顶栏那个「信」下拉
+         和这张卡片共用一套。这里不要再挂一份：同一次点击会被切换两次，
+         等于点了没反应。 */
 
       /* ---------- 联系方式 ---------- */
       function renderContacts() {

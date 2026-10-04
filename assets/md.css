@@ -660,6 +660,57 @@ p {
   display: none;
 }
 
+/* ---- 顶栏里的同一个下拉（「信」） ----
+   复用上面整套 .md-dropdown 展开机制（悬停/点按/CSS 全通用），
+   只把面板换成「贴着这个导航项、按内容宽」的浮层。 */
+.md-navdrop {
+  position: relative;
+}
+
+.md-navdrop > [role="button"] {
+  cursor: pointer;
+}
+
+.md-navdrop > [role="button"] .md-dropdown__caret {
+  margin-left: 5px;
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+
+.md-navdrop__panel {
+  top: calc(100% + 6px);
+  left: 0;
+  right: auto;
+  min-width: 208px;
+  padding: 6px;
+}
+
+/* ---- 抽屉里：不折叠，直接平铺三个子项（触摸端少一次展开） ---- */
+.md-drawer__label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px 4px;
+  color: var(--md-on-surface-muted);
+  font-size: 0.78rem;
+}
+
+.md-drawer__sub {
+  display: grid;
+  gap: 2px;
+  padding: 0 8px 8px;
+}
+
+.md-drawer__sub .md-subcard {
+  padding: 8px 10px;
+}
+
+.md-drawer__sub .md-subcard__ico {
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+}
+
 .md-card--interactive {
   cursor: pointer;
   display: block;

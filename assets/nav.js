@@ -86,6 +86,28 @@
     var logo = site.avatar || "./assets/avatar-160.jpg";
     var links = features
       .map(function (f, i) {
+        /* 带 children 的（目前只有「信」）：本身不跳转，悬停/点按展开子项。
+           触发区用 <span role=button>：样式直接复用 .md-nav__link，
+           不用再复制一份导航项的外观。 */
+        if (f.children && f.children.length) {
+          return (
+            '<div class="md-dropdown md-navdrop">' +
+            '<span class="md-nav__link' +
+            (i === activeIdx ? " is-active" : "") +
+            '" role="button" tabindex="0" aria-expanded="false" aria-haspopup="true">' +
+            '<span class="md-nav__ico">' +
+            esc(f.icon) +
+            "</span>" +
+            esc(SHORT[f.id] || f.title) +
+            '<span class="md-label md-dropdown__caret">▾</span>' +
+            "</span>" +
+            '<div class="md-dropdown__panel md-navdrop__panel" role="menu">' +
+            childItems(f) +
+            "</div>" +
+            "</div>"
+          );
+        }
+
         var ext = f.external ? ' target="_blank" rel="noopener"' : "";
         return (
           '<a class="md-nav__link md-ripple' +
@@ -105,6 +127,23 @@
 
     var drawerLinks = features
       .map(function (f, i) {
+        /* 抽屉里不折叠：直接平铺三个子项。
+           触摸端多一次展开反而更费事，铺开更好点。 */
+        if (f.children && f.children.length) {
+          return (
+            '<div class="md-drawer__group">' +
+            '<div class="md-drawer__label"><span class="md-drawer__ico">' +
+            esc(f.icon) +
+            "</span>" +
+            esc(f.title) +
+            "</div>" +
+            '<div class="md-drawer__sub">' +
+            childItems(f) +
+            "</div>" +
+            "</div>"
+          );
+        }
+
         var ext = f.external ? ' target="_blank" rel="noopener"' : "";
         return (
           '<a class="md-drawer__link md-ripple' +
@@ -786,11 +825,125 @@
     revealAll: revealAll,
   };
 
+  /* ---------- 下拉里的子项（顶栏 / 抽屉 / 关于页卡片共用） ----------
+     用卡片下拉那套 .md-subcard 样式，三处视觉一致。 */
+  function childItems(f) {
+    return (f.children || [])
+      .map(function (c) {
+        var ico =
+          '<span class="md-subcard__ico">' + esc(c.icon || "✉️") + "</span>";
+        var text =
+          '<span class="md-subcard__text"><strong>' +
+          esc(c.title) +
+          "</strong>" +
+          (c.desc ? "<em>" + esc(c.desc) + "</em>" : "") +
+          "</span>";
+
+        if (c.soon || !c.url) {
+          return (
+            '<span class="md-subcard md-subcard--soon">' +
+            ico +
+            text +
+            '<span class="md-chip md-chip--muted">即将</span>' +
+            "</span>"
+          );
+        }
+
+        return (
+          '<a class="md-subcard md-ripple" href="' +
+          linkTo(c.url) +
+          '" role="menuitem">' +
+          ico +
+          text +
+          '<span class="md-subcard__arrow">→</span>' +
+          "</a>"
+        );
+      })
+      .join("");
+  }
+
+  /* ---------- 下拉的交互（顶栏的「信」+ 关于页那张卡片） ----------
+     桌面端的「悬停展开」由 CSS 管（md.css 里的 .md-dropdown:hover）——
+     触摸屏上 :hover 会粘住，所以展开规则都包在 @media (hover: hover) 里。
+     这里只负责：点按切换、键盘 Enter/空格、Esc 收起、点别处收起。
+     用事件委托，所以对 nav.js 自己后注入的顶栏同样有效。
+
+     触发区一律取「.md-dropdown 的直接子元素里 role=button 的那个」，
+     卡片下拉（div.md-dropdown__trigger）和导航项（span.md-nav__link）都能命中。 */
+  function initDropdowns() {
+    var TOGGLE = '.md-dropdown > [role="button"]';
+
+    function setOpen(wrap, open) {
+      wrap.classList.toggle("is-open", open);
+
+      var toggle = wrap.querySelector(TOGGLE);
+
+      if (toggle) {
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+    }
+
+    function wrapOf(toggle) {
+      return toggle.parentNode;
+    }
+
+    function toggleOf(el) {
+      return el && el.closest ? el.closest(TOGGLE) : null;
+    }
+
+    document.addEventListener("click", function (event) {
+      var toggle = toggleOf(event.target);
+
+      if (toggle) {
+        var wrap = wrapOf(toggle);
+        setOpen(wrap, !wrap.classList.contains("is-open"));
+        return;
+      }
+
+      /* 点在别处：全收起（点在下拉面板自己的链接上不算「别处」） */
+      Array.prototype.forEach.call(
+        document.querySelectorAll(".md-dropdown"),
+        function (wrap) {
+          if (!wrap.contains(event.target)) {
+            setOpen(wrap, false);
+          }
+        },
+      );
+    });
+
+    document.addEventListener("keydown", function (event) {
+      var toggle = toggleOf(event.target);
+
+      if (toggle && (event.key === "Enter" || event.key === " " || event.key === "Spacebar")) {
+        event.preventDefault();
+
+        var wrap = wrapOf(toggle);
+        setOpen(wrap, !wrap.classList.contains("is-open"));
+        return;
+      }
+
+      if (event.key === "Escape") {
+        Array.prototype.forEach.call(
+          document.querySelectorAll(".md-dropdown.is-open"),
+          function (wrap) {
+            setOpen(wrap, false);
+
+            var t = wrap.querySelector(TOGGLE);
+            if (t) {
+              t.focus();
+            }
+          },
+        );
+      }
+    });
+  }
+
   /* ---------- 启动 ---------- */
   function boot() {
     buildAppbar();
     initScrollShadow();
     initDrawer();
+    initDropdowns();
     initRipple();
     /* 大标题先拆成逐字单元，再登记入场 —— 顺序不能反：
        reveal() 会把已在视口里的元素立刻点亮，拆晚了就漏掉首屏标题。 */
