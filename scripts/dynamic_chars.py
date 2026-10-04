@@ -40,8 +40,26 @@ REMOTE_FILES = [
 ]
 
 
-def han_only(text):
-    return {c for c in text if "\u4e00" <= c <= "\u9fff"}
+def page_chars(text):
+    """留下「页面上真会出现」的字符：汉字 + CJK 标点 + 全角/半角 + 常用标点。
+
+    以前这里只留 \u4e00-\u9fff，于是信件里的标点（、。“”…～）压根没进子集，
+    页面上这些字就掉到浏览器兜底的系统字体去 —— 左双引号就是这么掉的。
+    判定范围与 subset_font.py 保持一致。
+    """
+    keep = set()
+
+    for c in text:
+        o = ord(c)
+        if (
+            0x3400 <= o <= 0x9FFF        # 汉字（含扩展 A）
+            or 0x3000 <= o <= 0x303F     # CJK 标点（、。「」…）
+            or 0xFF00 <= o <= 0xFFEF     # 全角/半角
+            or 0x2000 <= o <= 0x206F     # 常用标点（引号、破折号…）
+        ):
+            keep.add(c)
+
+    return keep
 
 
 def from_ssh(host):
@@ -59,7 +77,7 @@ def from_ssh(host):
         print("  SSH 返回 %d，这一趟跳过" % r.returncode, file=sys.stderr)
         return set()
     text = r.stdout.decode("utf-8", "replace")
-    chars = han_only(text)
+    chars = page_chars(text)
     print("  %s → %d 个汉字" % (host, len(chars)))
     return chars
 
@@ -71,7 +89,7 @@ def from_url(url):
     except Exception as e:  # noqa: BLE001
         print("  拉 %s 失败（%s），这一趟跳过" % (url, e), file=sys.stderr)
         return set()
-    chars = han_only(text)          # 含 JSON 的键和值
+    chars = page_chars(text)          # 含 JSON 的键和值
     print("  %s → %d 个汉字" % (url, len(chars)))
     return chars
 
@@ -83,7 +101,7 @@ def from_files(paths):
             print("  跳过（不存在）：%s" % p, file=sys.stderr)
             continue
         with open(p, encoding="utf-8", errors="replace") as f:
-            c = han_only(f.read())
+            c = page_chars(f.read())
         chars |= c
         print("  %s → %d 个汉字" % (p, len(c)))
     return chars

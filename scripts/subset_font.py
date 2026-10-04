@@ -50,7 +50,7 @@ MAX_FILE = 1_500_000
 # 兜底标点/符号：字形都极小，但少了会很难看（各种引号、破折号、度、乘号…）
 ALWAYS = (
     string.printable
-    + "　、。〃々〈〉《》「」『』【】〔〕〖〗！？，．：；（）［］｛｝％＆＊＋－／＝＃＠"
+    + "　、。〃々〈〉《》「」『』【】〔〕〖〗！？，．：；（）［］｛｝％＆＊＋－／＝＃＠“”‘’"
     + "·—–…‰°±×÷≈≠≤≥√∞←→↑↓↔①②③④⑤⑥⑦⑧⑨⑩"
     + "℃℉µΩ㎡✦✓✕☰▼▲▶◀★☆♠♥"
 )
@@ -181,6 +181,39 @@ def main():
         "--recalc-bounds",
     ])
     os.remove(text_file)
+
+    # ------------------------------------------------------------------
+    # 补一个字库缺陷：仓耳今楷把这个字形的宽度做成了 0.5em
+    #   U+3000 全角空格（信里自然段的「　　」就是它）
+    #   按 Unicode 规范，它该和汉字一样宽（1em）。0.5em 的话，信里敲两个
+    #   只等于缩进一个字，看上去像没缩进 —— 2026-10 站长就是这么发现的。
+    # 这里只改它的 advance width（字形本身是空白的，没有渲染风险），
+    # 于是所有信件的缩进立刻恢复成「整整两个字」，不用改信的内容。
+    # ------------------------------------------------------------------
+    try:
+        from fontTools.ttLib import TTFont
+
+        font = TTFont(args.out)
+        glyph = font.getBestCmap().get(0x3000)
+
+        if glyph is not None:
+            upm = font["head"].unitsPerEm
+
+            for table in ("hmtx", "vmtx"):
+                if table in font:
+                    try:
+                        _, side = font[table][glyph]
+                        font[table][glyph] = (upm, side)
+                    except Exception:  # noqa: BLE001
+                        pass
+
+            font.flavor = "woff2"
+            font.save(args.out)
+            print("已把 U+3000（全角空格）的宽度修成整字宽：%d/%d em" % (upm, upm))
+
+        font.close()
+    except Exception as e:  # noqa: BLE001
+        print("注意：U+3000 宽度没修成（%s）" % e, file=sys.stderr)
 
     before = os.path.getsize(args.src)
     after = os.path.getsize(args.out)
