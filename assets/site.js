@@ -123,5 +123,14 @@ window.SITE_FEATURES = [
     btn: "展开阅读",
     desc: "写给自己，也写给一些人。",
     tags: ["随笔"],
+    /* 下拉子卡片（桌面端鼠标悬停展开，移动端点一下展开）：
+       渲染在 about.html 的 renderFeatures()，样式在 md.css 的「卡片下拉」一节。
+       三封都在了：letter.html / mfuvgs.html / ngvwht.html，各自认一个密码。
+       注意：密码只存在服务端，别写进这里的 desc。 */
+    children: [
+      { title: "第一封信", desc: "需要密码", icon: "✉️", url: "./letter.html" },
+      { title: "第二封信", desc: "需要密码", icon: "📩", url: "./mfuvgs.html" },
+      { title: "第三封信", desc: "需要密码", icon: "📜", url: "./ngvwht.html" },
+    ],
   },
 ];

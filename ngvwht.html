@@ -459,8 +459,96 @@
       }
 
       /* =========================================================
+           配乐条（第三封信专属）
+           解锁后才淡入，固定在底部；#letter 的 padding-bottom 已经留了
+           80px，不挡正文。收起态不可点（pointer-events: none）。
+         ========================================================= */
+
+      #music {
+        position: fixed;
+        left: 50%;
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        z-index: 5;
+
+        transform: translateX(-50%) translateY(10px);
+
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        max-width: min(92vw, 420px);
+        padding: 7px 16px 7px 7px;
+
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.94);
+        -webkit-backdrop-filter: saturate(180%) blur(14px);
+        backdrop-filter: saturate(180%) blur(14px);
+        box-shadow:
+          0 6px 26px rgba(0, 0, 0, 0.13),
+          0 1px 3px rgba(0, 0, 0, 0.06);
+
+        font-size: 13px;
+        color: #1c1c1e;
+
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      #music.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      #music button {
+        flex: none;
+        display: grid;
+        place-items: center;
+
+        width: 34px;
+        height: 34px;
+
+        border: none;
+        border-radius: 50%;
+
+        background: #1c1c1e;
+        color: #ffffff;
+
+        font-size: 12px;
+        line-height: 1;
+        cursor: pointer;
+
+        transition: transform 0.12s ease;
+      }
+
+      #music button:active {
+        transform: scale(0.92);
+      }
+
+      #music .m-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      #music .m-title em {
+        font-style: normal;
+        color: #8e8e93;
+        margin-left: 6px;
+      }
+
+      #music .m-state {
+        flex: none;
+        color: #8e8e93;
+        font-size: 12px;
+      }
+
+      /* =========================================================
            手机屏幕适配
-        ========================================================= */
+         ========================================================= */
 
       @media (max-width: 600px) {
         #letter {
@@ -584,20 +672,31 @@
       <article id="letter"></article>
     </div>
 
+    <!-- 配乐条：解锁成功后淡入（只有第二、三封有）。
+         内容由脚本填，静态这里只放骨架。 -->
+    <div id="music" role="group" aria-label="配乐">
+      <button id="music-button" type="button" aria-label="播放或暂停">
+        <span id="music-ico">♫</span>
+      </button>
+      <span class="m-title">Fallin' Out<em>Keyshia Cole</em></span>
+      <span class="m-state" id="music-state"></span>
+    </div>
+
     <script>
       /* ---------------------------------------------------------
          信件正文不再写在这个页面里。
 
          输对密码后，才向家里的小主机取：
-           https://finch-server.tail36ef08.ts.net/letter.md?pwd=四位密码
+           https://finch-server.tail36ef08.ts.net/letter2.md?pwd=四位密码
          密码由服务端（nginx）校验：不对就直接拿不到文件，
          所以这个页面里既没有信的正文，也没有密码。
 
-         （本页 = 第一封信。第二封信在 mfuvgs.html，界面一样、
-           只是取的是 letter1.md、认的是另一个密码。）
+         （本页 = 第三封信，界面和逻辑跟第二封一模一样，
+           差别只有两行：URL 取 letter2.md、配乐换成信里提到的那首
+           Fallin' Out。第一封在 letter.html，第二封在 mfuvgs.html。）
          --------------------------------------------------------- */
 
-      const LETTER_URL = "https://finch-server.tail36ef08.ts.net/letter.md";
+      const LETTER_URL = "https://finch-server.tail36ef08.ts.net/letter2.md";
 
       const LETTER_TIMEOUT_MS = 30000;
 
@@ -1003,6 +1102,9 @@
 
         document.getElementById("letter").innerHTML = renderMarkdown(text);
 
+        /* 第三封专属：信展开的同时去取配乐（取不到也不影响读信） */
+        startMusic();
+
         const loginBox = document.getElementById("loginBox");
 
         loginBox.style.opacity = "0";
@@ -1059,6 +1161,112 @@
           deleteKey();
         }
       });
+
+      /* =========================================================
+           配乐：第三封信解锁后放一首 —— Keyshia Cole《Fallin' Out》
+           （信里第 2 段那句「这首歌是初中时我喜欢的女生爱听的」说的就是它）
+
+           取链接走家里小主机的 /music，由它转发到解灰服务：
+           上游那个 /match 不返回 CORS 头，浏览器里直接 fetch 会被拦下。
+           音频本身是网易云 CDN 的 https 直链（支持 Range、不需要 Referer），
+           不经过小主机 —— 所以不占它的带宽，速度也快。
+           链接几小时就过期，所以每次解锁现取。
+
+           取不到就安安静静不放歌，绝不影响读信。
+         ========================================================= */
+
+      const MUSIC_API = "https://finch-server.tail36ef08.ts.net/music";
+      const MUSIC_ID = "25917315";
+      const MUSIC_SOURCE = "msls"; // 实测给 https + mp3
+
+      function startMusic() {
+        fetch(MUSIC_API + "?id=" + MUSIC_ID + "&source=" + MUSIC_SOURCE, {
+          cache: "no-store",
+        })
+          .then(function (response) {
+            return response.ok ? response.json() : null;
+          })
+          .then(function (data) {
+            const url = data && data.data && data.data.url;
+
+            if (!url) {
+              return;
+            }
+
+            /* 上游偶尔给 http，换 https —— 页面是 https，http 音频会被浏览器拦 */
+            playMusic(String(url).replace(/^http:/, "https:"));
+          })
+          .catch(function () {
+            /* 解灰服务挂了 / 没网：不放就是了 */
+          });
+      }
+
+      function playMusic(url) {
+        const bar = document.getElementById("music");
+        const button = document.getElementById("music-button");
+        const ico = document.getElementById("music-ico");
+        const state = document.getElementById("music-state");
+        const audio = new Audio();
+
+        /* 探针：游离的 Audio 不在 DOM 里，页面调试时靠它拿对象
+           （和 md 那边 window.MD 一个路子） */
+        window.MD_MUSIC = audio;
+
+        audio.src = url;
+        audio.preload = "auto";
+        audio.volume = 0;
+
+        audio.addEventListener("play", function () {
+          ico.textContent = "❚❚";
+          state.textContent = "";
+        });
+
+        audio.addEventListener("pause", function () {
+          ico.textContent = "▶";
+        });
+
+        audio.addEventListener("ended", function () {
+          ico.textContent = "↺";
+          state.textContent = "重播";
+        });
+
+        button.addEventListener("click", function () {
+          if (audio.paused) {
+            /* 播完了再点：从头来 */
+            if (audio.ended) {
+              audio.currentTime = 0;
+            }
+
+            audio.play().catch(function () {});
+          } else {
+            audio.pause();
+          }
+        });
+
+        /* 自动播放：解锁那几下点击通常已经给了许可；
+           万一被浏览器拦下，就退化成「点一下播放」 */
+        audio
+          .play()
+          .then(function () {
+            bar.classList.add("show");
+
+            let volume = 0;
+
+            const timer = setInterval(function () {
+              volume = Math.min(0.85, volume + 0.05);
+              audio.volume = volume;
+
+              if (volume >= 0.85) {
+                clearInterval(timer);
+              }
+            }, 90);
+          })
+          .catch(function () {
+            bar.classList.add("show");
+            ico.textContent = "▶";
+            state.textContent = "点一下播放";
+          });
+      }
 
     </script>
   </body>

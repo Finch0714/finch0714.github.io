@@ -234,6 +234,84 @@
     <script src="./assets/site.js"></script>
     <script src="./assets/nav.js"></script>
     <script>
+      /* ---------- 「信」那张卡：下拉 ----------
+         卡片本身不跳转，展开一组子卡片（第一封 / 第二封 / 占位的第三封）。
+         桌面端（有鼠标）展开由 CSS :hover 负责，触摸端点一下切 .is-open —— 见 md.css。
+         这里只做三件事：生成 DOM、点按/键盘切换、点别处收起。
+         触发区用 div[role=button] 而不是 <button>：里面是 .md-card__head /
+         h3 / p 这些块级元素，塞进 <button> 是非法内容模型（按钮只允许短语内容）。 */
+      function dropdownCardHTML(f) {
+        var tags = (f.tags || [])
+          .map(function (t) {
+            return (
+              '<span class="md-chip md-chip--muted">' + MD.esc(t) + "</span>"
+            );
+          })
+          .join("");
+
+        var items = (f.children || [])
+          .map(function (c) {
+            var ico =
+              '<span class="md-subcard__ico">' +
+              MD.esc(c.icon || "✉️") +
+              "</span>";
+            var text =
+              '<span class="md-subcard__text"><strong>' +
+              MD.esc(c.title) +
+              "</strong>" +
+              (c.desc ? "<em>" + MD.esc(c.desc) + "</em>" : "") +
+              "</span>";
+
+            /* 还没写的那封：不跳转、压暗、右侧换成「即将」角标 */
+            if (c.soon || !c.url) {
+              return (
+                '<span class="md-subcard md-subcard--soon">' +
+                ico +
+                text +
+                '<span class="md-chip md-chip--muted">即将</span>' +
+                "</span>"
+              );
+            }
+
+            return (
+              '<a class="md-subcard" href="' +
+              MD.esc(c.url) +
+              '" role="menuitem">' +
+              ico +
+              text +
+              '<span class="md-subcard__arrow">→</span>' +
+              "</a>"
+            );
+          })
+          .join("");
+
+        return (
+          '<div class="md-card md-card--elevated md-dropdown md-reveal" data-dropdown>' +
+          '<div class="md-dropdown__trigger" role="button" tabindex="0" aria-expanded="false" aria-haspopup="true">' +
+          '<div class="md-card__head">' +
+          '<span class="md-avatar">' +
+          MD.esc(f.icon) +
+          "</span>" +
+          '<h3 class="md-title">' +
+          MD.esc(f.title) +
+          "</h3>" +
+          '<span class="md-spacer"></span>' +
+          '<span class="md-label md-dropdown__caret">▾</span>' +
+          "</div>" +
+          '<p class="md-card__body" style="margin: 0 0 16px">' +
+          MD.esc(f.desc) +
+          "</p>" +
+          '<div class="md-row" style="gap: 8px">' +
+          tags +
+          "</div>" +
+          "</div>" +
+          '<div class="md-dropdown__panel" role="menu">' +
+          items +
+          "</div>" +
+          "</div>"
+        );
+      }
+
       /* ---------- 功能卡片 ---------- */
       function renderFeatures() {
         var grid = document.getElementById("feature-grid");
@@ -246,6 +324,11 @@
 
         grid.innerHTML = list
           .map(function (f) {
+            /* 带 children 的卡片（目前只有「信」）走下拉 */
+            if (f.children && f.children.length) {
+              return dropdownCardHTML(f);
+            }
+
             var tags = (f.tags || [])
               .map(function (t) {
                 return (
@@ -287,6 +370,69 @@
           .join("");
       }
       renderFeatures();
+
+      /* ---------- 下拉的交互 ----------
+         桌面端的「悬停展开」完全由 CSS 负责（md.css 里那个
+         @media (hover: hover)），这里只管点按、键盘、点别处收起。
+         触摸屏上 :hover 会粘住，所以触摸端一律靠这里切 .is-open。 */
+      (function initDropdowns() {
+        var cards = Array.prototype.slice.call(
+          document.querySelectorAll(".md-dropdown"),
+        );
+
+        if (!cards.length) {
+          return;
+        }
+
+        function setOpen(card, open) {
+          card.classList.toggle("is-open", open);
+
+          var trigger = card.querySelector(".md-dropdown__trigger");
+
+          if (trigger) {
+            trigger.setAttribute("aria-expanded", open ? "true" : "false");
+          }
+        }
+
+        cards.forEach(function (card) {
+          var trigger = card.querySelector(".md-dropdown__trigger");
+
+          if (!trigger) {
+            return;
+          }
+
+          trigger.addEventListener("click", function () {
+            setOpen(card, !card.classList.contains("is-open"));
+          });
+
+          /* 键盘：Enter / 空格 等同于点击，Esc 收起并把焦点还给触发区 */
+          trigger.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+              event.preventDefault();
+
+              setOpen(card, !card.classList.contains("is-open"));
+            }
+          });
+
+          card.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+              setOpen(card, false);
+
+              trigger.focus();
+            }
+          });
+        });
+
+        /* 点别处收起。点自己不会被误关：点击先冒泡到 trigger 的监听，
+           再到这里，而这里判断的是 card.contains(target)。 */
+        document.addEventListener("click", function (event) {
+          cards.forEach(function (card) {
+            if (!card.contains(event.target)) {
+              setOpen(card, false);
+            }
+          });
+        });
+      })();
 
       /* ---------- 联系方式 ---------- */
       function renderContacts() {

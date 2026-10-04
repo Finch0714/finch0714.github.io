@@ -496,6 +496,170 @@ p {
   box-shadow: var(--md-e1);
 }
 
+/* =========================================================
+   卡片下拉（「信」那张卡）
+   · 有鼠标的设备：悬停在卡片上就展开（CSS :hover）
+   · 触摸设备：点一下展开/收起（JS 切 .is-open）
+     —— 展开规则全部包在 @media (hover: hover) 里，
+        因为触摸屏上 :hover 会「粘住」，不包就会出现
+        「点一下开了、再点关不掉」。
+   · 面板绝对定位浮在卡片下缘，往上叠 6px：卡片和面板之间
+     不留缝隙，否则指针移过去的瞬间会掉出 hover 区、菜单闪没。
+   · .md-card 没有 overflow: hidden，所以面板不会被剪掉。
+   ========================================================= */
+
+.md-dropdown {
+  position: relative;
+}
+
+.md-dropdown__trigger {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.md-dropdown__trigger:focus-visible {
+  outline: 2px solid var(--md-primary-dark, currentColor);
+  outline-offset: 4px;
+  border-radius: var(--md-r-md);
+}
+
+.md-dropdown__caret {
+  transition: transform var(--md-dur) var(--md-ease);
+}
+
+.md-dropdown__panel {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% - 6px);
+  left: 0;
+  right: 0;
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--md-r-md);
+  background: var(--md-surface);
+  box-shadow: var(--md-e3);
+  /* 收起态：不可见也不可点。用 visibility 而不是 display:none，
+     否则就没有「淡出」的过渡了。 */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition:
+    opacity var(--md-dur-fast) var(--md-ease),
+    transform var(--md-dur-fast) var(--md-ease-out-expo),
+    visibility 0s linear var(--md-dur-fast);
+}
+
+.md-dropdown.is-open > .md-dropdown__panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.md-dropdown.is-open > .md-dropdown__trigger .md-dropdown__caret {
+  transform: rotate(180deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .md-dropdown:hover > .md-dropdown__panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+
+  .md-dropdown:hover > .md-dropdown__trigger .md-dropdown__caret {
+    transform: rotate(180deg);
+  }
+}
+
+/* ---- 下拉里的子卡片（第一封 / 第二封 / 占位） ---- */
+
+.md-subcard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--md-r-sm);
+  color: inherit;
+  text-decoration: none;
+  transition: background var(--md-dur-fast) var(--md-ease);
+}
+
+.md-subcard:hover,
+.md-subcard:focus-visible {
+  background: var(--md-surface-container);
+}
+
+.md-subcard__ico {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--md-r-full);
+  background: var(--md-surface-variant);
+  font-size: 16px;
+}
+
+.md-subcard__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.md-subcard__text strong {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.md-subcard__text em {
+  font-style: normal;
+  font-size: 0.75rem;
+  color: var(--md-on-surface-muted);
+}
+
+.md-subcard__arrow {
+  margin-left: auto;
+  color: var(--md-on-surface-muted);
+  transition:
+    transform var(--md-dur-fast) var(--md-ease),
+    color var(--md-dur-fast) var(--md-ease);
+}
+
+.md-subcard:hover .md-subcard__arrow {
+  transform: translateX(3px);
+  color: var(--md-primary-dark, currentColor);
+}
+
+/* 占位（还没写的那封）：不跳转、压暗、右侧换成「即将」角标 */
+.md-subcard--soon {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.md-subcard--soon:hover {
+  background: none;
+}
+
+.md-subcard--soon .md-subcard__arrow {
+  display: none;
+}
+
 .md-card--interactive {
   cursor: pointer;
   display: block;
