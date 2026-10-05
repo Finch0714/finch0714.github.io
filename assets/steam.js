@@ -4,9 +4,9 @@ window.STEAM_DATA = {
   "avatar": "./assets/steam/avatar.jpg",
   "state": 0,
   "game_ingame": null,
-  "total_hours": 981.6,
+  "total_hours": 983.5,
   "game_count": 11,
-  "updated_at": 1791130170,
+  "updated_at": 1791207142,
   "games_list": [
     {
       "appid": "manual_02",
@@ -35,7 +35,7 @@ window.STEAM_DATA = {
     {
       "appid": 431960,
       "name": "Wallpaper Engine",
-      "playtime": 12.6,
+      "playtime": 13.5,
       "icon": "./assets/steam/431960.jpg"
     },
     {
@@ -47,7 +47,7 @@ window.STEAM_DATA = {
     {
       "appid": 3240220,
       "name": "Grand Theft Auto V Enhanced",
-      "playtime": 3.9,
+      "playtime": 4.8,
       "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3240220/capsule_184x69.jpg"
     },
     {
