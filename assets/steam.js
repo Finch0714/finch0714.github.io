@@ -4,9 +4,9 @@ window.STEAM_DATA = {
   "avatar": "./assets/steam/avatar.jpg",
   "state": 0,
   "game_ingame": null,
-  "total_hours": 977.2,
-  "game_count": 10,
-  "updated_at": 1791207142,
+  "total_hours": 979.9,
+  "game_count": 11,
+  "updated_at": 1791643484,
   "games_list": [
     {
       "appid": "manual_02",
@@ -18,7 +18,7 @@ window.STEAM_DATA = {
       "appid": "manual_01",
       "name": "Cyberpunk 2077",
       "playtime": 61,
-      "icon": "https://ts1.tc.mm.bing.net/th/id/R-C.4766d3a3044fc96967d19538153043c2?rik=Rq1FI%2fX5qARXSA&pid=ImgRaw&r=0"
+      "icon": "./assets/steam/manual_01.jpg"
     },
     {
       "appid": 730,
@@ -49,6 +49,12 @@ window.STEAM_DATA = {
       "name": "Black Myth: Wukong",
       "playtime": 3.3,
       "icon": "./assets/steam/2358720.jpg"
+    },
+    {
+      "appid": 322330,
+      "name": "Don't Starve Together",
+      "playtime": 2.7,
+      "icon": "./assets/steam/322330.jpg"
     },
     {
       "appid": 413150,
