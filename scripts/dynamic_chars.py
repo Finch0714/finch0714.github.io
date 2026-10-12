@@ -110,7 +110,7 @@ def from_files(paths):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ssh", default="root@192.168.2.3", help="家庭服务器（空字符串跳过）")
-    ap.add_argument("--url", default="https://finch-server.tail36ef08.ts.net/status.json")
+    ap.add_argument("--url", default="https://nav.classdisk.dynv6.net:9443/status.json")
     ap.add_argument("--offline", nargs="*", default=[], help="改用本地文件当来源")
     ap.add_argument("-o", "--out", default=OUT)
     args = ap.parse_args()

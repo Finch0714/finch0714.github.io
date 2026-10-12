@@ -618,8 +618,8 @@
         }
       }
     </style>
-      <!-- 信件托管在家里的小主机上：提前把隧道 TLS 握好 -->
-    <link rel="preconnect" href="https://finch-server.tail36ef08.ts.net" crossorigin />
+      <!-- 信件托管在家里的小主机上：提前把 TLS 握好 -->
+    <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
 </head>
 
   <body>
@@ -687,7 +687,7 @@
          信件正文不再写在这个页面里。
 
          输对密码后，才向家里的小主机取：
-           https://finch-server.tail36ef08.ts.net/letter1.md?pwd=四位密码
+           https://nav.classdisk.dynv6.net:9443/letter1.md?pwd=四位密码
          密码由服务端（nginx）校验：不对就直接拿不到文件，
          所以这个页面里既没有信的正文，也没有密码。
 
@@ -696,7 +696,7 @@
            第一封信在 letter.html。）
          --------------------------------------------------------- */
 
-      const LETTER_URL = "https://finch-server.tail36ef08.ts.net/letter1.md";
+      const LETTER_URL = "https://nav.classdisk.dynv6.net:9443/letter1.md";
 
       const LETTER_TIMEOUT_MS = 30000;
 
@@ -1175,7 +1175,7 @@
            取不到就安安静静不放歌，绝不影响读信。
          ========================================================= */
 
-      const MUSIC_API = "https://finch-server.tail36ef08.ts.net/music";
+      const MUSIC_API = "https://nav.classdisk.dynv6.net:9443/music";
       const MUSIC_ID = "150651";
       const MUSIC_SOURCE = "msls"; // 实测给 https + mp3
 

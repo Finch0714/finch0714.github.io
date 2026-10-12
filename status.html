@@ -11,8 +11,8 @@
     <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="stylesheet" href="./assets/md.css" />
-    <!-- 隧道：状态数据的来源，提前握手（TLS 就要 4 秒） -->
-    <link rel="preconnect" href="https://finch-server.tail36ef08.ts.net" crossorigin />
+    <!-- 状态数据的来源在家里的小主机上，提前握手（IPv6 直连 + TLS） -->
+    <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
     <!-- 字体：仓耳今楷 05 W04 —— 自托管，而且只带「本站实际用到的字」
          （scripts/subset_font.py 按「本站实际用到的字」裁出来的子集，改了文案重跑一次）。
          不再有第三方 CDN，所以顺带省掉了两个 preconnect；
@@ -317,8 +317,8 @@
           </span>
           <h1 class="md-display md-hero__title" id="host-name">正在连接…</h1>
           <p class="md-hero__desc" id="host-meta">
-            正在从家庭服务器读取实时状态，这台小主机在国内家宽后面， 经
-            Tailscale 隧道取数，第一次可能要等几秒。
+            正在从家庭服务器读取实时状态，这台小主机在国内家宽后面， 直连
+            家宽的 IPv6（自建 DDNS + 证书）取数，第一次可能要等几秒。
           </p>
           <div class="status-stats">
             <div class="status-stat">
@@ -565,14 +565,14 @@
       /* ----------------------------------------------------------------------
          家庭服务器状态 —— 每次打开都取实时数据（不缓存）
 
-         数据链路：本页 → Tailscale Funnel（HTTPS）→ 家里小主机的 nginx
+         数据链路：本页 → https://nav.classdisk.dynv6.net:9443（HTTPS）→ 家里小主机的 nginx
                    → /var/www/nav/status.json（由 systemd timer 每 10 分钟重写）
          同一份 JSON 里既有机器的状态，也有 AstrBot 的统计（.astrbot 字段）。
-         隧道绕美国，单次请求 5~8 秒，所以这里用 30 秒超时并把等待状态显示出来。
+         IPv6 直连通常 1 秒内返回；仍保留 30 秒超时，把等待状态显示出来。
 
          隐私：AstrBot 那部分只有计数与聚合值，页面不做任何会话/用户维度展示。
          ---------------------------------------------------------------------- */
-      var STATUS_URL = "https://finch-server.tail36ef08.ts.net/status.json";
+      var STATUS_URL = "https://nav.classdisk.dynv6.net:9443/status.json";
       var TIMEOUT_MS = 30000;
 
       function esc(s) {
@@ -1154,7 +1154,7 @@
       /* ---------- 取数 ----------
          站点其它页面已经预热过这份 JSON（见 assets/nav.js 的 warmup），
          所以这里先吃 HTTP 缓存：命中就立刻渲染，再在后台拉一次真正最新的。
-         隧道单次要 5~8 秒，因此「800ms 内返回」就足以判定是缓存命中。 */
+         直连一般几十毫秒到 1 秒，因此「800ms 内返回」基本可判定是缓存命中。 */
       var busy = false;
 
       async function loadStatus(opt) {
@@ -1207,7 +1207,7 @@
           state.textContent = "读取失败，点「刷新」重试";
           document.getElementById("host-name").textContent = "暂时连不上";
           document.getElementById("host-meta").textContent =
-            "小主机可能正在重启、离线，或隧道断了（数据全程经 Tailscale 隧道）。";
+            "小主机可能正在重启、离线，或家宽 IPv6 断了（数据全程直连家里的小主机）。";
           document.getElementById("gauges").innerHTML =
             '<div class="md-card md-center" style="grid-column:1/-1"><p class="md-body" style="margin:0">拿不到状态数据，稍后再试。</p></div>';
           renderAstrbot(null);
