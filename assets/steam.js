@@ -4,9 +4,9 @@ window.STEAM_DATA = {
   "avatar": "./assets/steam/avatar.jpg",
   "state": 0,
   "game_ingame": null,
-  "total_hours": 981.3,
+  "total_hours": 984.0,
   "game_count": 11,
-  "updated_at": 1791819946,
+  "updated_at": 1792164311,
   "games_list": [
     {
       "appid": "manual_02",
@@ -39,6 +39,12 @@ window.STEAM_DATA = {
       "icon": "./assets/steam/431960.jpg"
     },
     {
+      "appid": 322330,
+      "name": "Don't Starve Together",
+      "playtime": 5.3,
+      "icon": "./assets/steam/322330.jpg"
+    },
+    {
       "appid": 3240220,
       "name": "Grand Theft Auto V Enhanced",
       "playtime": 4.8,
@@ -49,12 +55,6 @@ window.STEAM_DATA = {
       "name": "Black Myth: Wukong",
       "playtime": 3.3,
       "icon": "./assets/steam/2358720.jpg"
-    },
-    {
-      "appid": 322330,
-      "name": "Don't Starve Together",
-      "playtime": 2.7,
-      "icon": "./assets/steam/322330.jpg"
     },
     {
       "appid": 413150,
