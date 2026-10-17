@@ -10,6 +10,12 @@
          所以在这里就把自托管字体（单个 woff2）提前拉进缓存 ——
          点「Enter」后那 1.6 秒的等待正好用来下它，切页时直接命中。 -->
     <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/tsanger-jinkai05-w04.woff2" crossorigin />
+    <!-- 门页的下一站：点 Enter 才跳，但趁在门页上的这段时间先把它抓进缓存。
+         不预取的话，冷缓存点下去要现下 about.html + md.css；而本页开了跨文档
+         view transition，新页面没准备好之前浏览器会一直停在门页的静止快照上，
+         用户看到的就是「点了半天不跳转」。 -->
+    <link rel="prefetch" href="./about.html" />
+    <link rel="prefetch" href="./assets/md.css" />
     <!-- 原来这里加载的是 Tailwind 的 Play CDN（cdn.tailwindcss.com）——
          那是「浏览器内实时编译」版，实测 398KB，官方明确标注不要用于生产：
          它会阻塞解析、然后在浏览器里现场编译 CSS，首屏要 2 秒多。
@@ -270,7 +276,7 @@
       #bar {
         transform: scaleX(0);
         transform-origin: left center;
-        transition: transform 1400ms var(--ease-out-circ);
+        transition: transform 900ms var(--ease-out-circ);
         will-change: transform;
       }
 
@@ -590,10 +596,67 @@
       document.addEventListener("pointerleave", () => tiltTo(0, 0));
       window.addEventListener("blur", () => tiltTo(0, 0));
 
-      // 💡 修复：添加防抖逻辑
+      /* ---- 进站：点 Enter 之后那段「建立安全连接」的动画 ----
+
+         用户的反馈是「有时候点了半天不动」。原来这段的逻辑有三处问题：
+         ① 动画 1.4 秒走完，还要再干等 200ms 才跳（写死 1600ms）；
+         ② 跳转目标没预取 —— 冷缓存时要现下 about.html + md.css，而本页开了
+            跨文档 view transition，新页面没准备好之前浏览器一直停在门页的
+            静止快照上，看起来就是「点了没反应」；
+         ③ 从主页按「后退」回来时，浏览器从 bfcache 恢复这一页：按钮藏着、
+            isProcessing 还是 true、上一轮的跳转定时器还活着 —— 于是这一页
+            彻底点不动，还会自己弹回主页。
+
+         现在：进度条走完（900ms）就跳，导航目标预取，bfcache 回来把状态复位，
+         另外加一个看门狗，导航真没提交时把按钮还回去。 */
+
+      let navTimer = 0; // 兜底 / 看门狗
+      let barEnded = null; // transitionend 监听器引用
+      let leaving = false; // 已经离开这一页（导航提交了）
+
+      function go() {
+        if (navTimer) {
+          clearTimeout(navTimer);
+          navTimer = 0;
+        }
+        window.location.href = "about.html";
+      }
+
+      /* 把门页复位成「可以再点一次」的样子 */
+      function resetDoor(hint) {
+        if (navTimer) {
+          clearTimeout(navTimer);
+          navTimer = 0;
+        }
+
+        const btn = document.getElementById("init-btn");
+        const loader = document.getElementById("loader");
+        const bar = document.getElementById("bar");
+        const tip = loader && loader.querySelector("p");
+
+        if (barEnded) {
+          bar.removeEventListener("transitionend", barEnded);
+          barEnded = null;
+        }
+
+        isProcessing = false;
+        leaving = false;
+
+        if (btn) btn.classList.remove("hidden");
+        if (bar) bar.style.transform = "scaleX(0)";
+
+        if (hint && loader && tip) {
+          /* 保留 loader 当提示条，同时把按钮还回去，别让人干等 */
+          tip.textContent = hint;
+        } else {
+          if (loader) loader.classList.add("hidden");
+          if (tip) tip.textContent = "Establishing Secure Connection...";
+        }
+      }
+
       function startSequence() {
-        if (isProcessing) return; // 如果已经在处理中，直接忽略后续点击
-        isProcessing = true; // 上锁
+        if (isProcessing) return;
+        isProcessing = true;
 
         const btn = document.getElementById("init-btn");
         const loader = document.getElementById("loader");
@@ -602,15 +665,50 @@
         btn.classList.add("hidden");
         loader.classList.remove("hidden");
 
-        setTimeout(() => {
-          bar.style.transform = "scaleX(1)";
-        }, 100);
+        /* loader 刚从 display:none 变可见，得先让浏览器画一帧，
+           下一帧再改 transform，过渡才会真的跑起来 */
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            bar.style.transform = "scaleX(1)";
+          });
+        });
 
-        // 跳转逻辑
+        /* 进度条走完就进站 —— 动画结束本身就是跳转信号 */
+        barEnded = (event) => {
+          if (event.target !== bar) return;
+          bar.removeEventListener("transitionend", barEnded);
+          barEnded = null;
+          go();
+        };
+        bar.addEventListener("transitionend", barEnded);
+
+        /* 兜底：过渡没跑起来（比如被系统动效开关吃掉）也照样进站 */
+        navTimer = setTimeout(go, 1600);
+
+        /* 看门狗：6 秒后还停在这一页、而且导航没提交，说明真的没跳成
+           （断网 / 目标打不开）。把按钮还回去，别对着转圈的页面干等。 */
         setTimeout(() => {
-          window.location.href = "about.html";
-        }, 1600);
+          if (leaving || !isProcessing) return;
+          resetDoor("连接超时 · 再点一次 Enter");
+        }, 6000);
       }
+
+      /* 导航提交时把待办定时器清掉，标记已离开 */
+      window.addEventListener("pagehide", () => {
+        leaving = true;
+
+        if (navTimer) {
+          clearTimeout(navTimer);
+          navTimer = 0;
+        }
+      });
+
+      /* 从 bfcache 回来（按了「后退」）：整页复位，否则门页永久点不动，
+         而且上一轮遗留的跳转定时器会立刻把人又弹回主页 */
+      window.addEventListener("pageshow", (event) => {
+        if (!event.persisted) return;
+        resetDoor();
+      });
     </script>
   </body>
 </html>
