@@ -6,7 +6,7 @@ window.STEAM_DATA = {
   "game_ingame": null,
   "total_hours": 984.0,
   "game_count": 11,
-  "updated_at": 1792164311,
+  "updated_at": 1792247866,
   "games_list": [
     {
       "appid": "manual_02",
