@@ -69,6 +69,15 @@ window.SITE_FEATURES = [
     tags: ["实时"],
   },
   {
+    id: "visitor_stats",
+    title: "访客统计",
+    icon: "📊",
+    url: "./stats.html",
+    btn: "看看数据",
+    desc: "自己搭的统计：总浏览、总访客、最近 30 天走势，以及访客的浏览器、系统、设备与来源分布。",
+    tags: ["自建"],
+  },
+  {
     id: "reaction_test",
     title: "反应速度测试",
     icon: "⚡",

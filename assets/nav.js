@@ -40,6 +40,7 @@
     mc_query: "MC 查询",
     steam_status: "Steam",
     server_status: "服务器",
+    visitor_stats: "统计",
     reaction_test: "反应测试",
     cps_test: "点击速度",
     rank_list: "夯到拉排行",
@@ -938,12 +939,48 @@
     });
   }
 
+  /* ---------- 访客统计上报 ----------
+     每个页面加载报一次，落到家里小主机的 /stats/beacon。
+     一律静默失败：统计坏了不能影响页面。
+     file:// 和本机预览不报，免得污染线上数据；
+     查询串一律不上报（信件页的密码在 ?pwd= 里，虽然那些页不加载本文件）。 */
+  function initStats() {
+    var url = "https://nav.classdisk.dynv6.net:9443/stats/beacon";
+
+    if (location.protocol === "file:") return;
+    if (location.hostname === "127.0.0.1" || location.hostname === "localhost") return;
+
+    var body = {
+      path: location.pathname || "/",
+      ref: document.referrer || "",
+      lang: navigator.language || "",
+      screen:
+        window.screen && screen.width && screen.height
+          ? screen.width + "x" + screen.height
+          : "",
+    };
+
+    try {
+      var blob = new Blob([JSON.stringify(body)], { type: "text/plain;charset=UTF-8" });
+
+      /* sendBeacon 在页面卸载时也能发出去，首选 */
+      if (navigator.sendBeacon && navigator.sendBeacon(url, blob)) return;
+
+      fetch(url, { method: "POST", body: blob, keepalive: true, mode: "cors" })["catch"](
+        function () {},
+      );
+    } catch (e) {
+      /* 统计失败无所谓 */
+    }
+  }
+
   /* ---------- 启动 ---------- */
   function boot() {
     buildAppbar();
     initScrollShadow();
     initDrawer();
     initDropdowns();
+    initStats();
     initRipple();
     /* 大标题先拆成逐字单元，再登记入场 —— 顺序不能反：
        reveal() 会把已在视口里的元素立刻点亮，拆晚了就漏掉首屏标题。 */
