@@ -14,7 +14,17 @@
 
 @font-face {
   font-family: "TsangerJinKai05 W04";
-  src: url("./fonts/tsanger-jinkai05-w04.woff2") format("woff2");
+  /* 两个源，按顺序试：
+     ① 家里那台 N1（/mnt/disk/navfonts，走 9443 的 HTTPS 入口）—— 同运营商
+        一两跳就到，比 GitHub Pages 快一个数量级；URL 带 ?v=<内容哈希>，
+        服务端发一年 immutable，回头客零请求。
+     ② 仓库里这份 ./fonts/… —— 小主机没在线、或者访客没有 IPv6 时用。
+        浏览器按 src 列表逐个尝试，任何一个网络失败都会自动落到下一个，
+        不需要 JS 参与。 */
+  src:
+    url("https://nav.classdisk.dynv6.net:9443/font/tsanger-jinkai05-w04.woff2?v=ffc9a3d4")
+      format("woff2"),
+    url("./fonts/tsanger-jinkai05-w04.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   /* swap：先用系统字体把字画出来，字体到了再换，绝不出现「白字」 */

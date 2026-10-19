@@ -9,7 +9,10 @@
     <!-- 字体资源预热：本页用等宽字体做终端风，但访客下一步大概率进 about 等页面，
          所以在这里就把自托管字体（单个 woff2）提前拉进缓存 ——
          点「Enter」后那 1.6 秒的等待正好用来下它，切页时直接命中。 -->
-    <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/tsanger-jinkai05-w04.woff2" crossorigin />
+    <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
+    <link rel="preload" as="font" type="font/woff2"
+          href="https://nav.classdisk.dynv6.net:9443/font/tsanger-jinkai05-w04.woff2?v=ffc9a3d4"
+          crossorigin fetchpriority="high" />
     <!-- 门页的下一站：点 Enter 才跳，但趁在门页上的这段时间先把它抓进缓存。
          不预取的话，冷缓存点下去要现下 about.html + md.css；而本页开了跨文档
          view transition，新页面没准备好之前浏览器会一直停在门页的静止快照上，

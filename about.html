@@ -15,7 +15,10 @@
          （scripts/subset_font.py 按「本站实际用到的字」裁出来的子集，改了文案重跑一次）。
          不再有第三方 CDN，所以顺带省掉了两个 preconnect；
          样式表就在本地、只有几百字节，不必再做 media 交换那一套。 -->
-    <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/tsanger-jinkai05-w04.woff2" crossorigin />
+    <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
+    <link rel="preload" as="font" type="font/woff2"
+          href="https://nav.classdisk.dynv6.net:9443/font/tsanger-jinkai05-w04.woff2?v=ffc9a3d4"
+          crossorigin fetchpriority="high" />
     <link rel="stylesheet" href="./assets/fonts.css" />
     <script>
       document.documentElement.classList.add("md-js");
@@ -232,7 +235,25 @@
     </div>
 
     <script src="./assets/site.js"></script>
-    <script src="./assets/nav.js"></script>
+    <script src="./assets/nav.js" onerror="window.__navjsFailed=1"></script>
+    <script>
+      /* nav.js 偶发加载失败（GitHub Pages 在国内偶尔把请求吊死，浏览器最后放弃）：
+         没有它整页的顶栏和功能入口都渲染不出来，只能刷新。这里失败就带时间戳重试一次。 */
+      if (!window.MD) {
+        document.write('<script src="./assets/nav.js?retry=' + Date.now() + '"><\/script>');
+      }
+    </script>
+    <script>
+      /* 兜底 esc：这几个页面的渲染函数直接调 MD.esc。nav.js 万一没到位，
+         别让整块功能网格抛错、变成一片空白 —— 先顶上，nav.js 到了会覆盖。 */
+      window.MD = window.MD || {
+        esc: function (s) {
+          return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+          });
+        },
+      };
+    </script>
     <script>
       /* ---------- 「信」那张卡：下拉 ----------
          卡片本身不跳转，展开一组子卡片（第一封 / 第二封 / 占位的第三封）。

@@ -20,7 +20,10 @@
          （scripts/subset_font.py 按「本站实际用到的字」裁出来的子集，改了文案重跑一次）。
          不再有第三方 CDN，所以顺带省掉了两个 preconnect；
          样式表就在本地、只有几百字节，不必再做 media 交换那一套。 -->
-    <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/tsanger-jinkai05-w04.woff2" crossorigin />
+    <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
+    <link rel="preload" as="font" type="font/woff2"
+          href="https://nav.classdisk.dynv6.net:9443/font/tsanger-jinkai05-w04.woff2?v=ffc9a3d4"
+          crossorigin fetchpriority="high" />
     <link rel="stylesheet" href="./assets/fonts.css" />
     <style>
       /* 导出区域：白底，保证截图好看 */
@@ -391,7 +394,14 @@
     </div>
 
     <script src="./assets/site.js"></script>
-    <script src="./assets/nav.js"></script>
+    <script src="./assets/nav.js" onerror="window.__navjsFailed=1"></script>
+    <script>
+      /* nav.js 偶发加载失败（GitHub Pages 在国内偶尔把请求吊死，浏览器最后放弃）：
+         没有它整页的顶栏和功能入口都渲染不出来，只能刷新。这里失败就带时间戳重试一次。 */
+      if (!window.MD) {
+        document.write('<script src="./assets/nav.js?retry=' + Date.now() + '"><\/script>');
+      }
+    </script>
     <script>
       /* CDN 脚本用了 defer，必须等 DOM 就绪后再初始化拖拽 */
       document.addEventListener("DOMContentLoaded", function () {
