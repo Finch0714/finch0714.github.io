@@ -42,7 +42,7 @@ window.STEAM_DATA = {
       "appid": 322330,
       "name": "Don't Starve Together",
       "playtime": 5.3,
-      "icon": "./assets/steam/322330.jpg"
+      "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/322330/capsule_184x69.jpg"
     },
     {
       "appid": 3240220,
