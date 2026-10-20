@@ -199,6 +199,29 @@
     var lastP = -1;
     var ticking = false;
 
+    /* 顶栏实际高度 → CSS 变量。
+       字号放大、系统字体换了、导航折行都会让它比 --md-appbar-h 的名义值高；
+       页面顶部留白跟着实测值走（md.css 里的 .md-page），正文才不会被顶栏压住。 */
+    var lastBarH = 0;
+
+    function syncBarHeight() {
+      var h = Math.round(bar.getBoundingClientRect().height);
+
+      if (!h || h === lastBarH) return;
+
+      lastBarH = h;
+      document.documentElement.style.setProperty("--md-appbar-real", h + "px");
+    }
+
+    window.addEventListener("resize", syncBarHeight, { passive: true });
+
+    /* 字体到位后顶栏里的文字度量会变，重新量一次 */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(syncBarHeight);
+    }
+
+    syncBarHeight();
+
     function apply() {
       ticking = false;
       bar.classList.toggle("is-scrolled", window.scrollY > 4);

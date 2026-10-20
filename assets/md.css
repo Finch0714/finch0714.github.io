@@ -240,7 +240,11 @@ p {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: calc(var(--md-appbar-h) + 32px);
+  /* 顶栏是 fixed 的，这里把它的**实测**高度让出来。
+     用实测值（--md-appbar-real，由 nav.js 写入）而不是名义值，是因为
+     手机上字号一放大、或者导航折行，顶栏会比名义高度高 —— 用名义值留白
+     就会少让出一截，正文顶部被顶栏盖住。 */
+  padding-top: calc(var(--md-appbar-real, var(--md-appbar-h)) + 32px);
   padding-bottom: 48px;
 }
 
@@ -284,7 +288,10 @@ p {
 .md-appbar {
   position: fixed;
   inset: 0 0 auto 0;
-  height: var(--md-appbar-h);
+  /* 高度不写死：字号放大、系统字体换了、导航折行时顶栏可以长高，
+     多出来的部分不会往正文上压。页面顶部留白用 nav.js 实测的
+     --md-appbar-real（见 .md-page），两边永远是同一个数。 */
+  min-height: var(--md-appbar-h);
   display: flex;
   align-items: center;
   gap: var(--md-appbar-gap);
@@ -1501,7 +1508,9 @@ p {
     justify-content: center;
   }
   .md-page {
-    padding-top: calc(var(--md-appbar-h) + 22px);
+    /* 用实测高度：手机上顶栏是 max(56px, …)、系统字号一放大还会更高，
+       按名义值留白就会少让出一截，正文顶部被顶栏盖住。 */
+    padding-top: calc(var(--md-appbar-real, var(--md-appbar-h)) + 22px);
   }
   .md-grid {
     grid-template-columns: 1fr;
@@ -1545,8 +1554,13 @@ p {
     --md-appbar-h: 48px;
   }
   .md-page {
-    padding-top: calc(var(--md-appbar-h) + 18px);
+    padding-top: calc(var(--md-appbar-real, var(--md-appbar-h)) + 18px);
   }
+}
+
+/* 页内跳转（地址栏带 #hash、或者页面里点锚点）时，目标别停在固定顶栏底下 */
+:where(h1, h2, h3, h4, section, [id]) {
+  scroll-margin-top: calc(var(--md-appbar-real, var(--md-appbar-h)) + 16px);
 }
 
 /* ---------------------------------------------------------------------------

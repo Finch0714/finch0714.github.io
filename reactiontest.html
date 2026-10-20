@@ -20,7 +20,8 @@
          样式表就在本地、只有几百字节，不必再做 media 交换那一套。 -->
     <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
     <!-- 字体选源：先探一下小主机，连不上就换仓库那份（说明见 assets/font-loader.js） -->
-    <script defer src="./assets/font-loader.js"></script>
+    <script defer src="./assets/font-loader.js"></script>
+
     <link rel="stylesheet" href="./assets/fonts.css" />
     <style>
       /* 全屏测试区（顶部给应用栏留位）
@@ -36,7 +37,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: calc(var(--md-appbar-h) + 24px) 24px
+        padding: calc(var(--md-appbar-real, var(--md-appbar-h)) + 24px) 24px
           calc(24px + env(safe-area-inset-bottom, 0px));
         cursor: pointer;
         user-select: none;
