@@ -18,9 +18,8 @@
          不再有第三方 CDN，所以顺带省掉了两个 preconnect；
          样式表就在本地、只有几百字节，不必再做 media 交换那一套。 -->
     <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
-    <link rel="preload" as="font" type="font/woff2"
-          href="https://nav.classdisk.dynv6.net:9443/font/tsanger-jinkai05-w04.woff2?v=ffc9a3d4"
-          crossorigin fetchpriority="high" />
+    <!-- 字体选源：先探一下小主机，连不上就换仓库那份（说明见 assets/font-loader.js） -->
+    <script defer src="./assets/font-loader.js"></script>
     <link rel="stylesheet" href="./assets/fonts.css" />
     <script>
       document.documentElement.classList.add("md-js");

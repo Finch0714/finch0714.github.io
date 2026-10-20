@@ -12,21 +12,46 @@
       这一点和换字体之前（霞鹜文楷 Medium）完全一样。
    ========================================================================== */
 
+/* 家里那台小主机上的那份（探测通过后才会被使用） */
 @font-face {
-  font-family: "TsangerJinKai05 W04";
-  /* 两个源，按顺序试：
-     ① 家里那台 N1（/mnt/disk/navfonts，走 9443 的 HTTPS 入口）—— 同运营商
-        一两跳就到，比 GitHub Pages 快一个数量级；URL 带 ?v=<内容哈希>，
-        服务端发一年 immutable，回头客零请求。
-     ② 仓库里这份 ./fonts/… —— 小主机没在线、或者访客没有 IPv6 时用。
-        浏览器按 src 列表逐个尝试，任何一个网络失败都会自动落到下一个，
-        不需要 JS 参与。 */
-  src:
-    url("https://nav.classdisk.dynv6.net:9443/font/tsanger-jinkai05-w04.woff2?v=ffc9a3d4")
-      format("woff2"),
-    url("./fonts/tsanger-jinkai05-w04.woff2") format("woff2");
+  font-family: "JinKai N1";
+  src: url("https://nav.classdisk.dynv6.net:9443/font/tsanger-jinkai05-w04.woff2?v=37026967")
+    format("woff2");
   font-weight: 400;
   font-style: normal;
   /* swap：先用系统字体把字画出来，字体到了再换，绝不出现「白字」 */
   font-display: swap;
 }
+
+/* 仓库里这份：小主机连不上时的兜底，永远可达 */
+@font-face {
+  font-family: "JinKai Local";
+  src: url("./fonts/tsanger-jinkai05-w04.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 探测通过：只用小主机那份。
+   后面**不要**再挂 "JinKai Local" —— 字体栈里每多一个真实存在的字体族，
+   浏览器在首选字体还没就绪时就会把下一个也下载一遍（实测白下 394 KB）。
+   小主机已经探测通过了，真取不到时就直接用系统字体。 */
+html.font-n1 {
+  --md-font: "JinKai N1", var(--md-font-system);
+}
+
+/* 探测失败：直接用仓库那份 */
+html.font-local {
+  --md-font: "JinKai Local", var(--md-font-system);
+}
+
+/* 不写 unicode-range：子集里没有的字，浏览器会按字体栈往后逐字回退
+   （PingFang SC / 微软雅黑），比写错范围把整段字推给系统字体安全。 */
+
+/* ==========================================================================
+   ↑ 上面这两个 @font-face 用哪个，由 assets/font-loader.js 决定。
+   为什么不用 src 列表回退（src: url(远程), url(本地)）：没有 IPv6 的网络连
+   AAAA 地址时，连接是「挂住」而不是「报错」，浏览器要等几十秒 TCP 超时才会
+   去试下一个源 —— 这期间页面一直显示系统字体，看起来就是「回退没生效」。
+   现在改成主动探测 + 1.5 秒超时，超时立刻用仓库那份。
+   ========================================================================== */

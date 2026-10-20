@@ -19,27 +19,31 @@
          不再有第三方 CDN，所以顺带省掉了两个 preconnect；
          样式表就在本地、只有几百字节，不必再做 media 交换那一套。 -->
     <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
-    <link rel="preload" as="font" type="font/woff2"
-          href="https://nav.classdisk.dynv6.net:9443/font/tsanger-jinkai05-w04.woff2?v=ffc9a3d4"
-          crossorigin fetchpriority="high" />
+    <!-- 字体选源：先探一下小主机，连不上就换仓库那份（说明见 assets/font-loader.js） -->
+    <script defer src="./assets/font-loader.js"></script>
     <link rel="stylesheet" href="./assets/fonts.css" />
     <style>
-      /* 全屏测试区（顶部给应用栏留位） */
+      /* 全屏测试区（顶部给应用栏留位）
+         不用 position: fixed：手机浏览器地址栏收放时，fixed 元素的底边会顶到
+         工具栏下面，底部那句提示就被盖住，小屏时整页也滚不动。
+         改成普通文档流 + 动态视口高度（dvh 跟着地址栏变），放不下就整页滚。
+         保留 position: relative 是为了下面 .rt-hint 的绝对定位仍然锚在这里。 */
       #test-area {
-        position: fixed;
-        inset: var(--md-appbar-h) 0 0 0;
+        position: relative;
+        min-height: 100vh;
+        min-height: 100dvh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 24px;
+        padding: calc(var(--md-appbar-h) + 24px) 24px
+          calc(24px + env(safe-area-inset-bottom, 0px));
         cursor: pointer;
         user-select: none;
         -webkit-user-select: none;
         background-color: var(--md-background);
         color: var(--md-on-surface);
         transition: background-color 0.12s ease;
-        overflow-y: auto;
       }
 
       /* 变绿之前 —— 红色等待 */

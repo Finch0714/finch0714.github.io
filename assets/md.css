@@ -86,7 +86,10 @@
 
   /* 站点字体：仓耳今楷 05 W04（自托管子集，声明在 assets/fonts.css ——
      只带本站用到的 1153 个字，改了文案就用 scripts/subset_font.py 重裁一次）。 */
-  --md-font: "TsangerJinKai05 W04", var(--md-font-system);
+  /* 站点字体：具体的字体族由 assets/fonts.css 决定（探测到小主机可用就用
+     小主机那份，否则用仓库那份）。在决定之前这里只给系统字体 ——
+     不会白屏，也不会先下错一份 394 KB。 */
+  --md-font: var(--md-font-system);
   /* 纯系统字体栈：只给「文案不可预知」的地方用（当前是「每日一言」—— 那是外部
      API 的任意句子，没法预先裁进子集）。服务器上**自己的**文案（信、状态数字、
      聚合标签）不要用这个：它们的字由 scripts/dynamic_chars.py 收进子集，
@@ -1026,6 +1029,9 @@ p {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  /* 横屏 / 小屏时对话框可能比视口还高：让遮罩自己滚，别把内容裁掉 */
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: rgba(16, 24, 16, 0.45);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);

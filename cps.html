@@ -19,20 +19,23 @@
          不再有第三方 CDN，所以顺带省掉了两个 preconnect；
          样式表就在本地、只有几百字节，不必再做 media 交换那一套。 -->
     <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
-    <link rel="preload" as="font" type="font/woff2"
-          href="https://nav.classdisk.dynv6.net:9443/font/tsanger-jinkai05-w04.woff2?v=ffc9a3d4"
-          crossorigin fetchpriority="high" />
+    <!-- 字体选源：先探一下小主机，连不上就换仓库那份（说明见 assets/font-loader.js） -->
+    <script defer src="./assets/font-loader.js"></script>
     <link rel="stylesheet" href="./assets/fonts.css" />
     <style>
+      /* 全屏点击区：同 reactiontest，用文档流 + dvh 而不是 fixed ——
+         手机地址栏收放时 fixed 的底边会钻到工具栏下面，底部内容被盖住。 */
       #click-area {
-        position: fixed;
-        inset: var(--md-appbar-h) 0 0 0;
+        position: relative;
+        min-height: 100vh;
+        min-height: 100dvh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 30px;
-        padding: 24px;
+        padding: calc(var(--md-appbar-h) + 24px) 24px
+          calc(24px + env(safe-area-inset-bottom, 0px));
         cursor: pointer;
         user-select: none;
         -webkit-user-select: none;
