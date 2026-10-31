@@ -4,9 +4,9 @@ window.STEAM_DATA = {
   "avatar": "./assets/steam/avatar.jpg",
   "state": 0,
   "game_ingame": null,
-  "total_hours": 984.1,
+  "total_hours": 986.8,
   "game_count": 11,
-  "updated_at": 1792853640,
+  "updated_at": 1793454559,
   "games_list": [
     {
       "appid": "manual_02",
@@ -29,19 +29,19 @@ window.STEAM_DATA = {
     {
       "appid": 271590,
       "name": "Grand Theft Auto V Legacy",
-      "playtime": 23.8,
+      "playtime": 23.9,
       "icon": "./assets/steam/271590.jpg"
     },
     {
       "appid": 431960,
       "name": "Wallpaper Engine",
-      "playtime": 14.5,
+      "playtime": 14.6,
       "icon": "./assets/steam/431960.jpg"
     },
     {
       "appid": 322330,
       "name": "Don't Starve Together",
-      "playtime": 5.3,
+      "playtime": 6.7,
       "icon": "./assets/steam/322330.jpg"
     },
     {
@@ -57,16 +57,16 @@ window.STEAM_DATA = {
       "icon": "./assets/steam/2358720.jpg"
     },
     {
+      "appid": 2567870,
+      "name": "Chained Together",
+      "playtime": 2.3,
+      "icon": "./assets/steam/2567870.jpg"
+    },
+    {
       "appid": 413150,
       "name": "Stardew Valley",
       "playtime": 2.0,
       "icon": "./assets/steam/413150.jpg"
-    },
-    {
-      "appid": 2567870,
-      "name": "Chained Together",
-      "playtime": 1.3,
-      "icon": "./assets/steam/2567870.jpg"
     },
     {
       "appid": 438100,
