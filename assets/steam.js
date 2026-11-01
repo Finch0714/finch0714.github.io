@@ -4,9 +4,9 @@ window.STEAM_DATA = {
   "avatar": "./assets/steam/avatar.jpg",
   "state": 0,
   "game_ingame": null,
-  "total_hours": 986.8,
+  "total_hours": 986.9,
   "game_count": 11,
-  "updated_at": 1793454559,
+  "updated_at": 1793524395,
   "games_list": [
     {
       "appid": "manual_02",
@@ -35,7 +35,7 @@ window.STEAM_DATA = {
     {
       "appid": 431960,
       "name": "Wallpaper Engine",
-      "playtime": 14.6,
+      "playtime": 14.8,
       "icon": "./assets/steam/431960.jpg"
     },
     {
