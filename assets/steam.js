@@ -66,13 +66,13 @@ window.STEAM_DATA = {
       "appid": 413150,
       "name": "Stardew Valley",
       "playtime": 2.0,
-      "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/413150/capsule_184x69.jpg"
+      "icon": "./assets/steam/413150.jpg"
     },
     {
       "appid": 438100,
       "name": "VRChat",
       "playtime": 0.9,
-      "icon": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/438100/capsule_184x69.jpg"
+      "icon": "./assets/steam/438100.jpg"
     }
   ]
 };
