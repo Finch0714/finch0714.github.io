@@ -2,11 +2,11 @@
 window.STEAM_DATA = {
   "name": "苏通666",
   "avatar": "./assets/steam/avatar.jpg",
-  "state": 0,
-  "game_ingame": null,
-  "total_hours": 987.2,
+  "state": 4,
+  "game_ingame": "I Have No Mouth, and I Must Scream",
+  "total_hours": 991.8,
   "game_count": 12,
-  "updated_at": 1794067979,
+  "updated_at": 1794127653,
   "games_list": [
     {
       "appid": "manual_02",
@@ -45,6 +45,12 @@ window.STEAM_DATA = {
       "icon": "./assets/steam/322330.jpg"
     },
     {
+      "appid": 245390,
+      "name": "I Have No Mouth, and I Must Scream",
+      "playtime": 4.9,
+      "icon": "./assets/steam/245390.jpg"
+    },
+    {
       "appid": 3240220,
       "name": "Grand Theft Auto V Enhanced",
       "playtime": 4.8,
@@ -73,12 +79,6 @@ window.STEAM_DATA = {
       "name": "VRChat",
       "playtime": 0.9,
       "icon": "./assets/steam/438100.jpg"
-    },
-    {
-      "appid": 245390,
-      "name": "I Have No Mouth, and I Must Scream",
-      "playtime": 0.3,
-      "icon": "./assets/steam/245390.jpg"
     }
   ]
 };
