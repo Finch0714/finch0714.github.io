@@ -4,7 +4,7 @@ window.STEAM_DATA = {
   "avatar": "./assets/steam/avatar.jpg",
   "state": 4,
   "game_ingame": "I Have No Mouth, and I Must Scream",
-  "total_hours": 991.8,
+  "total_hours": 1018.7,
   "game_count": 12,
   "updated_at": 1794127653,
   "games_list": [
@@ -19,6 +19,12 @@ window.STEAM_DATA = {
       "name": "Cyberpunk 2077",
       "playtime": 61,
       "icon": "https://ts1.tc.mm.bing.net/th/id/R-C.4766d3a3044fc96967d19538153043c2?rik=Rq1FI%2fX5qARXSA&pid=ImgRaw&r=0"
+    },
+    {
+      "appid": 245390,
+      "name": "I Have No Mouth, and I Must Scream",
+      "playtime": 31.8,
+      "icon": "./assets/steam/245390.jpg"
     },
     {
       "appid": 730,
@@ -43,12 +49,6 @@ window.STEAM_DATA = {
       "name": "Don't Starve Together",
       "playtime": 6.7,
       "icon": "./assets/steam/322330.jpg"
-    },
-    {
-      "appid": 245390,
-      "name": "I Have No Mouth, and I Must Scream",
-      "playtime": 4.9,
-      "icon": "./assets/steam/245390.jpg"
     },
     {
       "appid": 3240220,
