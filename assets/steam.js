@@ -3,10 +3,10 @@ window.STEAM_DATA = {
   "name": "苏通666",
   "avatar": "./assets/steam/avatar.jpg",
   "state": 4,
-  "game_ingame": "I Have No Mouth, and I Must Scream",
-  "total_hours": 1018.7,
+  "game_ingame": null,
+  "total_hours": 1020.5,
   "game_count": 12,
-  "updated_at": 1794127653,
+  "updated_at": 1794338709,
   "games_list": [
     {
       "appid": "manual_02",
@@ -23,7 +23,7 @@ window.STEAM_DATA = {
     {
       "appid": 245390,
       "name": "I Have No Mouth, and I Must Scream",
-      "playtime": 31.8,
+      "playtime": 33.6,
       "icon": "./assets/steam/245390.jpg"
     },
     {
