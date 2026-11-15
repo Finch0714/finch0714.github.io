@@ -897,7 +897,31 @@
   function initDropdowns() {
     var TOGGLE = '.md-dropdown > [role="button"]';
 
+    /* 顶栏的 .md-nav 带 overflow-x: auto（导航项多时能横滑），绝对定位的下拉面板
+       会被它整块裁掉 —— 表现就是「点信没反应」。所以顶栏那个面板改成 fixed，
+       坐标按触发区的实际位置算；卡片里的下拉不受影响（卡片没有 overflow）。 */
+    function placePanel(wrap) {
+      if (!wrap.classList.contains("md-navdrop")) return;
+
+      var toggle = wrap.querySelector(TOGGLE);
+      var panel = wrap.querySelector(".md-dropdown__panel");
+
+      if (!toggle || !panel) return;
+
+      var r = toggle.getBoundingClientRect();
+      var width = Math.max(208, panel.offsetWidth || 208);
+
+      panel.style.position = "fixed";
+      panel.style.top = Math.round(r.bottom + 6) + "px";
+      /* right 必须清掉：面板原本是 left:0 / right:0 撑满卡片的，两个都留着会横着拉满 */
+      panel.style.right = "auto";
+      panel.style.left =
+        Math.round(Math.max(8, Math.min(r.left, window.innerWidth - width - 8))) + "px";
+    }
+
     function setOpen(wrap, open) {
+      if (open) placePanel(wrap);
+
       wrap.classList.toggle("is-open", open);
 
       var toggle = wrap.querySelector(TOGGLE);
@@ -960,6 +984,32 @@
         );
       }
     });
+
+    /* 悬停展开走的是纯 CSS（.md-dropdown:hover），这里补一次定位：
+       pointerenter 不冒泡，用 pointerover 代替，命中就先把面板摆好。 */
+    document.addEventListener(
+      "pointerover",
+      function (event) {
+        var toggle = toggleOf(event.target);
+
+        if (toggle) placePanel(wrapOf(toggle));
+      },
+      { passive: true },
+    );
+
+    /* 窗口尺寸变了，顶栏触发器的位置也跟着变 —— 全收起最省事 */
+    window.addEventListener(
+      "resize",
+      function () {
+        Array.prototype.forEach.call(
+          document.querySelectorAll(".md-dropdown.is-open"),
+          function (wrap) {
+            setOpen(wrap, false);
+          },
+        );
+      },
+      { passive: true },
+    );
   }
 
   /* ---------- 访客统计上报 ----------
@@ -997,6 +1047,111 @@
     }
   }
 
+  /* ---------- 点击特效 ----------
+     点哪炸哪：一圈涟漪 + 六颗小粒子。全部只动 transform / opacity（合成器处理），
+     元素用完即删，不常驻 DOM。系统开「减弱动效」时直接不装。 */
+  function initClickBurst() {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    var layer = document.createElement("div");
+
+    layer.className = "md-burst-layer";
+    layer.setAttribute("aria-hidden", "true");
+    document.body.appendChild(layer);
+
+    var COLORS = ["#4caf50", "#81c784", "#26a69a", "#a5d6a7"];
+    var last = 0;
+
+    document.addEventListener(
+      "pointerdown",
+      function (event) {
+        /* 只响应主键 / 触摸；连点限频 */
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+
+        var now = Date.now();
+
+        if (now - last < 20) return;
+
+        last = now;
+
+        var x = Math.round(event.clientX);
+        var y = Math.round(event.clientY);
+        var ring = document.createElement("span");
+
+        ring.className = "md-burst__ring";
+        ring.style.left = x + "px";
+        ring.style.top = y + "px";
+        layer.appendChild(ring);
+        ring.addEventListener("animationend", function () {
+          ring.remove();
+        });
+
+        for (var i = 0; i < 6; i++) {
+          var dot = document.createElement("i");
+          var angle = (Math.PI * 2 * i) / 6 + Math.random() * 0.5;
+          var dist = 26 + Math.random() * 22;
+
+          dot.className = "md-burst__dot";
+          dot.style.left = x + "px";
+          dot.style.top = y + "px";
+          dot.style.background = COLORS[i % COLORS.length];
+          dot.style.setProperty("--dx", Math.round(Math.cos(angle) * dist) + "px");
+          dot.style.setProperty("--dy", Math.round(Math.sin(angle) * dist) + "px");
+          dot.style.animationDelay = i * 12 + "ms";
+          layer.appendChild(dot);
+          dot.addEventListener("animationend", function (e) {
+            e.target.remove();
+          });
+        }
+      },
+      { passive: true },
+    );
+  }
+
+  /* ---------- 切走标签页时改 title ----------
+     离开时标题开始轮播几句话，回来立刻还原 —— 也顺带能看出这页还活着。 */
+  function initTitleAway() {
+    var original = document.title;
+    var timer = 0;
+    var index = 0;
+    var AWAY = ["👋 别走呀…", "🌊 海浪还在等你", "☕ 先喝口水也行", "👀 回来看看？"];
+
+    function stop() {
+      if (timer) {
+        clearInterval(timer);
+        timer = 0;
+      }
+
+      document.title = original;
+    }
+
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) {
+        stop();
+        return;
+      }
+
+      original = document.title;
+      index = 1;
+      document.title = AWAY[0];
+
+      if (timer) clearInterval(timer);
+
+      timer = setInterval(function () {
+        document.title = AWAY[index % AWAY.length];
+        index++;
+      }, 5000);
+    });
+
+    /* 卸载前还原，免得前进/后退时历史记录里存的是「别走呀」 */
+    window.addEventListener("pagehide", stop);
+  }
+
   /* ---------- 启动 ---------- */
   function boot() {
     buildAppbar();
@@ -1004,6 +1159,8 @@
     initDrawer();
     initDropdowns();
     initStats();
+    initClickBurst();
+    initTitleAway();
     initRipple();
     /* 大标题先拆成逐字单元，再登记入场 —— 顺序不能反：
        reveal() 会把已在视口里的元素立刻点亮，拆晚了就漏掉首屏标题。 */
