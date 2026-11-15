@@ -32,17 +32,14 @@
   font-display: swap;
 }
 
-/* 探测通过：只用小主机那份。
-   后面**不要**再挂 "JinKai Local" —— 字体栈里每多一个真实存在的字体族，
-   浏览器在首选字体还没就绪时就会把下一个也下载一遍（实测白下 394 KB）。
-   小主机已经探测通过了，真取不到时就直接用系统字体。 */
+/* 页面级字体开关：这里只放族名，不带回退栈 —— 任何页面（包括不加载 md.css
+   的信件页）都能直接写 var(--site-font, 自己的回退栈)。类由 font-loader.js 挂。 */
 html.font-n1 {
-  --md-font: "JinKai N1", var(--md-font-system);
+  --site-font: "JinKai N1";
 }
 
-/* 探测失败：直接用仓库那份 */
 html.font-local {
-  --md-font: "JinKai Local", var(--md-font-system);
+  --site-font: "JinKai Local";
 }
 
 /* 不写 unicode-range：子集里没有的字，浏览器会按字体栈往后逐字回退

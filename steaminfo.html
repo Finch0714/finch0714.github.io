@@ -17,7 +17,8 @@
          样式表就在本地、只有几百字节，不必再做 media 交换那一套。 -->
     <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
     <!-- 字体选源：先探一下小主机，连不上就换仓库那份（说明见 assets/font-loader.js） -->
-    <script defer src="./assets/font-loader.js"></script>
+    <script defer src="./assets/font-loader.js"></script>
+
     <link rel="stylesheet" href="./assets/fonts.css" />
     <script>
       document.documentElement.classList.add("md-js");
@@ -148,23 +149,40 @@
             }),
           );
 
+          /* 游戏封面兜底链：主源在 shared.fastly 上，国内经常超时（实测从家里
+             小主机拉是 10 秒超时、先失败），shared.akamai 那个镜像 2.8 秒就回来。
+             两个都挂就把 img 藏掉，留卡片本身的底色，不出破图图标。 */
+          window.capsuleFallback =
+            window.capsuleFallback ||
+            function (img, appid) {
+              var step = img.getAttribute("data-step") || "0";
+
+              if (step === "0") {
+                img.setAttribute("data-step", "1");
+                img.src =
+                  "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/" +
+                  appid +
+                  "/capsule_184x69.jpg";
+                return;
+              }
+
+              img.setAttribute("data-step", "2");
+              img.style.visibility = "hidden";
+            };
+
           container.innerHTML = games
             .map(function (game) {
               var progress = ((game.playtime / maxTime) * 100).toFixed(1);
-              var fallback =
-                "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/" +
-                game.appid +
-                "/capsule_184x69.jpg";
               return (
                 '<article class="md-card md-card--elevated md-reveal" style="padding:16px">' +
                 '<div class="md-row" style="gap:18px; flex-wrap:nowrap; align-items:center">' +
                 '<img src="' +
                 esc(game.icon) +
-                '" alt="" loading="lazy" ' +
+                '" alt="" loading="lazy" data-step="0" ' +
                 'style="width:128px; height:48px; object-fit:cover; border-radius:8px; flex-shrink:0; background:var(--md-surface-container)" ' +
-                "onerror=\"this.onerror=null;this.src='" +
-                fallback +
-                "'\">" +
+                'onerror="window.capsuleFallback&&capsuleFallback(this,' +
+                game.appid +
+                ')">' +
                 '<div style="flex:1; min-width:0">' +
                 '<div class="md-row" style="justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:8px">' +
                 '<h3 class="md-subtitle" style="margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">' +
