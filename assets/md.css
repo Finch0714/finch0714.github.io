@@ -1586,3 +1586,123 @@ p {
     transform: none !important;
   }
 }
+
+/* ===========================================================================
+   19. 视觉层 · 深海玻璃（frosted glass）
+   ---------------------------------------------------------------------------
+   目标：卡片 / 浮层像压在一片磨砂玻璃上，背后的背景是一层几乎不动的极光。
+
+   性能是硬约束，这一层只做这几件事：
+     · 背景用 radial-gradient 铺在 <html> 上 —— 不用 filter: blur()，
+       那玩意要离屏渲染整屏，手机上直接掉帧；
+     · 会动的只有 body::before 那两团光斑，且只动 transform（合成器处理）；
+     · 固定顶栏保持纯色：顶栏 + backdrop-filter 每次滚动都要重新栅格化，
+       实测掉帧（第 5 节那条注释就是为此写的），别为了好看加回去；
+     · 系统开「减弱动效」时光斑停住。
+   =========================================================================== */
+
+/* ---- 19.1 背景极光：铺在根元素上，不参与滚动合成 ---- */
+html {
+  background:
+    radial-gradient(42vw 42vw at 12% 4%, rgba(76, 175, 80, 0.2), transparent 62%),
+    radial-gradient(46vw 46vw at 88% 0%, rgba(0, 172, 193, 0.14), transparent 64%),
+    radial-gradient(54vw 54vw at 78% 98%, rgba(46, 125, 50, 0.13), transparent 66%),
+    radial-gradient(38vw 38vw at 6% 94%, rgba(120, 144, 156, 0.12), transparent 62%),
+    var(--md-background);
+  background-repeat: no-repeat;
+}
+
+/* body 原来那层纯色会盖住根元素上的极光，撤掉，让背景透上来 */
+body {
+  background-color: transparent;
+}
+
+/* ---- 19.2 缓慢漂移的两团光斑 + 磨砂底噪 ---- */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::before {
+  inset: -28vmax;
+  background:
+    radial-gradient(closest-side, rgba(129, 199, 132, 0.5), transparent 72%) 0 0 / 46vmax
+      46vmax no-repeat,
+    radial-gradient(closest-side, rgba(77, 208, 225, 0.32), transparent 72%) 100% 100% / 54vmax
+      54vmax no-repeat;
+  animation: md-drift 46s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes md-drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 2%, 0) scale(1.08);
+  }
+}
+
+/* 细颗粒：磨砂玻璃的「底噪」，也把大面积渐变里的色带打散 */
+body::after {
+  inset: 0;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+}
+
+/* ---- 19.3 玻璃面板：卡片 / 弹窗 / 抽屉 / 下拉 ----
+   只改外观，不碰布局（position / inset / display 一律不动）。 */
+.md-card--elevated,
+.md-dialog,
+.md-drawer,
+.md-dropdown__panel {
+  background: linear-gradient(152deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56));
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(20, 45, 25, 0.05),
+    0 18px 44px -26px rgba(20, 45, 25, 0.42);
+}
+
+/* 普通卡片（无高度感那种）也换成半透明，跟玻璃面板成套 */
+.md-card:not(.md-card--elevated) {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.42));
+}
+
+/* ---- 19.4 小件：徽章 / 按钮 ---- */
+.md-hero__badge {
+  background: rgba(232, 245, 233, 0.66);
+  -webkit-backdrop-filter: blur(10px) saturate(1.3);
+  backdrop-filter: blur(10px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 6px 18px -14px rgba(27, 94, 32, 0.65);
+}
+
+.md-btn--filled {
+  background-image: linear-gradient(168deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 58%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 10px 24px -14px rgba(27, 94, 32, 0.75);
+}
+
+/* ---- 19.5 大标题的柔光 ---- */
+.md-display,
+.md-hero__title {
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65),
+    0 14px 36px rgba(46, 125, 50, 0.16);
+}
