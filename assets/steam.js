@@ -4,9 +4,9 @@ window.STEAM_DATA = {
   "avatar": "./assets/steam/avatar.jpg",
   "state": 0,
   "game_ingame": null,
-  "total_hours": 1020.5,
+  "total_hours": 1022.1,
   "game_count": 12,
-  "updated_at": 1794672469,
+  "updated_at": 1795267172,
   "games_list": [
     {
       "appid": "manual_02",
@@ -47,7 +47,7 @@ window.STEAM_DATA = {
     {
       "appid": 322330,
       "name": "Don't Starve Together",
-      "playtime": 6.7,
+      "playtime": 7.7,
       "icon": "./assets/steam/322330.jpg"
     },
     {
@@ -65,7 +65,7 @@ window.STEAM_DATA = {
     {
       "appid": 2567870,
       "name": "Chained Together",
-      "playtime": 2.3,
+      "playtime": 3.0,
       "icon": "./assets/steam/2567870.jpg"
     },
     {
