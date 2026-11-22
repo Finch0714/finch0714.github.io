@@ -1,5 +1,5 @@
 <!doctype html>
-<html data-site-theme="dark" lang="zh-CN">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -44,7 +44,7 @@
         box-sizing: border-box;
         border-width: 0;
         border-style: solid;
-        border-color: var(--md-outline-variant);
+        border-color: #e5e7eb;
       }
 
       html {
@@ -201,25 +201,25 @@
 
       /* 颜色 */
       .text-white {
-        color: var(--md-on-surface);
+        color: #fff;
       }
       .text-black {
-        color: var(--md-on-primary);
+        color: #000;
       }
       .text-red-500 {
-        color: var(--md-primary);
+        color: #ef4444;
       }
       .text-yellow-500 {
-        color: var(--md-warning);
+        color: #eab308;
       }
       .text-gray-500 {
-        color: var(--md-on-surface-muted);
+        color: #6b7280;
       }
       .bg-red-600 {
-        background-color: var(--md-primary);
+        background-color: #dc2626;
       }
       .bg-gray-900 {
-        background-color: var(--md-surface-container);
+        background-color: #111827;
       }
 
       /* 描边 */
@@ -230,10 +230,10 @@
         border-bottom-width: 1px;
       }
       .border-red-600 {
-        border-color: var(--md-primary);
+        border-color: #dc2626;
       }
       .border-red-900 {
-        border-color: var(--md-outline);
+        border-color: #7f1d1d;
       }
 
       /* 动效 */
@@ -260,7 +260,7 @@
 
       /* 交互态 */
       .hover\:bg-red-600:hover {
-        background-color: var(--md-primary);
+        background-color: #dc2626;
       }
       .active\:scale-95:active {
         transform: scale(0.95);
@@ -292,8 +292,8 @@
       }
 
       #init-btn:hover {
-        background-color: var(--md-primary);
-        color: var(--md-on-primary);
+        background-color: #dc2626;
+        color: #000;
       }
 
       #init-btn:focus-visible {
@@ -319,14 +319,14 @@
     </style>
     <style>
       :root {
-        --poi-red: var(--md-primary);
-        --poi-yellow: var(--md-primary-light);
-        --poi-bg: var(--md-background);
+        --poi-red: #ff0000;
+        --poi-yellow: #ffcc00;
+        --poi-bg: #050505;
       }
 
       body {
         background-color: var(--poi-bg);
-        color: var(--md-on-surface);
+        color: white;
         font-family: "Courier New", Courier, monospace;
         overflow: hidden;
         height: 100vh;
@@ -366,8 +366,8 @@
       .machine-card {
         width: 400px;
         padding: 2rem;
-        background: var(--md-surface);
-        border: 1px solid var(--md-outline-variant);
+        background: rgba(15, 15, 15, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         position: relative;
         transform-style: preserve-3d;
         /* 注意：这里的 transform 由 JS 每帧写（帧率无关的逼近），
