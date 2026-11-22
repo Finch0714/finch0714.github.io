@@ -1,13 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html data-site-theme="dark" lang="en">
+  <head>
   <meta charset="utf-8" />
   <meta
     name="viewport"
     content="initial-scale=1, minimum-scale=1, width=device-width"
   />
   <title>Error 404 (Not Found)!!1</title>
-  <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/Favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <style>
     * {
       margin: 0;
@@ -20,8 +21,8 @@
         sans-serif;
     }
     html {
-      background: #fff;
-      color: #222;
+      background: var(--md-background);
+      color: var(--md-on-surface);
       padding: 15px;
     }
     body {
@@ -43,7 +44,7 @@
       overflow: hidden;
     }
     ins {
-      color: #777;
+      color: var(--md-on-surface-muted);
       text-decoration: none;
     }
 
@@ -83,6 +84,10 @@
     }
   </style>
 
+    <link rel="stylesheet" href="/assets/theme.css" />
+    <script defer src="/assets/click-effects.js"></script>
+  </head>
+  <body>
   <a href="/" id="logo-text" aria-label="Finch">
     <span class="g-blue">F</span><span class="g-red">i</span
     ><span class="g-yellow">n</span><span class="g-blue">c</span
@@ -94,4 +99,5 @@
     The requested URL was not found on this server.
     <ins>That’s all we know.</ins>
   </p>
+  </body>
 </html>

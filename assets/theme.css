@@ -1,0 +1,99 @@
+/* Shared slate palette. About keeps its own fixed black design. */
+html[data-site-theme="dark"] {
+  color-scheme: dark;
+  --md-background: #19232d;
+  --md-surface: #283542;
+  --md-surface-container: #202c37;
+  --md-surface-variant: #314250;
+  --md-on-surface: #e7eef2;
+  --md-on-surface-variant: #bdcbd4;
+  --md-on-surface-muted: #a0b2bf;
+  --md-primary: #80d6a7;
+  --md-primary-dark: #a3e5c0;
+  --md-primary-light: #96e2b8;
+  --md-primary-container: #345647;
+  --md-primary-soft: #293e39;
+  --md-primary-tint: #233730;
+  --md-on-primary: #142c21;
+  --md-outline: #657988;
+  --md-outline-variant: #435563;
+  --md-error: #ffaaa3;
+  --md-warning: #f0ce85;
+  --md-info: #9acafa;
+  --site-danger-surface: #543439;
+  --md-e1: 0 2px 6px rgba(10, 20, 30, .16);
+  --md-e2: 0 6px 16px rgba(10, 20, 30, .2);
+  --md-e3: 0 12px 30px rgba(10, 20, 30, .24);
+  --md-e4: 0 18px 48px rgba(10, 20, 30, .3);
+  background: var(--md-background);
+  color: var(--md-on-surface);
+}
+
+/* Replace the shared light glass layer without changing component layout. */
+html[data-site-theme="dark"] body::before,
+html[data-site-theme="dark"] body::after {
+  content: none;
+  animation: none;
+}
+html[data-site-theme="dark"] :is(.md-card, .md-dialog, .md-drawer, .md-dropdown__panel) {
+  background: var(--md-surface);
+  border-color: var(--md-outline-variant);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: var(--md-e1);
+}
+html[data-site-theme="dark"] .md-hero__badge {
+  background: var(--md-primary-soft);
+  border-color: var(--md-primary-container);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+html[data-site-theme="dark"] :is(.md-display, .md-hero__title) { text-shadow: none; }
+html[data-site-theme="dark"] .md-btn--filled { background-image: none; box-shadow: var(--md-e1); }
+html[data-site-theme="dark"] .md-btn--tonal:hover { background: var(--md-surface-variant); }
+html[data-site-theme="dark"] :is(input, textarea, select) { color-scheme: dark; }
+html[data-site-theme="dark"] :is(input, textarea)::placeholder { color: var(--md-on-surface-muted); opacity: 1; }
+html[data-site-theme="dark"] :is(a, button, input, textarea, select, [role="button"]):focus-visible {
+  outline: 2px solid var(--md-primary);
+  outline-offset: 3px;
+}
+html[data-site-theme="dark"] ::selection { background: var(--md-primary-container); color: var(--md-on-surface); }
+
+/* Click feedback is shared by every page, including About and standalone pages.
+   The transient layer lives on html, outside the entry page's 3D body. */
+.site-click-layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 2147483647;
+  pointer-events: none;
+  user-select: none;
+}
+.site-click-symbol {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  color: #267b54;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(15, 30, 40, .35);
+  animation: site-click-float 720ms ease-out both;
+}
+html[data-site-theme="dark"] .site-click-symbol { color: #a3e5c0; }
+@media (prefers-color-scheme: dark) {
+  .site-click-symbol { color: #a3e5c0; }
+}
+@keyframes site-click-float {
+  0% { transform: translate(-50%, -50%) scale(.65); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--click-x)), calc(-50% + var(--click-y))) rotate(var(--click-turn)) scale(1.05); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-click-symbol { animation: site-click-fade 260ms ease-out both; }
+}
+@keyframes site-click-fade {
+  from { transform: translate(-50%, -50%); opacity: 1; }
+  to { transform: translate(-50%, -50%); opacity: 0; }
+}

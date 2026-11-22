@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html data-site-theme="dark" lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -49,13 +49,13 @@
 
       /* 变绿之前 —— 红色等待 */
       #test-area.state-waiting {
-        background-color: #e53935;
+        background-color: #843e43;
         color: #fff;
       }
 
       /* 变绿 —— 该点了 */
       #test-area.state-ready {
-        background-color: var(--md-primary);
+        background-color: #326e50;
         color: #fff;
       }
 
@@ -138,6 +138,8 @@
         pointer-events: none;
       }
     </style>
+    <link rel="stylesheet" href="./assets/theme.css" />
+    <script defer src="./assets/click-effects.js"></script>
   </head>
 
   <body>

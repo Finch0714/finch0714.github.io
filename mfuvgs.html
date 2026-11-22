@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html data-site-theme="dark" lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,8 +29,8 @@
 
       body {
         overflow: auto;
-        background: #f2f2f7;
-        color: #1c1c1e;
+        background: var(--md-background);
+        color: var(--md-on-surface);
 
         font-family:
           -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei",
@@ -55,7 +55,7 @@
 
         padding-top: 13vh;
 
-        background: #f2f2f7;
+        background: var(--md-background);
 
         transition: opacity 0.35s ease;
       }
@@ -69,13 +69,13 @@
         font-size: 17px;
         font-weight: 400;
 
-        color: #8e8e93;
+        color: var(--md-on-surface-muted);
 
         transition: color 0.2s ease;
       }
 
       #message.error {
-        color: #ff3b30;
+        color: var(--md-error);
       }
 
       /* =========================================================
@@ -97,7 +97,7 @@
 
         border-radius: 50%;
 
-        background: #d1d1d6;
+        background: var(--md-outline);
 
         transition:
           background 0.15s ease,
@@ -105,7 +105,7 @@
       }
 
       .dot.active {
-        background: #1c1c1e;
+        background: var(--md-primary);
         transform: scale(1.05);
       }
 
@@ -166,8 +166,8 @@
         border: none;
         border-radius: 50%;
 
-        background: #ffffff;
-        color: #1c1c1e;
+        background: var(--md-surface);
+        color: var(--md-on-surface);
 
         font-size: 27px;
         font-weight: 400;
@@ -183,7 +183,7 @@
 
       .key:active {
         transform: scale(0.9);
-        background: #e5e5ea;
+        background: var(--md-surface-variant);
       }
 
       .empty {
@@ -205,7 +205,7 @@
 
         height: 100%;
 
-        background: #ffffff;
+        background: var(--md-surface);
 
         opacity: 0;
 
@@ -237,7 +237,7 @@
 
         padding: 48px 26px 80px;
 
-        color: #1c1c1e;
+        color: var(--md-on-surface);
 
         /* 字体族由 assets/font-loader.js 决定（<html> 上的 font-n1 / font-local），
            这里只读 --site-font，探测完之前退回系统字体 —— 别写死族名。 */
@@ -272,7 +272,7 @@
 
         font-weight: 700;
 
-        color: #1c1c1e;
+        color: var(--md-on-surface);
 
         text-align: center;
       }
@@ -288,7 +288,7 @@
 
         font-weight: 700;
 
-        color: #1c1c1e;
+        color: var(--md-on-surface);
       }
 
       #letter h3 {
@@ -342,11 +342,11 @@
 
         padding: 12px 18px;
 
-        border-left: 4px solid #d1d1d6;
+        border-left: 4px solid var(--md-outline);
 
-        background: #f5f5f7;
+        background: var(--md-surface-container);
 
-        color: #6e6e73;
+        color: var(--md-on-surface-variant);
 
         line-height: 1.8;
       }
@@ -381,7 +381,7 @@
 
         border: none;
 
-        border-top: 1px solid #e5e5ea;
+        border-top: 1px solid var(--md-surface-variant);
       }
 
       /* =========================================================
@@ -389,7 +389,7 @@
         ========================================================= */
 
       #letter a {
-        color: #007aff;
+        color: var(--md-primary);
 
         text-decoration: none;
       }
@@ -403,7 +403,7 @@
 
         border-radius: 5px;
 
-        background: #f2f2f7;
+        background: var(--md-background);
 
         font-family: "SFMono-Regular", Consolas, monospace;
 
@@ -421,7 +421,7 @@
 
         border-radius: 10px;
 
-        background: #f2f2f7;
+        background: var(--md-background);
 
         overflow-x: auto;
       }
@@ -481,7 +481,7 @@
         padding: 7px 16px 7px 7px;
 
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.94);
+        background: var(--md-surface);
         -webkit-backdrop-filter: saturate(180%) blur(14px);
         backdrop-filter: saturate(180%) blur(14px);
         box-shadow:
@@ -489,7 +489,7 @@
           0 1px 3px rgba(0, 0, 0, 0.06);
 
         font-size: 13px;
-        color: #1c1c1e;
+        color: var(--md-on-surface);
 
         opacity: 0;
         pointer-events: none;
@@ -515,8 +515,8 @@
         border: none;
         border-radius: 50%;
 
-        background: #1c1c1e;
-        color: #ffffff;
+        background: var(--md-primary);
+        color: var(--md-on-primary);
 
         font-size: 12px;
         line-height: 1;
@@ -537,13 +537,13 @@
 
       #music .m-title em {
         font-style: normal;
-        color: #8e8e93;
+        color: var(--md-on-surface-muted);
         margin-left: 6px;
       }
 
       #music .m-state {
         flex: none;
-        color: #8e8e93;
+        color: var(--md-on-surface-muted);
         font-size: 12px;
       }
 
@@ -623,7 +623,9 @@
     <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
     <!-- 字体选源：先探一下小主机，连不上就换仓库那份（说明见 assets/font-loader.js） -->
     <script defer src="./assets/font-loader.js"></script>
-</head>
+  <link rel="stylesheet" href="./assets/theme.css" />
+    <script defer src="./assets/click-effects.js"></script>
+  </head>
 
   <body>
     <!-- =========================================================

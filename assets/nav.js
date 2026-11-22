@@ -279,29 +279,6 @@
     });
   }
 
-  /* ---------- 水波纹 ---------- */
-  function initRipple() {
-    document.addEventListener(
-      "pointerdown",
-      function (e) {
-        var host = e.target.closest ? e.target.closest(".md-ripple") : null;
-        if (!host) return;
-        var rect = host.getBoundingClientRect();
-        var size = Math.max(rect.width, rect.height);
-        var wave = document.createElement("span");
-        wave.className = "md-ripple__wave";
-        wave.style.width = wave.style.height = size + "px";
-        wave.style.left = e.clientX - rect.left - size / 2 + "px";
-        wave.style.top = e.clientY - rect.top - size / 2 + "px";
-        host.appendChild(wave);
-        setTimeout(function () {
-          wave.remove();
-        }, 620);
-      },
-      { passive: true },
-    );
-  }
-
   /* ---------- 滚动入场 ----------
      关键：已经在视口里的元素【同步】立刻显示，不走 IntersectionObserver，
      否则首屏的卡片要多等一次观察回调才出现，看起来就像「加载很慢」。
@@ -1047,72 +1024,6 @@
     }
   }
 
-  /* ---------- 点击特效 ----------
-     点哪炸哪：一圈涟漪 + 六颗小粒子。全部只动 transform / opacity（合成器处理），
-     元素用完即删，不常驻 DOM。系统开「减弱动效」时直接不装。 */
-  function initClickBurst() {
-    if (
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
-
-    var layer = document.createElement("div");
-
-    layer.className = "md-burst-layer";
-    layer.setAttribute("aria-hidden", "true");
-    document.body.appendChild(layer);
-
-    var COLORS = ["#4caf50", "#81c784", "#26a69a", "#a5d6a7"];
-    var last = 0;
-
-    document.addEventListener(
-      "pointerdown",
-      function (event) {
-        /* 只响应主键 / 触摸；连点限频 */
-        if (event.pointerType === "mouse" && event.button !== 0) return;
-
-        var now = Date.now();
-
-        if (now - last < 20) return;
-
-        last = now;
-
-        var x = Math.round(event.clientX);
-        var y = Math.round(event.clientY);
-        var ring = document.createElement("span");
-
-        ring.className = "md-burst__ring";
-        ring.style.left = x + "px";
-        ring.style.top = y + "px";
-        layer.appendChild(ring);
-        ring.addEventListener("animationend", function () {
-          ring.remove();
-        });
-
-        for (var i = 0; i < 6; i++) {
-          var dot = document.createElement("i");
-          var angle = (Math.PI * 2 * i) / 6 + Math.random() * 0.5;
-          var dist = 26 + Math.random() * 22;
-
-          dot.className = "md-burst__dot";
-          dot.style.left = x + "px";
-          dot.style.top = y + "px";
-          dot.style.background = COLORS[i % COLORS.length];
-          dot.style.setProperty("--dx", Math.round(Math.cos(angle) * dist) + "px");
-          dot.style.setProperty("--dy", Math.round(Math.sin(angle) * dist) + "px");
-          dot.style.animationDelay = i * 12 + "ms";
-          layer.appendChild(dot);
-          dot.addEventListener("animationend", function (e) {
-            e.target.remove();
-          });
-        }
-      },
-      { passive: true },
-    );
-  }
-
   /* ---------- 切走标签页时改 title ----------
      离开时标题开始轮播几句话，回来立刻还原 —— 也顺带能看出这页还活着。 */
   function initTitleAway() {
@@ -1159,9 +1070,7 @@
     initDrawer();
     initDropdowns();
     initStats();
-    initClickBurst();
     initTitleAway();
-    initRipple();
     /* 大标题先拆成逐字单元，再登记入场 —— 顺序不能反：
        reveal() 会把已在视口里的元素立刻点亮，拆晚了就漏掉首屏标题。 */
     splitTitles();

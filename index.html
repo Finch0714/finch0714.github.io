@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html data-site-theme="dark" lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,7 +11,7 @@
          点「Enter」后那 1.6 秒的等待正好用来下它，切页时直接命中。 -->
     <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
     <!-- 字体选源：先探一下小主机，连不上就换仓库那份（说明见 assets/font-loader.js） -->
-    <script defer src="./assets/font-loader.js"></script>
+    <script defer src="./assets/font-loader.js"></script>
     <!-- 门页的下一站：点 Enter 才跳，但趁在门页上的这段时间先把它抓进缓存。
          不预取的话，冷缓存点下去要现下 about.html + md.css；而本页开了跨文档
          view transition，新页面没准备好之前浏览器会一直停在门页的静止快照上，
@@ -44,7 +44,7 @@
         box-sizing: border-box;
         border-width: 0;
         border-style: solid;
-        border-color: #e5e7eb;
+        border-color: var(--md-outline-variant);
       }
 
       html {
@@ -201,25 +201,25 @@
 
       /* 颜色 */
       .text-white {
-        color: #fff;
+        color: var(--md-on-surface);
       }
       .text-black {
-        color: #000;
+        color: var(--md-on-primary);
       }
       .text-red-500 {
-        color: #ef4444;
+        color: var(--md-primary);
       }
       .text-yellow-500 {
-        color: #eab308;
+        color: var(--md-warning);
       }
       .text-gray-500 {
-        color: #6b7280;
+        color: var(--md-on-surface-muted);
       }
       .bg-red-600 {
-        background-color: #dc2626;
+        background-color: var(--md-primary);
       }
       .bg-gray-900 {
-        background-color: #111827;
+        background-color: var(--md-surface-container);
       }
 
       /* 描边 */
@@ -230,10 +230,10 @@
         border-bottom-width: 1px;
       }
       .border-red-600 {
-        border-color: #dc2626;
+        border-color: var(--md-primary);
       }
       .border-red-900 {
-        border-color: #7f1d1d;
+        border-color: var(--md-outline);
       }
 
       /* 动效 */
@@ -260,7 +260,7 @@
 
       /* 交互态 */
       .hover\:bg-red-600:hover {
-        background-color: #dc2626;
+        background-color: var(--md-primary);
       }
       .active\:scale-95:active {
         transform: scale(0.95);
@@ -292,8 +292,8 @@
       }
 
       #init-btn:hover {
-        background-color: #dc2626;
-        color: #000;
+        background-color: var(--md-primary);
+        color: var(--md-on-primary);
       }
 
       #init-btn:focus-visible {
@@ -319,14 +319,14 @@
     </style>
     <style>
       :root {
-        --poi-red: #ff0000;
-        --poi-yellow: #ffcc00;
-        --poi-bg: #050505;
+        --poi-red: var(--md-primary);
+        --poi-yellow: var(--md-primary-light);
+        --poi-bg: var(--md-background);
       }
 
       body {
         background-color: var(--poi-bg);
-        color: white;
+        color: var(--md-on-surface);
         font-family: "Courier New", Courier, monospace;
         overflow: hidden;
         height: 100vh;
@@ -366,8 +366,8 @@
       .machine-card {
         width: 400px;
         padding: 2rem;
-        background: rgba(15, 15, 15, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: var(--md-surface);
+        border: 1px solid var(--md-outline-variant);
         position: relative;
         transform-style: preserve-3d;
         /* 注意：这里的 transform 由 JS 每帧写（帧率无关的逼近），
@@ -444,6 +444,8 @@
         }
       }
     </style>
+    <link rel="stylesheet" href="./assets/theme.css" />
+    <script defer src="./assets/click-effects.js"></script>
   </head>
   <body>
     <div class="scene" id="scene">

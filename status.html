@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html data-site-theme="dark" lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,7 +18,7 @@
     <!-- 字体：仓耳今楷 05 W04 —— 自托管，而且只带「本站实际用到的字」
          （scripts/subset_font.py 按「本站实际用到的字」裁出来的子集，改了文案重跑一次）。
          不再有第三方 CDN，所以顺带省掉了两个 preconnect；
-         样式表就在本地、只有几百字节，不必再做 media 交换那一套。 -->
+         样式表就在本地、只有几百字节，不必再做 media 交换那一套。 -->
     <link rel="stylesheet" href="./assets/fonts.css" />
     <script>
       document.documentElement.classList.add("md-js");
@@ -197,7 +197,7 @@
       .status-rail__btn.is-active {
         background: var(--md-primary);
         border-color: var(--md-primary);
-        color: #fff;
+        color: var(--md-on-primary);
         box-shadow: 0 6px 16px rgba(46, 125, 50, 0.24);
       }
 
@@ -306,6 +306,8 @@
         }
       }
     </style>
+    <link rel="stylesheet" href="./assets/theme.css" />
+    <script defer src="./assets/click-effects.js"></script>
   </head>
 
   <body>
