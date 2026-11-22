@@ -40,14 +40,15 @@ def shrink_image(path, max_side=256, quality=82):
 
 
 def cache_image(url, filename):
-    """把远程图片缓存到 assets/steam/，返回页面用的相对路径。
-    下载失败就原样返回远程地址（宁可慢，也不让页面缺图）。"""
+    """把远程图片缓存到 assets/steam/；下载失败时保留已有缓存。"""
     if not url or url.startswith('./') or url.startswith('/'):
         return url
     path = os.path.join(ICON_DIR, filename)
     try:
         resp = requests.get(url, timeout=25)
         resp.raise_for_status()
+        if not resp.headers.get('Content-Type', '').lower().startswith('image/'):
+            raise ValueError(f'not an image: {resp.headers.get("Content-Type")}')
         with open(path, 'wb') as f:
             f.write(resp.content)
         print(f"  cached {filename} ({len(resp.content)} bytes)")
@@ -55,11 +56,18 @@ def cache_image(url, filename):
         return f"./assets/steam/{filename}"
     except Exception as e:
         print(f"  cache failed {filename}: {e}")
+        if os.path.isfile(path) and os.path.getsize(path) > 0:
+            return f"./assets/steam/{filename}"
         return url
 
+# GTA V Enhanced (3240220) 没有 184x69 capsule，Steam 只提供有效的 header。
+GAME_IMAGE_OVERRIDES = {
+    3240220: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3240220/header.jpg",
+}
+
 MANUAL_GAMES = [
-    {"appid": "manual_01", "name": "Cyberpunk 2077", "playtime": 61, "icon": "https://ts1.tc.mm.bing.net/th/id/R-C.4766d3a3044fc96967d19538153043c2?rik=Rq1FI%2fX5qARXSA&pid=ImgRaw&r=0"},
-    {"appid": "manual_02", "name": "Minecraft Java Edition", "playtime": 839, "icon": "https://wallpaperm.cmcm.com/182ceb54d84374469e5ea079a4f0befc.jpg"}
+    {"appid": "manual_01", "name": "Cyberpunk 2077", "playtime": 66.4, "icon": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/capsule_184x69.jpg"},
+    {"appid": "manual_02", "name": "Minecraft Java Edition", "playtime": 843, "icon": "https://wallpaperm.cmcm.com/182ceb54d84374469e5ea079a4f0befc.jpg"}
 ]
 
 def get_data():
@@ -81,7 +89,10 @@ def get_data():
             # 只要有时长就记录，包括 CS2
             if g.get('playtime_forever', 0) > 0:
                 steam_total_min += g['playtime_forever']
-                icon_url = f"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/{g['appid']}/capsule_184x69.jpg"
+                icon_url = GAME_IMAGE_OVERRIDES.get(
+                    g['appid'],
+                    f"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/{g['appid']}/capsule_184x69.jpg"
+                )
                 processed_games.append({
                     "appid": g['appid'],
                     "name": g['name'],

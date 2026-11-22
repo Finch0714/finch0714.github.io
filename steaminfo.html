@@ -151,26 +151,23 @@
             }),
           );
 
-          /* 游戏封面兜底链：主源在 shared.fastly 上，国内经常超时（实测从家里
-             小主机拉是 10 秒超时、先失败），shared.akamai 那个镜像 2.8 秒就回来。
-             两个都挂就把 img 藏掉，留卡片本身的底色，不出破图图标。 */
-          window.capsuleFallback =
-            window.capsuleFallback ||
-            function (img, appid) {
-              var step = img.getAttribute("data-step") || "0";
-
-              if (step === "0") {
-                img.setAttribute("data-step", "1");
-                img.src =
-                  "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/" +
-                  appid +
-                  "/capsule_184x69.jpg";
-                return;
+          /* 本地缓存不可用时先选该游戏确实存在的 Steam 图片。 */
+          window.capsuleFallback = function (img) {
+            var appid = img.getAttribute("data-appid");
+            var step = img.getAttribute("data-step") || "0";
+            if (step === "0") {
+              img.setAttribute("data-step", "1");
+              if (appid === "manual_01") {
+                img.src = "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/capsule_184x69.jpg";
+              } else {
+                img.src = "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/" +
+                  appid + (appid === "3240220" ? "/header.jpg" : "/capsule_184x69.jpg");
               }
-
-              img.setAttribute("data-step", "2");
-              img.style.visibility = "hidden";
-            };
+              return;
+            }
+            img.setAttribute("data-step", "2");
+            img.style.visibility = "hidden";
+          };
 
           container.innerHTML = games
             .map(function (game) {
@@ -180,11 +177,9 @@
                 '<div class="md-row" style="gap:18px; flex-wrap:nowrap; align-items:center">' +
                 '<img src="' +
                 esc(game.icon) +
-                '" alt="" loading="lazy" data-step="0" ' +
+                '" alt="" loading="lazy" data-step="0" data-appid="' + esc(game.appid) + '" ' +
                 'style="width:128px; height:48px; object-fit:cover; border-radius:8px; flex-shrink:0; background:var(--md-surface-container)" ' +
-                'onerror="window.capsuleFallback&&capsuleFallback(this,' +
-                game.appid +
-                ')">' +
+                'onerror="window.capsuleFallback&&capsuleFallback(this)">' +
                 '<div style="flex:1; min-width:0">' +
                 '<div class="md-row" style="justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:8px">' +
                 '<h3 class="md-subtitle" style="margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">' +
