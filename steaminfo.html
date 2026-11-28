@@ -11,7 +11,10 @@
     <link rel="icon" type="image/png" sizes="64x64" href="Favicon.png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="stylesheet" href="./assets/md.css" />
-    <link rel="stylesheet" href="./assets/fonts/jinkai.css" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="./assets/fonts/jinkai.css" media="not all" data-jinkai />
+    <script defer src="./assets/font-loader.js?v=cdn1" onerror="this.previousElementSibling.media='all'"></script>
+    <noscript><link rel="stylesheet" href="./assets/fonts/jinkai.css" /></noscript>
     <script>
       document.documentElement.classList.add("md-js");
     </script>

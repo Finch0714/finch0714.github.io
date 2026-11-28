@@ -13,7 +13,10 @@
     <link rel="stylesheet" href="./assets/md.css" />
     <!-- 状态数据的来源在家里的小主机上，提前握手（IPv6 直连 + TLS） -->
     <link rel="preconnect" href="https://nav.classdisk.dynv6.net:9443" crossorigin />
-    <link rel="stylesheet" href="./assets/fonts/jinkai.css" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="./assets/fonts/jinkai.css" media="not all" data-jinkai />
+    <script defer src="./assets/font-loader.js?v=cdn1" onerror="this.previousElementSibling.media='all'"></script>
+    <noscript><link rel="stylesheet" href="./assets/fonts/jinkai.css" /></noscript>
     <script>
       document.documentElement.classList.add("md-js");
     </script>

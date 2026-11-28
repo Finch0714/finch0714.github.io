@@ -16,7 +16,10 @@
          仍然是点击时按需加载，不拖累首屏 -->
     <script defer src="./assets/sortable.min.js"></script>
     <link rel="stylesheet" href="./assets/md.css" />
-    <link rel="stylesheet" href="./assets/fonts/jinkai.css" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="./assets/fonts/jinkai.css" media="not all" data-jinkai />
+    <script defer src="./assets/font-loader.js?v=cdn1" onerror="this.previousElementSibling.media='all'"></script>
+    <noscript><link rel="stylesheet" href="./assets/fonts/jinkai.css" /></noscript>
     <style>
       /* 导出区域与页面使用同一套深色表面 */
       #capture-area {
