@@ -84,16 +84,8 @@
   --md-icon-btn: clamp(40px, 2.6vw + 30px, 44px);
   --md-max-w: 1120px;
 
-  /* 站点字体：仓耳今楷 05 W04（自托管子集，声明在 assets/fonts.css ——
-     只带本站用到的 1153 个字，改了文案就用 scripts/subset_font.py 重裁一次）。 */
-  /* 站点字体：族名由 assets/fonts.css 的 --site-font 决定（font-loader.js 探测
-     小主机能不能用，在 <html> 上挂 font-n1 / font-local）。没探测完之前只给
-     系统字体 —— 不会白屏，也不会先下错一份 394 KB。 */
-  --md-font: var(--site-font, var(--md-font-system));
-  /* 纯系统字体栈：只给「文案不可预知」的地方用（当前是「每日一言」—— 那是外部
-     API 的任意句子，没法预先裁进子集）。服务器上**自己的**文案（信、状态数字、
-     聚合标签）不要用这个：它们的字由 scripts/dynamic_chars.py 收进子集，
-     用 --md-font 就是站点字体。 */
+  /* 仓耳今楷 05 W04 由 assets/fonts/jinkai.css 按字符分包。 */
+  --md-font: var(--site-font, "JinKai Local"), var(--md-font-system);
   --md-font-system:
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system,
     BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
